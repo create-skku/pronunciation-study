@@ -6,7 +6,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Korean Pronunciation Study</title>
 
-  <!-- ??Firebase SDK (v9 compat) -->
+  <!-- Firebase SDK (v9 compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
@@ -323,7 +323,7 @@
 <!-- ====== Learner ID Modal ====== -->
 <div id="idModal">
   <div class="modal-box">
-    <h2>?럳 Start Learning</h2>
+    <h2>Start Learning</h2>
     <p>Enter your student ID or name to begin.<br>Your activity will be logged.</p>
     <input id="learnerIdInput" type="text" placeholder="e.g. 2024001 or your name" maxlength="30" />
     <button id="startBtn">Start</button>
@@ -338,7 +338,7 @@
 ====================================== -->
 <div class="mobile-view" id="mobileView" style="display:none;">
   <div class="mob-header">
-    <div class="mob-header-title">?뱰 Korean Pronunciation</div>
+    <div class="mob-header-title">Korean Pronunciation</div>
     <div class="mob-progress" id="mobProgress">0 / 0</div>
   </div>
 
@@ -355,8 +355,8 @@
 
   <!-- Playback controls -->
   <div class="mob-player-ctrl">
-    <button id="mobPlayBtn">??Play</button>
-    <button id="mobPauseBtn">??Pause</button>
+    <button id="mobPlayBtn">&#9654; Play</button>
+    <button id="mobPauseBtn">&#9208; Pause</button>
     <button id="mobYoutubeBtn" style="flex:0.8; font-size:11px;">YouTube</button>
   </div>
 
@@ -372,15 +372,15 @@
 
   <!-- Prev/Jump/Next -->
   <div class="mob-nav">
-    <button id="mobPrevBtn"><span class="nav-icon">?</span>Prev</button>
-    <button id="mobJumpBtn" class="jump-btn"><span class="nav-icon">?띰툗</span>Jump</button>
-    <button id="mobNextBtn"><span class="nav-icon">??/span>Next</button>
+    <button id="mobPrevBtn"><span class="nav-icon">&#9664;</span>Prev</button>
+    <button id="mobJumpBtn" class="jump-btn"><span class="nav-icon">&#9658;</span>Jump</button>
+    <button id="mobNextBtn"><span class="nav-icon">&#9658;</span>Next</button>
   </div>
 
   <!-- Edit panel toggle -->
   <div class="mob-edit-toggle" id="mobEditToggle">
-    <span>?륅툘 Edit Subtitle</span>
-    <span class="arrow">??/span>
+    <span>Edit Subtitle</span>
+    <span class="arrow">&#9660;</span>
   </div>
   <div class="mob-edit-panel" id="mobEditPanel">
     <label>Corrected</label>
@@ -388,17 +388,17 @@
     <label>Review Note (optional)</label>
     <textarea id="mobReviewNote" placeholder="Brief note about correction" style="min-height:60px;"></textarea>
     <div class="mob-edit-btns">
-      <button class="apply" id="mobApplyBtn">??Apply</button>
-      <button class="resolved" id="mobResolvedBtn">?뵏 Resolved</button>
-      <button class="suspect" id="mobSuspectBtn">?좑툘 Keep Flag</button>
-      <button class="reset" id="mobResetBtn">??Reset</button>
+      <button class="apply" id="mobApplyBtn">Apply</button>
+      <button class="resolved" id="mobResolvedBtn">Resolved</button>
+      <button class="suspect" id="mobSuspectBtn">Keep Flag</button>
+      <button class="reset" id="mobResetBtn">Reset</button>
     </div>
   </div>
 
   <!-- Segment list toggle -->
   <div class="mob-list-toggle" id="mobListToggle">
-    <span>?뱥 All Segments</span>
-    <span class="arrow">??/span>
+    <span>All Segments</span>
+    <span class="arrow">&#9660;</span>
   </div>
   <div class="mob-segment-list" id="mobSegmentList"></div>
 
@@ -462,7 +462,7 @@
       <div class="stat"><div class="n" id="statResolved">0</div><div class="k">Done</div></div>
     </div>
     <div class="listHeader">
-      <div class="small">Select segment ??Edit right ??Save</div>
+      <div class="small">Select segment &rarr; Edit right &rarr; Save</div>
       <div class="btns">
         <button class="ok" id="downloadJsonBtn">JSON</button>
         <button class="ok" id="downloadTxtBtn">TXT</button>
@@ -594,7 +594,7 @@ async function logEvent(eventType, data = {}) {
 // ==================================================
 //  Default Transcript Data
 // ==================================================
-const DEFAULT_TRANSCRIPT = [{"text":"?덈뀞?섏꽭?? ?щ윭遺? ?ㅻ뒛?","start":0.08,"duration":5.199},{"text":"鍮낆떆?ㅽ?? ?④퍡 ?쒓뎅?댁쓽 ?댁쨷 紐⑥쓬","start":2.28,"duration":6.239},{"text":"?뚮? ?④퍡 ?곗뒿??遊낆떆?? 吏㏃?","start":5.279,"duration":6.041},{"text":"?숈쁺?곸쓣 ?쒖껌?섍퀬 臾몄젣????대낯 ??,"start":8.519,"duration":4.561},{"text":"?뚯꽦?꾧툑???꾨떖?섏뿬 ?쒕?濡?,"start":11.32,"duration":5.519},{"text":"諛쒖쓬?덈뒗吏瑜??뚯븘遊낆떆??","start":13.08,"duration":3.759},{"text":"?숈뒿 ?쒖꽌???ㅼ쓬怨?媛숈븘?? 諛쒖쓬","start":18.119,"duration":4.761},{"text":"硫由??ㅻ챸.","start":21.119,"duration":3.92},{"text":"?ｊ퀬 ?곕씪?섍린,","start":22.88,"duration":6.2},{"text":"?뚮━?댁뼱 ?쎄린, 諛쒖쓬 ?뚯뒪??","start":25.039,"duration":6.64},{"text":"諛쒖쓬 ?뱀쓬 ?쒖꽌濡?吏꾪뻾?⑸땲??","start":29.08,"duration":5.599},{"text":"?낅땲??","start":31.679,"duration":3.0},{"text":"?덈뀞?섏꽭??","start":61.399,"duration":5.361},{"text":">> ?ㅻ뒛? ?쒓뎅???댁쨷 紐⑦뿕??怨듬??댁슂.","start":62.48,"duration":7.24},{"text":"洹몃읆 ?붾㈃ 蹂쇨퉴??","start":66.76,"duration":5.56},{"text":"?? ?? ?대쾲 ?쒓컙?먮뒗??,"start":69.72,"duration":5.439},{"text":"??媛숈? ?쒓뎅???댁쨷 紐⑥쓬??怨듬???,"start":72.32,"duration":6.08},{"text":"嫄곗삁?? Ja.","start":75.159,"duration":3.241},{"text":"?뚯썙","start":100.64,"duration":3.0},{"text":"癒쇱? ?곕? 吏㏐쾶 諛쒖쓬?섏꽭?? 洹몃━怨?,"start":105.68,"duration":6.56},{"text":"怨㏓컮濡??대? 議곌툑 湲멸쾶 諛쒖쓬??,"start":109.2,"duration":5.519},{"text":"蹂댁꽭??","start":112.24,"duration":5.479},{"text":"?뚮뒗 ?곗? ?닿? ?꾩＜ 鍮좊Ⅴ寃??⑹퀜吏?,"start":175.0,"duration":6.2},{"text":"?뚮━?낅땲?? 癒쇱? ?곗쿂???낆닠??,"start":178.12,"duration":6.119},{"text":"?ㅻ뒛? ?좎뵪媛 ?꾩＜ 異붿썙??","start":331.84,"duration":6.24},{"text":"?쒓뎅??諛쒖쓬???앷컖蹂대떎 ?ъ썙????,"start":342.639,"duration":5.881},{"text":"諛쒖쓬?????紐⑤뱺 ?숈뒿???앸궗?듬땲??","start":349.639,"duration":6.241},{"text":"?ㅼ쓬 ?쒓컙??留뚮굹??","start":352.319,"duration":3.561}];
+const DEFAULT_TRANSCRIPT = [{"text":"안녕하세요, 여러분. 오늘은","start":0.08,"duration":5.199},{"text":"빅시스타와 함께 한국어의 이중 모음","start":2.28,"duration":6.239},{"text":"워를 함께 연습해 봅시다. 짧은","start":5.279,"duration":6.041},{"text":"동영상을 시청하고 문제도 풀어본 뒤","start":8.519,"duration":4.561},{"text":"음성도금을 전달하여 제대로","start":11.32,"duration":5.519},{"text":"발음했는지를 알아봅시다.","start":13.08,"duration":3.759},{"text":"학습 순서는 다음과 같아요. 발음","start":18.119,"duration":4.761},{"text":"멀리 설명.","start":21.119,"duration":3.92},{"text":"듣고 따라하기,","start":22.88,"duration":6.2},{"text":"소리내어 읽기, 발음 테스트,","start":25.039,"duration":6.64},{"text":"발음 녹음 순서로 진행됩니다.","start":29.08,"duration":5.599},{"text":"입니다.","start":31.679,"duration":3.0},{"text":"안녕하세요.","start":61.399,"duration":5.361},{"text":">> 오늘은 한국어 이중 모험을 공부해요.","start":62.48,"duration":7.24},{"text":"그럼 화면 볼까요?","start":66.76,"duration":5.56},{"text":"네. 자, 이번 시간에는요","start":69.72,"duration":5.439},{"text":"야 같은 한국어 이중 모음을 공부할","start":72.32,"duration":6.08},{"text":"거예요. Ja.","start":75.159,"duration":3.241},{"text":"워워","start":100.64,"duration":3.0},{"text":"먼저 우를 짧게 발음하세요. 그리고","start":105.68,"duration":6.56},{"text":"곧바로 어를 조금 길게 발음해","start":109.2,"duration":5.519},{"text":"보세요.","start":112.24,"duration":5.479},{"text":"워는 우와 어가 아주 빠르게 합쳐진","start":175.0,"duration":6.2},{"text":"소리입니다. 먼저 우처럼 입술을","start":178.12,"duration":6.119},{"text":"오늘은 날씨가 아주 추워요.","start":331.84,"duration":6.24},{"text":"한국어 발음이 생각보다 쉬워요.워","start":342.639,"duration":5.881},{"text":"발음에 대한 모든 학습이 끝났습니다.","start":349.639,"duration":6.241},{"text":"다음 시간에 만나요.","start":352.319,"duration":3.561}];
 
 let transcript = [];
 let selectedIndex = -1;
