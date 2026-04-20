@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>?筏??諻� ?</title>
+  <title>Korean Pronunciation Study</title>
 
   <!-- ??Firebase SDK (v9 compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -28,15 +28,15 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
-      font-family: "Noto Sans KR", system-ui, sans-serif;
+      font-family: system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
     }
 
-    /* ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-       ???ID ? 諈刺
-    ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� */
+    /* ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+       Learner ID Modal
+    ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 */
     #idModal {
       position: fixed; inset: 0; z-index: 999;
       background: rgba(5, 9, 25, 0.97);
@@ -66,9 +66,9 @@
       cursor: pointer; background: var(--accent); color: #08112f;
     }
 
-    /* ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-       ?域?秒� ??� (篣域● ??)
-    ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� */
+    /* ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+       Desktop Layout
+    ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 */
     .app {
       max-width: 1600px; margin: 0 auto; padding: 20px;
       display: grid;
@@ -132,9 +132,9 @@
     .small { font-size:12px; color:var(--muted); }
     code { background:#0b1229; padding:2px 6px; border-radius:8px; }
 
-    /* ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-       ?賄� ?陷 諻域? (?庖 ?域�??
-    ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� */
+    /* ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+       Session Badge
+    ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 */
     #sessionBadge {
       display: none;
       position: fixed; top: 12px; right: 12px; z-index: 100;
@@ -144,18 +144,18 @@
     }
     #sessionBadge span { color: var(--accent); font-weight: 700; }
 
-    /* ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-       諈刺�??? ??�
-    ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� */
+    /* ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+       Mobile Layout
+    ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 */
     .mobile-view { display: none; }
 
     @media (max-width: 820px) {
-      /* ?域?秒� ???刷萼篣?*/
+      /* Hide desktop */
       .app { display: none; }
-      /* 諈刺�??賰????*/
+      /* Show mobile */
       .mobile-view { display: flex; flex-direction: column; min-height: 100vh; padding-bottom: calc(var(--nav-h) + 20px); }
 
-      /* ? ?月� */
+      /* Top header */
       .mob-header {
         display: flex; align-items: center; justify-content: space-between;
         padding: 12px 16px;
@@ -169,11 +169,11 @@
         background: var(--chip); border-radius: 20px; padding: 4px 10px;
       }
 
-      /* 赬�??*/
+      /* Video */
       .mob-video { width: 100%; aspect-ratio: 16/9; background: #050915; }
       .mob-video iframe { width: 100%; height: 100%; border: 0; }
 
-      /* ? ?� ?� */
+      /* Current subtitle */
       .mob-subtitle-card {
         margin: 12px 16px 0;
         background: #121936;
@@ -191,7 +191,7 @@
       }
       .mob-subtitle-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 
-      /* ?渥�/?�/?木� ?月�窶??*/
+      /* Prev/Jump/Next nav */
       .mob-nav {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -207,7 +207,7 @@
       .mob-nav button .nav-icon { font-size: 20px; }
       .mob-nav button.jump-btn { background: var(--accent); color: #08112f; }
 
-      /* ?科� 儢刮諢?*/
+      /* Playback controls */
       .mob-player-ctrl {
         display: flex; gap: 8px; margin: 8px 16px 0;
       }
@@ -217,7 +217,7 @@
         background: var(--chip); color: var(--text); font-weight: 700;
       }
 
-      /* ?賄� ?刺� (?萼/?潰�篣? */
+      /* Edit panel (collapsible) */
       .mob-edit-toggle {
         display: flex; align-items: center; justify-content: space-between;
         margin: 12px 16px 0; padding: 12px 16px;
@@ -252,7 +252,7 @@
       .mob-edit-btns .suspect { background: var(--warn); color: #301c00; }
       .mob-edit-btns .reset { background: var(--chip); color: var(--text); }
 
-      /* ?� 諈拘� ?? */
+      /* Segment list toggle */
       .mob-list-toggle {
         display: flex; align-items: center; justify-content: space-between;
         margin: 12px 16px 0; padding: 12px 16px;
@@ -273,7 +273,7 @@
       .mob-segment-list .segment { margin-bottom: 6px; }
       .mob-segment-list .segment:last-child { margin-bottom: 0; }
 
-      /* ? 窸� ???諻?*/
+      /* Bottom save bar */
       .mob-bottom-bar {
         position: fixed; bottom: 0; left: 0; right: 0;
         height: var(--nav-h);
@@ -290,7 +290,7 @@
       }
       .mob-bottom-bar button.ok { background: var(--ok); color: #082918; }
 
-      /* ?虛� 諻?*/
+      /* Stats bar */
       .mob-stats {
         display: grid; grid-template-columns: repeat(4,1fr);
         gap: 6px; margin: 12px 16px 0;
@@ -302,7 +302,7 @@
       .mob-stats .stat .n { font-size: 18px; font-weight: 800; }
       .mob-stats .stat .k { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-      /* ? */
+      /* Hint */
       .mob-hint {
         margin: 8px 16px 0;
         background: #0d1430; border: 1px solid var(--line);
@@ -320,149 +320,149 @@
 </head>
 <body>
 
-<!-- ?�?�?� ???ID ? 諈刺 ?�?�?� -->
+<!-- ?먥븧?먥븧?먥븧 Learner ID Modal ?먥븧?먥븧?먥븧 -->
 <div id="idModal">
   <div class="modal-box">
-    <h2>?� ? ?�</h2>
-    <p>?� ?� ?渠�????� ????�???<br>? ?�??篣圉�?拘�??</p>
-    <input id="learnerIdInput" type="text" placeholder="?? 2024001 ?� ?虜?? maxlength="30" />
-    <button id="startBtn">? ?�?萼</button>
+    <h2>?럳 Start Learning</h2>
+    <p>Enter your student ID or name to begin.<br>Your activity will be logged.</p>
+    <input id="learnerIdInput" type="text" placeholder="e.g. 2024001 or your name" maxlength="30" />
+    <button id="startBtn">Start</button>
   </div>
 </div>
 
-<!-- ?�?�?� ?賄� 諻域? ?�?�?� -->
-<div id="sessionBadge">??? <span id="badgeName">-</span></div>
+<!-- ?먥븧?먥븧?먥븧 Session Badge ?먥븧?먥븧?먥븧 -->
+<div id="sessionBadge">Learner: <span id="badgeName">-</span></div>
 
-<!-- ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-     諈刺�????�
-?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� -->
+<!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+     Mobile Layout
+?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 -->
 <div class="mobile-view" id="mobileView" style="display:none;">
   <div class="mob-header">
-    <div class="mob-header-title">?� ?筏??諻� ?</div>
+    <div class="mob-header-title">?뱰 Korean Pronunciation</div>
     <div class="mob-progress" id="mobProgress">0 / 0</div>
   </div>
 
-  <!-- ?虛� -->
+  <!-- Stats -->
   <div class="mob-stats">
-    <div class="stat"><div class="n" id="mobStatTotal">0</div><div class="k">?眼</div></div>
-    <div class="stat"><div class="n" id="mobStatSuspects">0</div><div class="k">?</div></div>
-    <div class="stat"><div class="n" id="mobStatEdited">0</div><div class="k">?�</div></div>
-    <div class="stat"><div class="n" id="mobStatResolved">0</div><div class="k">?�</div></div>
+    <div class="stat"><div class="n" id="mobStatTotal">0</div><div class="k">Total</div></div>
+    <div class="stat"><div class="n" id="mobStatSuspects">0</div><div class="k">Flags</div></div>
+    <div class="stat"><div class="n" id="mobStatEdited">0</div><div class="k">Edited</div></div>
+    <div class="stat"><div class="n" id="mobStatResolved">0</div><div class="k">Done</div></div>
   </div>
 
-  <!-- 赬�??-->
+  <!-- Video -->
   <div class="mob-video"><iframe id="ytFrameMob" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen playsinline></iframe></div>
 
-  <!-- ?科� 儢刮諢?-->
+  <!-- Playback controls -->
   <div class="mob-player-ctrl">
-    <button id="mobPlayBtn">???科�</button>
-    <button id="mobPauseBtn">???潰�??</button>
-    <button id="mobYoutubeBtn" style="flex:0.8; font-size:11px;">?�賳??湊萼</button>
+    <button id="mobPlayBtn">??Play</button>
+    <button id="mobPauseBtn">??Pause</button>
+    <button id="mobYoutubeBtn" style="flex:0.8; font-size:11px;">YouTube</button>
   </div>
 
-  <!-- ? ?� 儦渠� -->
+  <!-- Current subtitle card -->
   <div class="mob-subtitle-card">
     <div class="mob-subtitle-time">
       <span id="mobTime">--:-- ~ --:--</span>
       <span id="mobSuspectBadge"></span>
     </div>
-    <div class="mob-subtitle-text" id="mobSubText">窱禹�???�?掠???� 貒?潺� ?渠�???</div>
+    <div class="mob-subtitle-text" id="mobSubText">Select a segment or use the buttons below.</div>
     <div class="mob-subtitle-chips" id="mobChips"></div>
   </div>
 
-  <!-- ?渥�/?�/?木� -->
+  <!-- Prev/Jump/Next -->
   <div class="mob-nav">
-    <button id="mobPrevBtn"><span class="nav-icon">?</span>?渥�</button>
-    <button id="mobJumpBtn" class="jump-btn"><span class="nav-icon">?塚�</span>?渠�?科�</button>
-    <button id="mobNextBtn"><span class="nav-icon">??/span>?木�</button>
+    <button id="mobPrevBtn"><span class="nav-icon">?</span>Prev</button>
+    <button id="mobJumpBtn" class="jump-btn"><span class="nav-icon">?띰툗</span>Jump</button>
+    <button id="mobNextBtn"><span class="nav-icon">??/span>Next</button>
   </div>
 
-  <!-- ?賄� ?刺� ?? -->
+  <!-- Edit panel toggle -->
   <div class="mob-edit-toggle" id="mobEditToggle">
-    <span>?� ?� ?賄�</span>
+    <span>?륅툘 Edit Subtitle</span>
     <span class="arrow">??/span>
   </div>
   <div class="mob-edit-panel" id="mobEditPanel">
-    <label>?�諡?/label>
-    <textarea id="mobEditedText" placeholder="?禹萼?� 諡賄??窱�???"></textarea>
-    <label>窶??諰爸 (?�)</label>
-    <textarea id="mobReviewNote" placeholder="?� ?渥�諝?穈??諰爸" style="min-height:60px;"></textarea>
+    <label>Corrected</label>
+    <textarea id="mobEditedText" placeholder="Edit the subtitle here."></textarea>
+    <label>Review Note (optional)</label>
+    <textarea id="mobReviewNote" placeholder="Brief note about correction" style="min-height:60px;"></textarea>
     <div class="mob-edit-btns">
-      <button class="apply" id="mobApplyBtn">???� ?</button>
-      <button class="resolved" id="mobResolvedBtn">?� ?� ?�</button>
-      <button class="suspect" id="mobSuspectBtn">?� ? ??</button>
-      <button class="reset" id="mobResetBtn">???�謔禹萼</button>
+      <button class="apply" id="mobApplyBtn">??Apply</button>
+      <button class="resolved" id="mobResolvedBtn">?뵏 Resolved</button>
+      <button class="suspect" id="mobSuspectBtn">?좑툘 Keep Flag</button>
+      <button class="reset" id="mobResetBtn">??Reset</button>
     </div>
   </div>
 
-  <!-- ?� 諈拘� ?? -->
+  <!-- Segment list toggle -->
   <div class="mob-list-toggle" id="mobListToggle">
-    <span>?� ?眼 ?� 諈拘�</span>
+    <span>?뱥 All Segments</span>
     <span class="arrow">??/span>
   </div>
   <div class="mob-segment-list" id="mobSegmentList"></div>
 
-  <div class="mob-hint">?�???�?庖 ?渠 ?�?潺� ?�???渠�?拘�?? ?賄� ??諻�??<b>?� ?</b>???鴥潰??</div>
+  <div class="mob-hint">Select a segment to jump to that point. After editing, press <b>Apply</b>.</div>
 
-  <!-- ? 諻?-->
+  <!-- Bottom bar -->
   <div class="mob-bottom-bar">
     <button id="mobDlJsonBtn">JSON</button>
     <button id="mobDlTxtBtn">TXT</button>
     <button id="mobDlSrtBtn">SRT</button>
-    <button class="ok" id="mobLoadDefaultBtn" style="flex:1.5;">篣圉雩 ?�</button>
+    <button class="ok" id="mobLoadDefaultBtn" style="flex:1.5;">Default</button>
   </div>
 </div>
 
-<!-- ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-     ?域?秒� ??� (篣域●)
-?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?� -->
+<!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+     Desktop Layout
+?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧 -->
 <div class="app" id="desktopView" style="display:none;">
   <section class="panel leftPanel">
-    <h1 class="title">HITL ?� 窱�篣?/h1>
+    <h1 class="title">HITL Subtitle Editor</h1>
     <div class="controls">
       <div class="row">
-        <label>?�賳?鴥潰� ?� video id</label>
+        <label>YouTube URL or video ID</label>
         <input id="youtubeUrl" type="text" value="https://www.youtube.com/watch?v=W6Ax_yVbtF4" />
       </div>
       <div class="row">
-        <label>JSON ?� ? 賱?曰萼</label>
+        <label>Load JSON subtitle file</label>
         <input id="jsonFile" type="file" accept=".json,application/json" />
       </div>
       <div class="row two">
         <div>
-          <label>貐湊萼 諈刺�</label>
+          <label>View Mode</label>
           <select id="viewMode">
-            <option value="suspects">? 窱禹�諤?/option>
-            <option value="all">?眼 窱禹�</option>
-            <option value="resolved">?� ?�諤?/option>
+            <option value="suspects">Flagged only</option>
+            <option value="all">All segments</option>
+            <option value="resolved">Resolved only</option>
           </select>
         </div>
         <div>
-          <label>?</label>
+          <label>Sort</label>
           <select id="sortMode">
-            <option value="time">?�??/option>
-            <option value="score">??�</option>
+            <option value="time">By time</option>
+            <option value="score">By score</option>
           </select>
         </div>
       </div>
       <div class="row">
-        <label>窶??/label>
-        <input id="searchInput" type="text" placeholder="諡賄, ?到, ?渥� 窶?? />
+        <label>Search</label>
+        <input id="searchInput" type="text" placeholder="Search text, word, reason" />
       </div>
       <div class="btns">
-        <button class="primary" id="loadDefaultBtn">篣圉雩 ?� 賱?曰萼</button>
-        <button id="rescanBtn">? 窱禹� ?木� 賱�</button>
-        <button class="ghost" id="openYouTubeBtn">YouTube?� ? ?� ?湊萼</button>
+        <button class="primary" id="loadDefaultBtn">Load Default</button>
+        <button id="rescanBtn">Re-scan</button>
+        <button class="ghost" id="openYouTubeBtn">Open in YouTube</button>
       </div>
     </div>
     <div class="stats">
-      <div class="stat"><div class="n" id="statTotal">0</div><div class="k">?眼 窱禹�</div></div>
-      <div class="stat"><div class="n" id="statSuspects">0</div><div class="k">? 窱禹�</div></div>
-      <div class="stat"><div class="n" id="statEdited">0</div><div class="k">?�??/div></div>
-      <div class="stat"><div class="n" id="statResolved">0</div><div class="k">?� ?�</div></div>
+      <div class="stat"><div class="n" id="statTotal">0</div><div class="k">All segments</div></div>
+      <div class="stat"><div class="n" id="statSuspects">0</div><div class="k">Flags</div></div>
+      <div class="stat"><div class="n" id="statEdited">0</div><div class="k">Edited</div></div>
+      <div class="stat"><div class="n" id="statResolved">0</div><div class="k">Done</div></div>
     </div>
     <div class="listHeader">
-      <div class="small">窱禹� ?� ???域腹?� ?� ?????/div>
+      <div class="small">Select segment ??Edit right ??Save</div>
       <div class="btns">
         <button class="ok" id="downloadJsonBtn">JSON</button>
         <button class="ok" id="downloadTxtBtn">TXT</button>
@@ -476,74 +476,74 @@
     <div class="playerWrap">
       <div class="editorTitle">
         <div>
-          <div class="title" style="font-size:18px;margin:0;">?� ?</div>
+          <div class="title" style="font-size:18px;margin:0;">Video Player</div>
         </div>
         <div class="btns">
-          <button id="jumpBtn">? 窱禹�?潺� ?渠�</button>
-          <button id="playBtn">?科�</button>
-          <button id="pauseBtn">?潰�??</button>
+          <button id="jumpBtn">Jump to segment</button>
+          <button id="playBtn">Play</button>
+          <button id="pauseBtn">Pause</button>
         </div>
       </div>
       <div class="videoBox">
         <iframe id="ytFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
       </div>
-      <div class="hint">?渠早???� ?�?潺� ?渠�?諰??科� 貒??諟潰? ??貒??鴥潰??</div>
+      <div class="hint">Press Play first to allow auto-seek in the browser.</div>
     </div>
   </section>
 
   <section class="panel rightPanel">
     <div class="editorTitle">
       <div>
-        <div class="title" style="font-size:18px;margin:0;">?�??窱禹� ?賄�</div>
-        <div class="small" id="currentMeta">窱禹�???�???</div>
+        <div class="title" style="font-size:18px;margin:0;">Edit Selected Segment</div>
+        <div class="small" id="currentMeta">Select a segment.</div>
       </div>
       <div class="btns">
-        <button class="warn" id="markSuspectBtn">? ??</button>
-        <button class="ok" id="markResolvedBtn">?� ?�</button>
+        <button class="warn" id="markSuspectBtn">Keep Flag</button>
+        <button class="ok" id="markResolvedBtn">Resolved</button>
       </div>
     </div>
     <div class="row" style="margin-top:12px;">
-      <label>?渥�/?木� 諡賈坏</label>
-      <div class="context" id="contextBox">諡賈坏???禹萼???�?拘�??</div>
+      <label>Context</label>
+      <div class="context" id="contextBox">Context will appear here.</div>
     </div>
     <div class="row" style="margin-top:12px;">
-      <label>?爰</label>
+      <label>Original</label>
       <textarea id="originalText" readonly></textarea>
     </div>
     <div class="row" style="margin-top:12px;">
-      <label>?�諡?/label>
-      <textarea id="editedText" placeholder="?禹萼?� 諡賄??鴔� 窱�???"></textarea>
+      <label>Corrected</label>
+      <textarea id="editedText" placeholder="Edit the subtitle here."></textarea>
     </div>
     <div class="row" style="margin-top:12px;">
-      <label>窶??諰爸</label>
-      <textarea id="reviewNote" placeholder="???�?�鴔 篣圉�"></textarea>
+      <label>Review Note</label>
+      <textarea id="reviewNote" placeholder="Note why you corrected this."></textarea>
     </div>
     <div class="toolbar">
-      <button class="primary" id="applyBtn">?� ?</button>
-      <button id="resetBtn">?� ?�謔禹萼</button>
-      <button id="prevBtn">?渥� 窱禹�</button>
-      <button id="nextBtn">?木� 窱禹�</button>
+      <button class="primary" id="applyBtn">Apply</button>
+      <button id="resetBtn">Reset</button>
+      <button id="prevBtn">Prev</button>
+      <button id="nextBtn">Next</button>
     </div>
     <div class="row" style="margin-top:16px;">
-      <label>?� ????? ?渥�</label>
+      <label>Auto-detected Reasons</label>
       <div class="reasonList" id="reasonList"></div>
     </div>
   </section>
 </div>
 
 <script>
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ? FIREBASE ?木�
-//  ?� firebaseConfig諝?Firebase 儠�?� 貐蛙? 窱眼???
-//  儠�: https://console.firebase.google.com
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  ?뵦 FIREBASE CONFIG
+//  Replace the values below with your Firebase project config.
+//  Console: https://console.firebase.google.com
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 const firebaseConfig = {
-  apiKey: "AIzaSyACY_txV77iX6gUkIN-q20FhV3c-2fMcYM",
-  authDomain: "create-202604.firebaseapp.com",
-  projectId: "create-202604",
-  storageBucket: "create-202604.firebasestorage.app",
-  messagingSenderId: "45657559800",
-  appId: "1:45657559800:web:083fea5c150bcfea02210d"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 let db = null;
@@ -553,13 +553,14 @@ try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   firebaseReady = true;
-  console.log('??Firebase ?國盒 ?梓陬');
+  console.log('Firebase connected');
 } catch (e) {
-  console.warn('?� Firebase ?木� ?�. 諢溢 ???赬�?桶�.', e.message);
+  console.warn('Firebase config missing. Logging disabled.', e.message);
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  諢溢 ? ??諈刺� ????�??Firestore?????// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Log Utility ??saves all learner actions to Firestore
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 let learnerId = '';
 let sessionId = '';
 let sessionStartTime = null;
@@ -580,13 +581,14 @@ async function logEvent(eventType, data = {}) {
       ...data
     });
   } catch (e) {
-    console.warn('諢溢 ????欠:', e.message);
+    console.warn('Log save failed:', e.message);
   }
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  篣圉雩 ?� ?域??// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-const DEFAULT_TRANSCRIPT = [{"text":"?�??? ?禺賱? ?月�?","start":0.08,"duration":5.199},{"text":"赬�?欠?? ?刷� ?筏?渥� ?渥� 諈到�","start":2.28,"duration":6.239},{"text":"?? ?刷� ?域??賵�?? 鴔抓?","start":5.279,"duration":6.041},{"text":"?�?� ?痍?� 諡賄�????渠雩 ??,"start":8.519,"duration":4.561},{"text":"??�???? ??諢?,"start":11.32,"duration":5.519},{"text":"諻�?�鴔諝??�賵�??","start":13.08,"duration":3.759},{"text":"? ?�???木�窸?穈�?? 諻�","start":18.119,"duration":4.761},{"text":"諰謔??月�.","start":21.119,"duration":3.92},{"text":"?�� ?圉?萼,","start":22.88,"duration":6.2},{"text":"?收?渥 ?赭萼, 諻� ???","start":25.039,"duration":6.64},{"text":"諻� ?寢� ?�諢?鴔�?拘�??","start":29.08,"duration":5.599},{"text":"?�??","start":31.679,"duration":3.0},{"text":"?�???","start":61.399,"duration":5.361},{"text":">> ?月�? ?筏???渥� 諈刮�??窸蛟??渥�.","start":62.48,"duration":7.24},{"text":"篞賈 ?庖 貐澎�??","start":66.76,"duration":5.56},{"text":"?? ?? ?渠� ?�?�??,"start":69.72,"duration":5.439},{"text":"??穈? ?筏???渥� 諈到�??窸蛟???,"start":72.32,"duration":6.08},{"text":"穇域�?? Ja.","start":75.159,"duration":3.241},{"text":"?�","start":100.64,"duration":3.0},{"text":"諟潰? ?圉? 鴔扮� 諻�??? 篞賈收窸?,"start":105.68,"duration":6.56},{"text":"窸投�諢??渠? 魽國� 篣資� 諻�??,"start":109.2,"duration":5.519},{"text":"貐渥??","start":112.24,"duration":5.479},{"text":"?� ?域? ?湊? ?ˉ 赬打窶??拖�鴔?,"start":175.0,"duration":6.2},{"text":"?收?�?? 諟潰? ?域�???�??,"start":178.12,"duration":6.119},{"text":"?月�? ?穈 ?ˉ 黺�??","start":331.84,"duration":6.24},{"text":"?筏??諻�???�貐渠 ?科�????,"start":342.639,"duration":5.881},{"text":"諻�?????諈刺� ?????蛟�??","start":349.639,"duration":6.241},{"text":"?木� ?�??諤�??","start":352.319,"duration":3.561}];
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Default Transcript Data
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+const DEFAULT_TRANSCRIPT = [{"text":"?덈뀞?섏꽭?? ?щ윭遺? ?ㅻ뒛?","start":0.08,"duration":5.199},{"text":"鍮낆떆?ㅽ?? ?④퍡 ?쒓뎅?댁쓽 ?댁쨷 紐⑥쓬","start":2.28,"duration":6.239},{"text":"?뚮? ?④퍡 ?곗뒿??遊낆떆?? 吏㏃?","start":5.279,"duration":6.041},{"text":"?숈쁺?곸쓣 ?쒖껌?섍퀬 臾몄젣????대낯 ??,"start":8.519,"duration":4.561},{"text":"?뚯꽦?꾧툑???꾨떖?섏뿬 ?쒕?濡?,"start":11.32,"duration":5.519},{"text":"諛쒖쓬?덈뒗吏瑜??뚯븘遊낆떆??","start":13.08,"duration":3.759},{"text":"?숈뒿 ?쒖꽌???ㅼ쓬怨?媛숈븘?? 諛쒖쓬","start":18.119,"duration":4.761},{"text":"硫由??ㅻ챸.","start":21.119,"duration":3.92},{"text":"?ｊ퀬 ?곕씪?섍린,","start":22.88,"duration":6.2},{"text":"?뚮━?댁뼱 ?쎄린, 諛쒖쓬 ?뚯뒪??","start":25.039,"duration":6.64},{"text":"諛쒖쓬 ?뱀쓬 ?쒖꽌濡?吏꾪뻾?⑸땲??","start":29.08,"duration":5.599},{"text":"?낅땲??","start":31.679,"duration":3.0},{"text":"?덈뀞?섏꽭??","start":61.399,"duration":5.361},{"text":">> ?ㅻ뒛? ?쒓뎅???댁쨷 紐⑦뿕??怨듬??댁슂.","start":62.48,"duration":7.24},{"text":"洹몃읆 ?붾㈃ 蹂쇨퉴??","start":66.76,"duration":5.56},{"text":"?? ?? ?대쾲 ?쒓컙?먮뒗??,"start":69.72,"duration":5.439},{"text":"??媛숈? ?쒓뎅???댁쨷 紐⑥쓬??怨듬???,"start":72.32,"duration":6.08},{"text":"嫄곗삁?? Ja.","start":75.159,"duration":3.241},{"text":"?뚯썙","start":100.64,"duration":3.0},{"text":"癒쇱? ?곕? 吏㏐쾶 諛쒖쓬?섏꽭?? 洹몃━怨?,"start":105.68,"duration":6.56},{"text":"怨㏓컮濡??대? 議곌툑 湲멸쾶 諛쒖쓬??,"start":109.2,"duration":5.519},{"text":"蹂댁꽭??","start":112.24,"duration":5.479},{"text":"?뚮뒗 ?곗? ?닿? ?꾩＜ 鍮좊Ⅴ寃??⑹퀜吏?,"start":175.0,"duration":6.2},{"text":"?뚮━?낅땲?? 癒쇱? ?곗쿂???낆닠??,"start":178.12,"duration":6.119},{"text":"?ㅻ뒛? ?좎뵪媛 ?꾩＜ 異붿썙??","start":331.84,"duration":6.24},{"text":"?쒓뎅??諛쒖쓬???앷컖蹂대떎 ?ъ썙????,"start":342.639,"duration":5.881},{"text":"諛쒖쓬?????紐⑤뱺 ?숈뒿???앸궗?듬땲??","start":349.639,"duration":6.241},{"text":"?ㅼ쓬 ?쒓컙??留뚮굹??","start":352.319,"duration":3.561}];
 
 let transcript = [];
 let selectedIndex = -1;
@@ -595,9 +597,9 @@ const isMobile = () => window.innerWidth <= 820;
 
 const el = (id) => document.getElementById(id);
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ? ?到�
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Utility Functions
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function parseVideoId(urlOrId) {
   const s = (urlOrId || '').trim();
   if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
@@ -623,15 +625,15 @@ function escapeHtml(t) {
 function scoreSegment(item, idx, arr) {
   const text = (item.text || '').trim();
   const reasons = []; let score = 0;
-  if (!text) { reasons.push('赬?窱禹�'); score += 5; }
-  if (/>>/.test(text)) { reasons.push('?� 篣堅(>>) ?潰�'); score += 3; }
-  if (/[A-Za-z]/.test(text)) { reasons.push('?爰 ?潰�'); score += 2; }
-  if (/([穈-??)\1\1/.test(text) || /(\S{1,2})\1{2,}/.test(text)) { reasons.push('諻陬 ?刮 窸潺'); score += 2; }
-  if (text.length <= 2 && Number(item.duration) >= 2.5) { reasons.push('篣賄??赬 ?炭 鴔抓? 魽國�'); score += 2; }
-  if (!/[.!??�嚗?$/.test(text) && /[穈-??$/.test(text) && text.length >= 12) { reasons.push('諡賄 ? 穈?伊'); score += 1; }
-  if (/\bJa\./.test(text)) { reasons.push('赬�???'); score += 2; }
-  if (/諈刮�|?�|?�|?刺??.test(text)) { reasons.push('STT ?木??穈???到'); score += 2; }
-  if (/?�?潰�|窸潰�???科�??.??.test(text)) { reasons.push('賱?國萼 ?'); score += 2; }
+  if (!text) { reasons.push('Empty segment'); score += 5; }
+  if (/>>/.test(text)) { reasons.push('Speaker symbol (>>) found'); score += 3; }
+  if (/[A-Za-z]/.test(text)) { reasons.push('English chars found'); score += 2; }
+  if (/([媛-??)\1\1/.test(text) || /(\S{1,2})\1{2,}/.test(text)) { reasons.push('Repetitive pattern'); score += 2; }
+  if (text.length <= 2 && Number(item.duration) >= 2.5) { reasons.push('Too short for duration'); score += 2; }
+  if (!/[.!??귨폕竊?$/.test(text) && /[媛-??$/.test(text) && text.length >= 12) { reasons.push('Possible sentence cut'); score += 1; }
+  if (/\bJa\./.test(text)) { reasons.push('Abnormal token'); score += 2; }
+  if (/紐⑦뿕|?꾧툑|?숆툒|?⑤뱾??.test(text)) { reasons.push('Possible STT error word'); score += 2; }
+  if (/?꾨땲?쇱썙|怨쇱젣???ъ썙??.??.test(text)) { reasons.push('Possible run-on'); score += 2; }
   return { score, reasons };
 }
 
@@ -652,9 +654,9 @@ function isSuspect(item) {
   return item.score > 0;
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?�?渥 ?
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Player Control
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function getYtFrame() {
   return isMobile() ? el('ytFrameMob') : el('ytFrame');
 }
@@ -674,8 +676,9 @@ function pauseVideo() {
   });
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?虛� ?�諤?// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Stats Rendering
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function renderStats() {
   const total = transcript.length;
   const suspects = transcript.filter(isSuspect).length;
@@ -690,13 +693,14 @@ function renderStats() {
   }
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  諈刺�??? ?� 儦渠� ?�諤?// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Mobile Subtitle Card Render
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function renderMobileSubtitle() {
   if (!isMobile()) return;
   const item = transcript[selectedIndex];
   if (!item) {
-    el('mobSubText').textContent = '窱禹�???�?掠???� 貒?潺� ?渠�???';
+    el('mobSubText').textContent = 'Select a segment or use the buttons below.';
     el('mobTime').textContent = '--:-- ~ --:--';
     el('mobSuspectBadge').textContent = '';
     el('mobChips').innerHTML = '';
@@ -705,16 +709,17 @@ function renderMobileSubtitle() {
   el('mobTime').textContent = `${formatTime(item.start)} ~ ${formatTime(item.start + item.duration)}`;
   el('mobSubText').textContent = item.editedText;
   el('mobSuspectBadge').innerHTML = isSuspect(item)
-    ? `<span class="chip warn">? ${item.score}</span>`
-    : `<span class="chip ok">?�</span>`;
+    ? `<span class="chip warn">Flag ${item.score}</span>`
+    : `<span class="chip ok">OK</span>`;
   el('mobChips').innerHTML = (item.reasons||[]).slice(0,3).map(r => `<span class="chip">${escapeHtml(r)}</span>`).join('');
   el('mobEditedText').value = item.editedText;
   el('mobReviewNote').value = item.reviewNote || '';
   el('mobProgress').textContent = `${selectedIndex + 1} / ${transcript.length}`;
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?域?秒� 諈拘� & ?�???�諤?// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Desktop List & Editor Render
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function currentVisibleItems() {
   const mode = el('viewMode')?.value || 'all';
   const q = (el('searchInput')?.value || '').trim().toLowerCase();
@@ -736,9 +741,9 @@ function renderList() {
       <div class="time">${formatTime(item.start)} ~ ${formatTime(item.start + item.duration)}</div>
       <div class="text">${escapeHtml(item.editedText)}</div>
       <div class="chips">
-        ${isSuspect(item) ? `<span class="chip warn">? ${item.score}</span>` : `<span class="chip ok">?�</span>`}
-        ${item.resolved ? `<span class="chip ok">?� ?�</span>` : ''}
-        ${item.editedText !== item.originalText ? `<span class="chip">?�??/span>` : ''}
+        ${isSuspect(item) ? `<span class="chip warn">Flag ${item.score}</span>` : `<span class="chip ok">OK</span>`}
+        ${item.resolved ? `<span class="chip ok">Resolved</span>` : ''}
+        ${item.editedText !== item.originalText ? `<span class="chip">Edited</span>` : ''}
         ${(item.reasons||[]).slice(0,3).map(r => `<span class="chip">${escapeHtml(r)}</span>`).join('')}
       </div>
     </div>
@@ -756,8 +761,8 @@ function renderMobileList() {
       <div class="time">${formatTime(item.start)}</div>
       <div class="text">${escapeHtml(item.editedText)}</div>
       <div class="chips">
-        ${isSuspect(item) ? `<span class="chip warn">?</span>` : `<span class="chip ok">??/span>`}
-        ${item.resolved ? `<span class="chip ok">?�</span>` : ''}
+        ${isSuspect(item) ? `<span class="chip warn">Flag</span>` : `<span class="chip ok">??/span>`}
+        ${item.resolved ? `<span class="chip ok">Done</span>` : ''}
       </div>
     </div>
   `).join('');
@@ -769,34 +774,34 @@ function renderMobileList() {
 function renderEditor() {
   const item = transcript[selectedIndex];
   if (!item) {
-    if(el('currentMeta')) el('currentMeta').textContent = '窱禹�???�???';
-    if(el('contextBox')) el('contextBox').textContent = '諡賈坏???禹萼???�?拘�??';
+    if(el('currentMeta')) el('currentMeta').textContent = 'Select a segment.';
+    if(el('contextBox')) el('contextBox').textContent = 'Context will appear here.';
     if(el('originalText')) el('originalText').value = '';
     if(el('editedText')) el('editedText').value = '';
     if(el('reviewNote')) el('reviewNote').value = '';
-    if(el('reasonList')) el('reasonList').innerHTML = '<div class="reasonItem muted">?� ?�??窱禹�????.</div>';
+    if(el('reasonList')) el('reasonList').innerHTML = '<div class="reasonItem muted">No segment selected.</div>';
     return;
   }
-  const prev = transcript[selectedIndex-1]?.editedText || '?�';
-  const next = transcript[selectedIndex+1]?.editedText || '?�';
-  if(el('currentMeta')) el('currentMeta').textContent = `${selectedIndex+1} / ${transcript.length} 繚 ${formatTime(item.start)} ~ ${formatTime(item.start+item.duration)}`;
+  const prev = transcript[selectedIndex-1]?.editedText || 'none';
+  const next = transcript[selectedIndex+1]?.editedText || 'none';
+  if(el('currentMeta')) el('currentMeta').textContent = `${selectedIndex+1} / ${transcript.length} 쨌 ${formatTime(item.start)} ~ ${formatTime(item.start+item.duration)}`;
   if(el('contextBox')) el('contextBox').innerHTML = `
-    <div><span class="muted">?渥�</span> 繚 ${escapeHtml(prev)}</div>
+    <div><span class="muted">Prev</span> 쨌 ${escapeHtml(prev)}</div>
     <hr style="border:none;border-top:1px solid var(--line);margin:10px 0;" />
-    <div><span class="muted">?</span> 繚 <b>${escapeHtml(item.editedText)}</b></div>
+    <div><span class="muted">Current</span> 쨌 <b>${escapeHtml(item.editedText)}</b></div>
     <hr style="border:none;border-top:1px solid var(--line);margin:10px 0;" />
-    <div><span class="muted">?木�</span> 繚 ${escapeHtml(next)}</div>
+    <div><span class="muted">Next</span> 쨌 ${escapeHtml(next)}</div>
   `;
   if(el('originalText')) el('originalText').value = item.originalText;
   if(el('editedText')) el('editedText').value = item.editedText;
   if(el('reviewNote')) el('reviewNote').value = item.reviewNote || '';
-  if(el('reasonList')) el('reasonList').innerHTML = (item.reasons?.length ? item.reasons : ['?� ?? ?渥� ?�'])
+  if(el('reasonList')) el('reasonList').innerHTML = (item.reasons?.length ? item.reasons : ['No reason detected'])
     .map(r => `<div class="reasonItem">${escapeHtml(r)}</div>`).join('');
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  窱禹� ?� (諢溢 ?秒)
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Segment Select (with logging)
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function selectSegment(id, jump = false) {
   selectedIndex = id;
   const item = transcript[id];
@@ -815,9 +820,9 @@ function selectSegment(id, jump = false) {
   if (jump && item) updatePlayerSrc(item.start, 1);
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?賄� ?� (諢溢 ?秒)
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Edit Actions (with logging)
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function applyEdit(editedVal, noteVal) {
   const item = transcript[selectedIndex];
   if (!item) return;
@@ -860,9 +865,9 @@ function resetEdit() {
   renderStats(); renderList(); renderEditor(); renderMobileSubtitle(); renderMobileList();
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?渠陷?湊萼
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Export
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function toExportJson() {
   return transcript.map(x => ({ text: x.editedText, start: x.start, duration: x.duration, _meta: { originalText: x.originalText, reviewNote: x.reviewNote, resolved: x.resolved, suspectScore: x.score, reasons: x.reasons } }));
 }
@@ -887,9 +892,9 @@ function baseName() {
   return `${parseVideoId(el('youtubeUrl')?.value||'')}_hitl_corrected`;
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?� 諢�
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Load Transcript
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function loadTranscript(items) {
   transcript = hydrate(items);
   selectedIndex = transcript.findIndex(isSuspect);
@@ -900,9 +905,9 @@ function loadTranscript(items) {
   updatePlayerSrc(0, 0);
 }
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  諈刺 / ?賄� ?�
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Modal / Session Start
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 function startSession(name) {
   learnerId = name.trim();
   sessionId = genSessionId();
@@ -911,7 +916,7 @@ function startSession(name) {
   el('sessionBadge').style.display = 'block';
   el('badgeName').textContent = learnerId;
 
-  // ??� ?�
+  // Layout selection
   if (isMobile()) {
     el('mobileView').style.display = 'flex';
     el('desktopView').style.display = 'none';
@@ -926,14 +931,14 @@ function startSession(name) {
 
 el('startBtn').addEventListener('click', () => {
   const name = el('learnerIdInput').value.trim();
-  if (!name) { alert('?� ?� ?渠�??????'); return; }
+  if (!name) { alert('Please enter your ID or name.'); return; }
   startSession(name);
 });
 el('learnerIdInput').addEventListener('keydown', e => { if (e.key === 'Enter') el('startBtn').click(); });
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?域?秒� ?渠略???國盒
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Desktop Event Listeners
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 el('loadDefaultBtn')?.addEventListener('click', () => loadTranscript(DEFAULT_TRANSCRIPT));
 el('rescanBtn')?.addEventListener('click', () => {
   transcript = hydrate(transcript.map(x => ({ text: x.editedText, start: x.start, duration: x.duration })));
@@ -984,17 +989,17 @@ el('jsonFile')?.addEventListener('change', async (e) => {
   if (!file) return;
   try {
     const parsed = JSON.parse(await file.text());
-    if (!Array.isArray(parsed)) throw new Error('諻域 ?� ?�');
+    if (!Array.isArray(parsed)) throw new Error('Not a valid JSON array.');
     loadTranscript(parsed);
-  } catch (err) { alert('JSON ? ?欠: ' + err.message); }
+  } catch (err) { alert('JSON parse error: ' + err.message); }
 });
 el('editedText')?.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); applyEdit(); }
 });
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  諈刺�???渠略???國盒
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Mobile Event Listeners
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 el('mobPrevBtn')?.addEventListener('click', () => {
   if (!transcript.length) return;
   const idx = Math.max(0, selectedIndex - 1);
@@ -1034,14 +1039,14 @@ el('mobDlJsonBtn')?.addEventListener('click', () => { downloadFile(JSON.stringif
 el('mobDlTxtBtn')?.addEventListener('click', () => { downloadFile(toExportTxt(), `${baseName()}.txt`, 'text/plain'); logEvent('download', {format:'txt'}); });
 el('mobDlSrtBtn')?.addEventListener('click', () => { downloadFile(toExportSrt(), `${baseName()}.srt`, 'text/plain'); logEvent('download', {format:'srt'}); });
 
-// ?賄� ?刺� ??
+// Edit panel toggle
 el('mobEditToggle')?.addEventListener('click', () => {
   el('mobEditToggle').classList.toggle('open');
   el('mobEditPanel').classList.toggle('open');
   logEvent('ui_toggle', { panel: 'edit', open: el('mobEditPanel').classList.contains('open') });
 });
 
-// 諈拘� ?刺� ??
+// List panel toggle
 el('mobListToggle')?.addEventListener('click', () => {
   el('mobListToggle').classList.toggle('open');
   el('mobSegmentList').classList.toggle('open');
@@ -1049,9 +1054,9 @@ el('mobListToggle')?.addEventListener('click', () => {
   logEvent('ui_toggle', { panel: 'list', open: el('mobSegmentList').classList.contains('open') });
 });
 
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
-//  ?鴔 鮈� ???賄� 鮈� 諢溢
-// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
+//  Session End Log on Page Unload
+// ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧
 window.addEventListener('beforeunload', () => {
   if (!learnerId) return;
   const duration = sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 1000) : 0;
