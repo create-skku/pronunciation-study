@@ -385,211 +385,221 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
 </div>
 
 <script>
+// =====================================================
+//  ★ Apps Script 배포 URL — 여기만 교체하세요 ★
+// =====================================================
 var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV_IxsKXcoDtCBDbShMiMLYiVVJVY_4iiaVXexHZLF0VsjOvCd7s2msjgZzPv8ghnT/exec";
 
-// ══════════════════════════════════════════
-//  ★ Firebase 설정값 — 여기만 교체하세요 ★
-// ══════════════════════════════════════════
-var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyACY_txV77iX6gUkIN-q20FhV3c-2fMcYM",
-  authDomain: "create-202604.firebaseapp.com",
-  projectId: "create-202604",
-  storageBucket: "create-202604.firebasestorage.app",
-  messagingSenderId: "45657559800",
-  appId: "1:45657559800:web:083fea5c150bcfea02210d"
-};
+var WEEK = 1, ROUND = 1;
+var cur = 1, total = 9, quizDone = {};
+var sessionStart = Date.now();
 
-// 학습자 ID — 로그인 연동 전까지 입력값 사용
-var LEARNER_ID = (function() {
+// 학습자 ID
+var LEARNER_ID = (function(){
   var saved = localStorage.getItem("learnerId");
   if (saved) return saved;
-  var id = prompt("학번 또는 이름을 입력해 주세요 (Nhập mã học sinh hoặc tên):");
+  var id = prompt("학번 또는 이름을 입력해 주세요\n(Nhập mã học sinh hoặc tên của bạn):");
   if (id) { localStorage.setItem("learnerId", id.trim()); return id.trim(); }
   return "unknown";
 })();
 
-// 주차·회차 설정
-var WEEK  = 1;
-var ROUND = 1;
+// =====================================================
+//  로그 전송 → Google Sheets
+// =====================================================
+function sendLog(eventType, payload) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
+  var data = {
+    type:        "log",
+    learnerId:   LEARNER_ID,
+    week:        WEEK,
+    eventType:   eventType,
+    page:        cur,
+    elapsed:     Math.round((Date.now() - sessionStart) / 1000),
+    payload:     payload || {}
+  };
+  // sendBeacon: 페이지 이탈 시에도 전송
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(APPS_SCRIPT_URL, JSON.stringify(data));
+  } else {
+    fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }).catch(function(){});
+  }
+}
 
-// ══════════════════════════════════════════
-//  Firebase 초기화
-// ══════════════════════════════════════════
-var db = null, storage = null, fbReady = false;
-try {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  db      = firebase.firestore();
-  storage = firebase.storage();
-  fbReady = true;
-} catch(e) { console.warn("Firebase 초기화 실패:", e.message); }
+// =====================================================
+//  전체 클릭 이벤트 자동 수집
+// =====================================================
+document.addEventListener("click", function(e) {
+  var el = e.target;
+  // 클릭한 요소의 텍스트/클래스 추출
+  var text = (el.textContent || "").trim().slice(0, 30);
+  var cls  = (el.className || "").toString().slice(0, 50);
+  var tag  = el.tagName;
+  sendLog("click", { tag: tag, class: cls, text: text });
+}, true);
 
-// ══════════════════════════════════════════
-//  슬라이드 네비
-// ══════════════════════════════════════════
-var cur = 1, total = 9, quizDone = {};
+// =====================================================
+//  네비게이션
+// =====================================================
+var pageEnterTime = Date.now();
 
 function goSlide(dir) {
+  // 이전 페이지 체류 시간 기록
+  var stayed = Math.round((Date.now() - pageEnterTime) / 1000);
+  sendLog("page_leave", { fromPage: cur, staySec: stayed });
+
   var next = cur + dir;
   if (next < 1 || next > total) return;
-  document.getElementById('s' + cur).classList.remove('active');
+  document.getElementById("s" + cur).classList.remove("active");
   cur = next;
-  document.getElementById('s' + cur).classList.add('active');
+  document.getElementById("s" + cur).classList.add("active");
+  pageEnterTime = Date.now();
   updateNav();
   window.scrollTo(0, 0);
-  logEvent("page_view", { page: cur });
+  sendLog("page_enter", { page: cur });
 }
 
 function updateNav() {
-  document.getElementById('topProg').textContent = cur + ' / ' + total;
-  document.getElementById('progFill').style.width = Math.round(cur / total * 100) + '%';
-  document.getElementById('prevBtn').disabled = (cur === 1);
-  var nb = document.getElementById('nextBtn');
-  if (cur === total) { nb.textContent = '✅ 학습 완료!'; nb.disabled = true; }
-  else { nb.textContent = '다음 페이지 →'; nb.disabled = false; }
+  document.getElementById("topProg").textContent = cur + " / " + total;
+  document.getElementById("progFill").style.width = Math.round(cur / total * 100) + "%";
+  document.getElementById("prevBtn").disabled = (cur === 1);
+  var nb = document.getElementById("nextBtn");
+  if (cur === total) { nb.textContent = "✅ 학습 완료!"; nb.disabled = true; }
+  else { nb.textContent = "다음 페이지 →"; nb.disabled = false; }
 }
 
+// =====================================================
+//  퀴즈 (한 번 답하면 잠금)
+// =====================================================
 function checkQ(el, correct, qid) {
   if (quizDone[qid]) return;
   quizDone[qid] = true;
-  var opts = document.getElementById(qid).querySelectorAll('.quiz-opt');
-  opts.forEach(function(o){ o.style.pointerEvents = 'none'; });
-  el.classList.add(correct ? 'correct' : 'wrong');
-  if (!correct) opts.forEach(function(o){
-    if ((o.getAttribute('onclick')||'').indexOf('true') > -1) o.classList.add('correct');
+  var opts = document.getElementById(qid).querySelectorAll(".quiz-opt");
+  opts.forEach(function(o) { o.style.pointerEvents = "none"; });
+  el.classList.add(correct ? "correct" : "wrong");
+  if (!correct) opts.forEach(function(o) {
+    if ((o.getAttribute("onclick") || "").indexOf("true") > -1) o.classList.add("correct");
   });
-  logEvent("quiz_answer", { qid: qid, correct: correct });
+  sendLog("quiz_answer", { qid: qid, correct: correct });
 }
 
-// ══════════════════════════════════════════
-//  녹음 기능 (MediaRecorder)
-// ══════════════════════════════════════════
+// =====================================================
+//  녹음
+// =====================================================
 var mediaRec = null, audioChunks = [], recBlob = null;
-var recTimerInt = null, recSec = 0;
-var isRecording = false;
+var recTimerInt = null, recSec = 0, isRecording = false;
 
-function toggleRecord() {
-  if (!isRecording) startRecord();
-  else stopRecord();
-}
+function toggleRecord() { isRecording ? stopRecord() : startRecord(); }
 
 function startRecord() {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
     audioChunks = [];
     mediaRec = new MediaRecorder(stream);
-    mediaRec.addEventListener("dataavailable", function(e){ audioChunks.push(e.data); });
-    mediaRec.addEventListener("stop", function(){
-      recBlob = new Blob(audioChunks, { type: 'audio/wav' });
-      stream.getTracks().forEach(function(t){ t.stop(); });
+    mediaRec.addEventListener("dataavailable", function(e) { audioChunks.push(e.data); });
+    mediaRec.addEventListener("stop", function() {
+      recBlob = new Blob(audioChunks, { type: "audio/wav" });
+      stream.getTracks().forEach(function(t) { t.stop(); });
       onRecordDone();
     });
-    mediaRec.start();
-    isRecording = true;
-    recSec = 0;
-    document.getElementById('recBtn').className = 'rec-btn recording';
-    document.getElementById('recBtn').textContent = '⏹';
-    document.getElementById('recStatus').textContent = '🔴 녹음 중... 단어를 순서대로 읽어 주세요';
-    recTimerInt = setInterval(function(){
+    mediaRec.start(); isRecording = true; recSec = 0;
+    document.getElementById("recBtn").className = "rec-btn recording";
+    document.getElementById("recBtn").textContent = "⏹";
+    document.getElementById("recStatus").textContent = "🔴 녹음 중... 단어를 순서대로 읽어주세요";
+    recTimerInt = setInterval(function() {
       recSec++;
-      var m = Math.floor(recSec/60), s = recSec%60;
-      document.getElementById('recTimer').textContent = m + ':' + ('0'+s).slice(-2);
+      document.getElementById("recTimer").textContent =
+        Math.floor(recSec / 60) + ":" + ("0" + recSec % 60).slice(-2);
     }, 1000);
-    logEvent("rec_start", {});
-  }).catch(function(e){
-    alert("마이크 접근 권한이 필요합니다.\nCần quyền truy cập micro: " + e.message);
-  });
+    sendLog("rec_start", {});
+  }).catch(function(e) { alert("마이크 권한이 필요합니다: " + e.message); });
 }
 
 function stopRecord() {
-  if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
-  clearInterval(recTimerInt);
-  isRecording = false;
-  document.getElementById('recBtn').className = 'rec-btn done';
-  document.getElementById('recBtn').textContent = '✅';
-  logEvent("rec_stop", { duration: recSec });
+  if (mediaRec && mediaRec.state !== "inactive") mediaRec.stop();
+  clearInterval(recTimerInt); isRecording = false;
+  document.getElementById("recBtn").className = "rec-btn done";
+  document.getElementById("recBtn").textContent = "✅";
+  sendLog("rec_stop", { duration: recSec });
 }
 
 function onRecordDone() {
-  document.getElementById('recStatus').textContent = '✅ 녹음 완료! 업로드하거나 저장하세요.';
-  document.getElementById('recActions').style.display = 'flex';
+  document.getElementById("recStatus").textContent = "✅ 녹음 완료! 업로드하거나 저장하세요.";
+  document.getElementById("recActions").style.display = "flex";
 }
 
 function retryRecord() {
   recBlob = null; audioChunks = [];
-  document.getElementById('recBtn').className = 'rec-btn';
-  document.getElementById('recBtn').textContent = '🔴';
-  document.getElementById('recStatus').textContent = '🎙️ 버튼을 눌러 녹음을 시작하세요';
-  document.getElementById('recTimer').textContent = '0:00';
-  document.getElementById('recActions').style.display = 'none';
-  document.getElementById('uploadStatus').className = 'upload-status';
+  document.getElementById("recBtn").className = "rec-btn";
+  document.getElementById("recBtn").textContent = "🔴";
+  document.getElementById("recStatus").textContent = "🎙️ 버튼을 눌러 녹음을 시작하세요";
+  document.getElementById("recTimer").textContent = "0:00";
+  document.getElementById("recActions").style.display = "none";
+  document.getElementById("uploadStatus").className = "upload-status";
+  sendLog("rec_retry", {});
 }
 
 function downloadRec() {
   if (!recBlob) return;
-  var fn = LEARNER_ID + '_ㅂ_' + ROUND + '회차.wav';
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(recBlob);
-  a.download = fn; a.click();
-  logEvent("rec_download", { filename: fn });
+  var fn = LEARNER_ID + "_ㅂ_" + ROUND + "회차.wav";
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(recBlob); a.download = fn; a.click();
+  sendLog("rec_download", { filename: fn });
 }
 
 function uploadRec() {
   if (!recBlob) return;
-  var st = document.getElementById('uploadStatus');
-
-  if (!fbReady || !storage) {
-    st.className = 'upload-status show error';
-    st.textContent = '⚠️ Firebase 설정값을 확인해 주세요.';
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+    alert("Apps Script URL을 먼저 설정해 주세요.");
     return;
   }
+  var st  = document.getElementById("uploadStatus");
+  var btn = document.getElementById("uploadBtn");
+  st.className = "upload-status show uploading";
+  st.textContent = "⏳ 업로드 중... (파일 크기에 따라 10~30초 소요)";
+  btn.disabled = true;
 
-  var ts   = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-  var fn   = LEARNER_ID + '_W' + WEEK + '_R' + ROUND + '_' + ts + '.wav';
-  var path = 'recordings/week' + WEEK + '/' + fn;
-  var ref  = storage.ref().child(path);
-
-  st.className = 'upload-status show uploading';
-  st.textContent = '⏳ 업로드 중...';
-  document.querySelector('.btn-upload').disabled = true;
-
-  ref.put(recBlob).then(function(snap){
-    return snap.ref.getDownloadURL();
-  }).then(function(url){
-    // Firestore 메타데이터 저장
-    return db.collection('recordings').add({
-      learnerId:   LEARNER_ID,
-      week:        WEEK,
-      round:       ROUND,
-      filename:    fn,
-      fileUrl:     url,
-      duration:    recSec,
-      uploadedAt:  firebase.firestore.FieldValue.serverTimestamp()
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var base64 = ev.target.result.split(",")[1];
+    var ts = new Date().toISOString().slice(0,19).replace(/[T:]/g, "-");
+    var filename = LEARNER_ID + "_W" + WEEK + "_R" + ROUND + "_" + ts + ".wav";
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        type: "recording",
+        learnerId: LEARNER_ID,
+        week:  WEEK,
+        round: ROUND,
+        filename: filename,
+        duration: recSec,
+        file: base64
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.ok) {
+        st.className = "upload-status show success";
+        st.textContent = "✅ 업로드 완료! 구글 드라이브에 저장되었습니다.";
+        btn.disabled = false;
+        sendLog("rec_uploaded", { filename: filename, duration: recSec });
+      } else { throw new Error(res.error || "unknown"); }
+    })
+    .catch(function(e) {
+      st.className = "upload-status show error";
+      st.textContent = "❌ 업로드 실패: " + e.message;
+      btn.disabled = false;
     });
-  }).then(function(){
-    st.className = 'upload-status show success';
-    st.textContent = '✅ 업로드 완료! 선생님께 전달되었습니다.';
-    logEvent("rec_uploaded", { filename: fn });
-  }).catch(function(e){
-    st.className = 'upload-status show error';
-    st.textContent = '❌ 업로드 실패: ' + e.message;
-    document.querySelector('.btn-upload').disabled = false;
-  });
+  };
+  reader.readAsDataURL(recBlob);
 }
 
-// ══════════════════════════════════════════
-//  Firebase 이벤트 로그
-// ══════════════════════════════════════════
-function logEvent(type, data) {
-  sendLog(type, data);
-}
+// 페이지 이탈 시 로그
+window.addEventListener("beforeunload", function() {
+  var stayed = Math.round((Date.now() - pageEnterTime) / 1000);
+  sendLog("session_end", { lastPage: cur, totalSec: Math.round((Date.now() - sessionStart) / 1000), staySec: stayed });
+});
 
-function sendLog(eventType, payload) {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
-  fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    body: JSON.stringify({ type: "log", learnerId: LEARNER_ID, week: WEEK, eventType: eventType, payload: payload || {} })
-  }).catch(function() {});
-}
-
+// 초기화
+sendLog("session_start", { userAgent: navigator.userAgent.slice(0, 80) });
 updateNav();
 </script>
 </body>
