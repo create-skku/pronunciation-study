@@ -372,7 +372,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
           <div class="rec-actions" id="recActions" style="display:none">
             <button class="rec-action-btn btn-retry" onclick="retryRecord()">↩ 다시</button>
             <button class="rec-action-btn btn-download" onclick="downloadRec()">💾 저장</button>
-            <button class="rec-action-btn btn-upload" onclick="uploadRec()">📤 업로드</button>
+            <button class="rec-action-btn btn-upload" id="uploadBtn" onclick="uploadRec()">📤 업로드</button>
           </div>
           <div class="upload-status" id="uploadStatus"></div>
         </div>
@@ -392,13 +392,13 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
 //  ★ Firebase 설정값 — 여기만 교체하세요 ★
 // =====================================================
 var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBomFqxP_-xiLxYjTm-sF-cniJXA2drb1Y",
-  authDomain: "bigsister-kr.firebaseapp.com",
-  projectId: "bigsister-kr",
-  storageBucket: "bigsister-kr.firebasestorage.app",
+  apiKey:            "AIzaSyBomFqxP_-xiLxYjTm-sF-cniJXA2drb1Y",
+  authDomain:        "bigsister-kr.firebaseapp.com",
+  projectId:         "bigsister-kr",
+  storageBucket:     "bigsister-kr.firebasestorage.app",
   messagingSenderId: "551801039761",
-  appId: "1:551801039761:web:df207a391ed07b679a0830",
-  measurementId: "G-MV9P9X0GF1"
+  appId:             "1:551801039761:web:df207a391ed07b679a0830",
+  measurementId:     "G-MV9P9X0GF1"
 };
 
 // 주차 / 실험군 설정
@@ -608,47 +608,60 @@ function downloadRec() {
 //  Storage 경로: recordings/week{N}/{learnerId}/{파일명}
 //  Firestore:    learners/{learnerId}/recordings/{docId}
 function uploadRec() {
-  if (!recBlob) return;
-  if (!fbReady || !storage) {
-    alert("Firebase가 연결되지 않았습니다. 설정값을 확인해 주세요.");
-    return;
-  }
   var st  = document.getElementById("uploadStatus");
   var btn = document.getElementById("uploadBtn");
+
+  if (!recBlob) { alert("\uba3c\uc800 \ub179\uc74c\ud574 \uc8fc\uc138\uc694."); return; }
+
+  if (!fbReady) {
+    st.className = "upload-status show error";
+    st.textContent = "\u274c Firebase \uc5f0\uacb0 \uc2e4\ud328. \ucf58\uc194\uc5d0\uc11c \uc624\ub958 \ud655\uc778\ud574 \uc8fc\uc138\uc694.";
+    return;
+  }
+  if (!storage) {
+    st.className = "upload-status show error";
+    st.textContent = "\u274c Storage \ubbf8\ud65c\uc131\ud654 — Firebase \ucf58\uc194 \u2192 Storage \u2192 \uc2dc\uc791\ud558\uae30 \uc644\ub8cc \ud6c4 \ub2e4\uc2dc \uc2dc\ub3c4.";
+    return;
+  }
+
   st.className = "upload-status show uploading";
-  st.textContent = "⏳ 업로드 중...";
-  btn.disabled = true;
+  st.textContent = "\u23f3 \uc5c5\ub85c\ub4dc \uc911...";
+  if (btn) btn.disabled = true;
 
   var ts  = new Date().toISOString().slice(0,19).replace(/[T:]/g, "-");
   var fn  = LEARNER_ID + "_W" + WEEK + "_R" + ROUND + "_" + ts + ".wav";
-
-  // Storage 경로: recordings/week1/{학번}/파일명.wav
   var storagePath = "recordings/week" + WEEK + "/" + LEARNER_ID + "/" + fn;
   var ref = storage.ref(storagePath);
 
   ref.put(recBlob).then(function(snap) {
     return snap.ref.getDownloadURL();
   }).then(function(url) {
-    // Firestore: learners/{학번}/recordings/{자동ID}
     return db.collection("learners").doc(LEARNER_ID)
       .collection("recordings").add({
-        week:       WEEK,
-        round:      ROUND,
-        filename:   fn,
+        week:        WEEK,
+        round:       ROUND,
+        filename:    fn,
         storagePath: storagePath,
-        fileUrl:    url,
-        duration:   recSec,
-        uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+        fileUrl:     url,
+        duration:    recSec,
+        uploadedAt:  firebase.firestore.FieldValue.serverTimestamp()
       });
   }).then(function() {
     st.className = "upload-status show success";
-    st.textContent = "✅ 업로드 완료! 선생님께 전달되었습니다.";
-    btn.disabled = false;
+    st.textContent = "\u2705 \uc5c5\ub85c\ub4dc \uc644\ub8cc! \uc120\uc0dd\ub2d8\uaed8 \uc804\ub2ec\ub418\uc5c8\uc2b5\ub2c8\ub2e4.";
+    if (btn) btn.disabled = false;
     sendLog("rec_uploaded", { filename: fn, duration: recSec });
   }).catch(function(e) {
     st.className = "upload-status show error";
-    st.textContent = "❌ 업로드 실패: " + e.message;
-    btn.disabled = false;
+    var msg = e.message || "";
+    if (msg.indexOf("unauthorized") > -1 || msg.indexOf("permission-denied") > -1) {
+      st.textContent = "\u274c \uad8c\ud55c \uac70\ubd80 — Firebase \ucf58\uc194 \u2192 Storage \u2192 Rules \u2192 allow write: if true; \ub85c \ubcc0\uacbd \ud574 \uc8fc\uc138\uc694.";
+    } else if (msg.indexOf("storage/unknown") > -1 || msg.indexOf("bucket") > -1) {
+      st.textContent = "\u274c Storage \ubc84\uc2b7 \uc5c6\uc74c — Firebase \ucf58\uc194 \u2192 Storage \u2192 \uc2dc\uc791\ud558\uae30\ub97c \uc644\ub8cc\ud574 \uc8fc\uc138\uc694.";
+    } else {
+      st.textContent = "\u274c \uc2e4\ud328: " + msg;
+    }
+    if (btn) btn.disabled = false;
   });
 }
 
