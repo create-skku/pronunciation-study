@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase 클릭 + 녹음 업로드 테스트</title>
+
+  <!-- Firebase compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6fa;
+      padding: 24px;
+      color: #1c2e4a;
+    }
+
+    .box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 18px;
+      max-width: 720px;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #1c2e4a;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    input {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 260px;
+      max-width: 100%;
+    }
+
+    #status {
+      white-space: pre-wrap;
+      background: #111;
+      color: #00ff4c;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 180px;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    audio {
+      display: block;
+      margin-top: 12px;
+      width: 100%;
+      max-width: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Firebase 클릭 + 녹음 업로드 테스트</h2>
+    <p>1. 이름 또는 참여자 코드를 입력하세요.</p>
+    <input id="learnerId" placeholder="예: A01 또는 test01" value="test01" />
+  </div>
+
+  <div class="box">
+    <h3>1. 클릭 로그 테스트</h3>
+    <p>아래 버튼을 클릭하면 Firestore에 클릭 로그가 저장됩니다.</p>
+    <button onclick="saveClickLog('button_1')">테스트 버튼 1</button>
+    <button onclick="saveClickLog('button_2')">테스트 버튼 2</button>
+    <button onclick="saveClickLog('button_3')">테스트 버튼 3</button>
+  </div>
+
+  <div class="box">
+    <h3>2. 음성 녹음 테스트</h3>
+    <p>녹음 후 업로드 버튼을 누르면 Firebase Storage에 음성 파일이 저장됩니다.</p>
+
+    <button id="startBtn" onclick="startRecording()">🔴 녹음 시작</button>
+    <button id="stopBtn" onclick="stopRecording()" disabled>⏹ 녹음 정지</button>
+    <button id="uploadBtn" onclick="uploadRecording()" disabled>📤 업로드</button>
+
+    <p id="timer">녹음 시간: 0초</p>
+    <audio id="audioPreview" controls style="display:none;"></audio>
+  </div>
+
+  <div class="box">
+    <h3>상태창</h3>
+    <div id="status">대기 중...</div>
+  </div>
+
+  <script>
+    // =====================================================
+    // 1. Firebase 설정값 입력
+    // 기존 프로젝트의 firebaseConfig 값을 여기에 넣으세요.
+    // =====================================================
+    var firebaseConfig = {
+      apiKey: "여기에_apiKey",
+      authDomain: "여기에_authDomain",
+      projectId: "여기에_projectId",
+      storageBucket: "여기에_storageBucket",
+      messagingSenderId: "여기에_messagingSenderId",
+      appId: "여기에_appId"
+    };
+
+    var db = null;
+    var storage = null;
+
+    var mediaRecorder = null;
+    var audioChunks = [];
+    var recordedBlob = null;
+    var recordedMimeType = "";
+    var timerInterval = null;
+    var recordSec = 0;
+
+    function getLearnerId() {
+      var value = document.getElementById("learnerId").value.trim();
+      if (!value) value = "unknown";
+
+      return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, function(c) { return c === "đ" ? "d" : "D"; })
+        .replace(/[^a-zA-Z0-9_-]/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "")
+        .slice(0, 40) || "unknown";
+    }
+
+    function logStatus(message) {
+      var now = new Date().toLocaleTimeString();
+      var status = document.getElementById("status");
+      status.textContent += "\n[" + now + "] " + message;
+      console.log(message);
+    }
+
+    // =====================================================
+    // 2. Firebase 초기화
+    // =====================================================
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      storage = firebase.storage();
+
+      document.getElementById("status").textContent = "Firebase 초기화 성공";
+      console.log("Firebase 초기화 성공");
+    } catch (error) {
+      document.getElementById("status").textContent =
+        "Firebase 초기화 실패: " + error.message;
+      console.error(error);
+    }
+
+    // =====================================================
+    // 3. 클릭 로그 저장
+    // Firestore 위치:
+    // _click_record_test/{자동문서ID}
+    // =====================================================
+    function saveClickLog(buttonName) {
+      if (!db) {
+        logStatus("Firestore 객체가 없습니다.");
+        return;
+      }
+
+      var learnerId = getLearnerId();
+
+      var data = {
+        type: "click",
+        learnerId: learnerId,
+        buttonName: buttonName,
+        pageUrl: location.href,
+        userAgent: navigator.userAgent,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      logStatus("클릭 로그 저장 시도: " + JSON.stringify(data));
+
+      db.collection("_click_record_test").add(data)
+        .then(function(docRef) {
+          logStatus("클릭 로그 저장 성공: " + docRef.id);
+        })
+        .catch(function(error) {
+          logStatus("클릭 로그 저장 실패: " + error.code + " / " + error.message);
+          console.error(error);
+        });
+    }
+
+    // =====================================================
+    // 4. 녹음 시작
+    // =====================================================
+    function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("이 브라우저는 마이크 녹음을 지원하지 않습니다.");
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          audioChunks = [];
+          recordedBlob = null;
+          recordSec = 0;
+
+          var mimeType = "";
+
+          if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+            mimeType = "audio/webm;codecs=opus";
+          } else if (MediaRecorder.isTypeSupported("audio/webm")) {
+            mimeType = "audio/webm";
+          } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+            mimeType = "audio/mp4";
+          }
+
+          recordedMimeType = mimeType || "audio/webm";
+
+          mediaRecorder = mimeType
+            ? new MediaRecorder(stream, { mimeType: mimeType })
+            : new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = function(event) {
+            if (event.data && event.data.size > 0) {
+              audioChunks.push(event.data);
+            }
+          };
+
+          mediaRecorder.onstop = function() {
+            recordedBlob = new Blob(audioChunks, { type: recordedMimeType });
+
+            var audioUrl = URL.createObjectURL(recordedBlob);
+            var audioPreview = document.getElementById("audioPreview");
+            audioPreview.src = audioUrl;
+            audioPreview.style.display = "block";
+
+            stream.getTracks().forEach(function(track) {
+              track.stop();
+            });
+
+            document.getElementById("uploadBtn").disabled = false;
+
+            logStatus("녹음 완료. 파일 크기: " + recordedBlob.size + " bytes");
+          };
+
+          mediaRecorder.start();
+
+          document.getElementById("startBtn").disabled = true;
+          document.getElementById("stopBtn").disabled = false;
+          document.getElementById("uploadBtn").disabled = true;
+
+          timerInterval = setInterval(function() {
+            recordSec++;
+            document.getElementById("timer").textContent =
+              "녹음 시간: " + recordSec + "초";
+          }, 1000);
+
+          logStatus("녹음 시작");
+        })
+        .catch(function(error) {
+          alert("마이크 권한이 필요합니다: " + error.message);
+          logStatus("녹음 시작 실패: " + error.message);
+          console.error(error);
+        });
+    }
+
+    // =====================================================
+    // 5. 녹음 정지
+    // =====================================================
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+
+      clearInterval(timerInterval);
+
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("stopBtn").disabled = true;
+
+      logStatus("녹음 정지");
+    }
+
+    // =====================================================
+    // 6. 녹음 파일 업로드
+    // Storage 위치:
+    // recordings_test/{learnerId}/{파일명}
+    //
+    // Firestore 위치:
+    // _recording_upload_test/{자동문서ID}
+    // =====================================================
+    function uploadRecording() {
+      if (!storage || !db) {
+        logStatus("Firebase Storage 또는 Firestore 객체가 없습니다.");
+        return;
+      }
+
+      if (!recordedBlob) {
+        alert("먼저 녹음하세요.");
+        return;
+      }
+
+      var learnerId = getLearnerId();
+      var now = new Date();
+      var timestamp = now.toISOString().slice(0, 19).replace(/[T:]/g, "-");
+
+      var extension = "webm";
+      if (recordedMimeType.indexOf("mp4") > -1) extension = "mp4";
+
+      var fileName = learnerId + "_record_" + timestamp + "." + extension;
+      var storagePath = "recordings_test/" + learnerId + "/" + fileName;
+
+      logStatus("업로드 시도: " + storagePath);
+
+      document.getElementById("uploadBtn").disabled = true;
+
+      var ref = storage.ref(storagePath);
+
+      ref.put(recordedBlob, {
+        contentType: recordedMimeType
+      })
+      .then(function(snapshot) {
+        logStatus("Storage 업로드 성공");
+        return snapshot.ref.getDownloadURL();
+      })
+      .then(function(downloadUrl) {
+        logStatus("다운로드 URL 생성 성공");
+
+        return db.collection("_recording_upload_test").add({
+          type: "recording_upload",
+          learnerId: learnerId,
+          fileName: fileName,
+          storagePath: storagePath,
+          downloadUrl: downloadUrl,
+          contentType: recordedMimeType,
+          size: recordedBlob.size,
+          durationSec: recordSec,
+          pageUrl: location.href,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(function(docRef) {
+        logStatus("Firestore 녹음 메타데이터 저장 성공: " + docRef.id);
+      })
+      .catch(function(error) {
+        logStatus("업로드 실패: " + error.code + " / " + error.message);
+        console.error(error);
+        document.getElementById("uploadBtn").disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
