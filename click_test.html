@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase 클릭 로그 테스트</title>
+
+  <!-- Firebase compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f4f6fa;
+    }
+
+    .box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #1C2E4A;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    #status {
+      white-space: pre-wrap;
+      background: #111;
+      color: #0f0;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      min-height: 120px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Firebase 클릭 로그 테스트</h2>
+    <p>아무 곳이나 클릭하면 Firestore에 저장됩니다.</p>
+
+    <button>테스트 버튼 1</button>
+    <button>테스트 버튼 2</button>
+    <button>테스트 버튼 3</button>
+
+    <p>이 문장도 클릭해보세요.</p>
+  </div>
+
+  <div class="box">
+    <h3>상태창</h3>
+    <div id="status">대기 중...</div>
+  </div>
+
+  <script>
+    // =====================================================
+    // 1. 여기에 Firebase 설정값 입력
+    // 기존 index_2.html에 있던 FIREBASE_CONFIG 값을 그대로 붙여넣으세요.
+    // =====================================================
+    var firebaseConfig = {
+    apiKey: "AIzaSyBomFqxP_-xiLxYjTm-sF-cniJXA2drb1Y",
+    authDomain: "bigsister-kr.firebaseapp.com",
+    projectId: "bigsister-kr",
+    storageBucket: "bigsister-kr.firebasestorage.app",
+    messagingSenderId: "551801039761",
+    appId: "1:551801039761:web:fd2b99a1cccb23e69a0830",
+    measurementId: "G-YMJ9ME1G3H" 
+
+    };
+
+    var db = null;
+    var clickCount = 0;
+
+    function logStatus(message) {
+      var status = document.getElementById("status");
+      var now = new Date().toLocaleTimeString();
+      status.textContent += "\n[" + now + "] " + message;
+      console.log(message);
+    }
+
+    // =====================================================
+    // 2. Firebase 초기화
+    // =====================================================
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      document.getElementById("status").textContent = "Firebase 초기화 성공";
+      console.log("Firebase 초기화 성공");
+    } catch (e) {
+      document.getElementById("status").textContent = "Firebase 초기화 실패: " + e.message;
+      console.error("Firebase 초기화 실패:", e);
+    }
+
+    // =====================================================
+    // 3. 페이지 로드 즉시 Firestore 테스트 저장
+    // =====================================================
+    function testWriteOnLoad() {
+      if (!db) {
+        logStatus("Firestore 객체가 없습니다.");
+        return;
+      }
+
+      db.collection("_click_test").add({
+        type: "page_load_test",
+        message: "페이지 로드 테스트 저장",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent
+      })
+      .then(function(docRef) {
+        logStatus("페이지 로드 테스트 저장 성공: " + docRef.id);
+      })
+      .catch(function(error) {
+        logStatus("페이지 로드 테스트 저장 실패: " + error.code + " / " + error.message);
+        console.error(error);
+      });
+    }
+
+    // =====================================================
+    // 4. 아무 곳이나 클릭하면 Firestore 저장
+    // =====================================================
+    document.addEventListener("click", function(event) {
+      if (!db) {
+        logStatus("클릭 감지됨. 그러나 Firestore 객체가 없습니다.");
+        return;
+      }
+
+      clickCount++;
+
+      var target = event.target;
+      var clickData = {
+        type: "click",
+        clickCount: clickCount,
+        tagName: target.tagName,
+        text: (target.textContent || "").trim().slice(0, 50),
+        className: target.className ? String(target.className).slice(0, 80) : "",
+        x: event.clientX,
+        y: event.clientY,
+        pageUrl: location.href,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      logStatus("클릭 저장 시도: " + JSON.stringify(clickData));
+
+      db.collection("_click_test").add(clickData)
+      .then(function(docRef) {
+        logStatus("클릭 저장 성공: " + docRef.id);
+      })
+      .catch(function(error) {
+        logStatus("클릭 저장 실패: " + error.code + " / " + error.message);
+        console.error(error);
+      });
+    });
+
+    testWriteOnLoad();
+  </script>
+</body>
+</html>
