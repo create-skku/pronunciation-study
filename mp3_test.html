@@ -388,7 +388,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
 // =====================================================
 //  ★ Apps Script 배포 URL — 여기만 교체하세요 ★
 // =====================================================
-var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV_IxsKXcoDtCBDbShMiMLYiVVJVY_4iiaVXexHZLF0VsjOvCd7s2msjgZzPv8ghnT/exec";
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypm_tUh8vLPxlWxheuOEhr9BPmgV6tJK5eLUXSodE-qiC8G_-gfn-t9zeO-o6cQbPp8A/exec";
 
 var WEEK = 1, ROUND = 1;
 var cur = 1, total = 9, quizDone = {};
@@ -408,21 +408,25 @@ var LEARNER_ID = (function(){
 // =====================================================
 function sendLog(eventType, payload) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
-  var data = {
-    type:        "log",
-    learnerId:   LEARNER_ID,
-    week:        WEEK,
-    eventType:   eventType,
-    page:        cur,
-    elapsed:     Math.round((Date.now() - sessionStart) / 1000),
-    payload:     payload || {}
-  };
-  // sendBeacon: 페이지 이탈 시에도 전송
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon(APPS_SCRIPT_URL, JSON.stringify(data));
-  } else {
-    fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(data) }).catch(function(){});
-  }
+  var data = JSON.stringify({
+    type:      "log",
+    learnerId: LEARNER_ID,
+    week:      WEEK,
+    eventType: eventType,
+    page:      cur,
+    elapsed:   Math.round((Date.now() - sessionStart) / 1000),
+    payload:   payload || {}
+  });
+  // sendBeacon: 가장 안정적 (페이지 이탈 시에도 전송)
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(APPS_SCRIPT_URL, data);
+    } else {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", APPS_SCRIPT_URL, true);
+      xhr.send(data);
+    }
+  } catch(e) {}
 }
 
 // =====================================================
@@ -554,7 +558,7 @@ function uploadRec() {
   var st  = document.getElementById("uploadStatus");
   var btn = document.getElementById("uploadBtn");
   st.className = "upload-status show uploading";
-  st.textContent = "⏳ 업로드 중... (파일 크기에 따라 10~30초 소요)";
+  st.textContent = "⏳ 업로드 중... (10~30초 소요)";
   btn.disabled = true;
 
   var reader = new FileReader();
@@ -562,32 +566,50 @@ function uploadRec() {
     var base64 = ev.target.result.split(",")[1];
     var ts = new Date().toISOString().slice(0,19).replace(/[T:]/g, "-");
     var filename = LEARNER_ID + "_W" + WEEK + "_R" + ROUND + "_" + ts + ".wav";
-    fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        type: "recording",
-        learnerId: LEARNER_ID,
-        week:  WEEK,
-        round: ROUND,
-        filename: filename,
-        duration: recSec,
-        file: base64
-      })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (res.ok) {
-        st.className = "upload-status show success";
-        st.textContent = "✅ 업로드 완료! 구글 드라이브에 저장되었습니다.";
-        btn.disabled = false;
-        sendLog("rec_uploaded", { filename: filename, duration: recSec });
-      } else { throw new Error(res.error || "unknown"); }
-    })
-    .catch(function(e) {
-      st.className = "upload-status show error";
-      st.textContent = "❌ 업로드 실패: " + e.message;
+
+    // XMLHttpRequest 사용 — Apps Script redirect 문제 해결
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", APPS_SCRIPT_URL, true);
+    xhr.timeout = 60000; // 60초 타임아웃
+
+    xhr.onload = function() {
+      try {
+        var res = JSON.parse(xhr.responseText);
+        if (res.ok) {
+          st.className = "upload-status show success";
+          st.textContent = "✅ 업로드 완료! 구글 드라이브에 저장되었습니다.";
+          sendLog("rec_uploaded", { filename: filename, duration: recSec });
+        } else {
+          throw new Error(res.error || "서버 오류");
+        }
+      } catch(e) {
+        st.className = "upload-status show error";
+        st.textContent = "❌ 업로드 실패: " + e.message;
+      }
       btn.disabled = false;
-    });
+    };
+
+    xhr.onerror = function() {
+      st.className = "upload-status show error";
+      st.textContent = "❌ 네트워크 오류. 인터넷 연결을 확인해 주세요.";
+      btn.disabled = false;
+    };
+
+    xhr.ontimeout = function() {
+      st.className = "upload-status show error";
+      st.textContent = "❌ 시간 초과. 파일이 너무 크거나 서버가 느립니다.";
+      btn.disabled = false;
+    };
+
+    xhr.send(JSON.stringify({
+      type: "recording",
+      learnerId: LEARNER_ID,
+      week:  WEEK,
+      round: ROUND,
+      filename: filename,
+      duration: recSec,
+      file: base64
+    }));
   };
   reader.readAsDataURL(recBlob);
 }
