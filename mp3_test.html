@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>1주차 — 한국어 파열음 학습</title>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 :root {
@@ -388,16 +385,18 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
 </div>
 
 <script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV_IxsKXcoDtCBDbShMiMLYiVVJVY_4iiaVXexHZLF0VsjOvCd7s2msjgZzPv8ghnT/exec";
+
 // ══════════════════════════════════════════
 //  ★ Firebase 설정값 — 여기만 교체하세요 ★
 // ══════════════════════════════════════════
 var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyACY_txV77iX6gUkIN-q20FhV3c-2fMcYM",
-  authDomain: "create-202604.firebaseapp.com",
-  projectId: "create-202604",
-  storageBucket: "create-202604.firebasestorage.app",
-  messagingSenderId: "45657559800",
-  appId: "1:45657559800:web:083fea5c150bcfea02210d"
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
 };
 
 // 학습자 ID — 로그인 연동 전까지 입력값 사용
@@ -580,13 +579,15 @@ function uploadRec() {
 //  Firebase 이벤트 로그
 // ══════════════════════════════════════════
 function logEvent(type, data) {
-  if (!fbReady || !db) return;
-  db.collection('learningLogs').add(Object.assign({
-    learnerId:  LEARNER_ID,
-    week:       WEEK,
-    eventType:  type,
-    timestamp:  firebase.firestore.FieldValue.serverTimestamp()
-  }, data)).catch(function(){});
+  sendLog(type, data);
+}
+
+function sendLog(eventType, payload) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") return;
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ type: "log", learnerId: LEARNER_ID, week: WEEK, eventType: eventType, payload: payload || {} })
+  }).catch(function() {});
 }
 
 updateNav();
