@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -1403,6 +1403,9 @@ function doLogin() {
 
   sendLog("session_start", 0, { sessionId: SESSION_ID, learnerId: LEARNER_ID });
   sendPageLog("enter", 1, {});
+
+  // S1 안내음: 로그인 클릭 직후 재생 (사용자 제스처 내에서 실행)
+  playPageAudio(1);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1504,13 +1507,8 @@ function goSlide(dir) {
 
   sendPageLog("enter", cur, {});
   sendLog("page_enter", cur, { label: SLIDE_LABELS[cur] || "" });
-  // 페이지 안내음 재생 (01.mp3 ~ 09.mp3, 있으면 자동 재생)
-  var pageNum = cur;
-  if (pageNum >= 1 && pageNum <= 9) {
-    var padded = pageNum < 10 ? "0" + pageNum : "" + pageNum;
-    var guideAudio = new Audio("./mp3/" + padded + ".mp3");
-    guideAudio.play().catch(function(){});
-  }
+  // 페이지 안내음 재생
+  playPageAudio(cur);
 }
 
 function updateNav() {
@@ -1730,6 +1728,23 @@ var KO_MAP = {
   "sent_2":"파란 파도가 빠르게 밀려와요.",
   "quiz_1":"빨리","quiz_2":"파도","quiz_3":"뿔"
 };
+
+// 페이지 안내음 재생 (01.mp3 ~ 09.mp3)
+// 반드시 사용자 제스처(클릭) 콜스택 안에서 호출해야 autoplay 허용됨
+var currentGuideAudio = null;
+function playPageAudio(pageNum) {
+  if (pageNum < 1 || pageNum > 9) return;
+  if (currentGuideAudio) {
+    currentGuideAudio.pause();
+    currentGuideAudio = null;
+  }
+  var padded = pageNum < 10 ? "0" + pageNum : "" + pageNum;
+  var ga = new Audio("./mp3/" + padded + ".mp3");
+  currentGuideAudio = ga;
+  ga.play().catch(function(e) {
+    console.warn("안내음 재생 실패 (S" + pageNum + "):", e.message);
+  });
+}
 
 // key → 실제 mp3 파일명 매핑
 var AUDIO_FILE_MAP = {
