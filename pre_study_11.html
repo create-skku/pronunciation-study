@@ -1754,7 +1754,7 @@ function playPageAudio(pageNum) {
     ga.play().catch(function(e) {
       console.warn("안내음 재생 실패 (S" + pageNum + "):", e.message);
     });
-  }, 1000);
+  }, 500);
 }
 
 // TTS fallback 맵
