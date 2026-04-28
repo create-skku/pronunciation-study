@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>한국어 파열음 학습 — Pre Study v2</title>
 
@@ -77,7 +79,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .login-start.ready { opacity: 1; pointer-events: auto; }
 
 /* ─── 메인 앱 ─── */
-#appScreen { display: none; min-height: 100vh; }
+#appScreen { display: none; }
 
 /* 상단바 */
 .top-bar {
@@ -426,7 +428,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .chip-c     { background: rgba(26,184,166,.18);  color: var(--teal);   border: 1px solid rgba(26,184,166,.35); }
 .chip-final { background: rgba(168,139,250,.18); color: #C4B5FD;       border: 1px solid rgba(168,139,250,.35); }
 .survey-header-text h2 { font-size: 17px; font-weight: 900; margin-bottom: 2px; }
-.survey-header-text p  { font-size: 12px; color: var(--muted); font-style: italic; }
+.survey-header-text p  { font-size: 12px; color: rgba(240,244,250,.6); font-style: italic; }
 
 /* ── 척도 안내 — 컴팩트 ── */
 .scale-guide {
@@ -439,7 +441,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .scale-mid span {
   width: 18px; height: 18px; border-radius: 4px; background: var(--border);
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-family: var(--mono); color: var(--muted); font-weight: 700;
+  font-size: 9px; font-family: var(--mono); color: rgba(240,244,250,.65); font-weight: 700;
 }
 .scale-high { font-size: 10px; font-weight: 700; color: #5EEAD4; white-space: nowrap; }
 /* scale-nums 숨김 (scale-mid로 대체) */
@@ -455,7 +457,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
   border-radius: 2px; transition: width .4s ease; width: 0%;
 }
 .sq-progress-label {
-  font-size: 10px; font-family: var(--mono); color: var(--muted);
+  font-size: 10px; font-family: var(--mono); color: rgba(240,244,250,.55);
   text-align: right; margin-bottom: 12px;
 }
 
@@ -468,7 +470,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .sq-card.answered { border-color: rgba(79,128,255,.4); }
 .sq-qnum {
   font-size: 9px; font-weight: 900; font-family: var(--mono);
-  color: var(--muted); letter-spacing: .08em; margin-bottom: 7px;
+  color: rgba(240,244,250,.55); letter-spacing: .08em; margin-bottom: 7px;
   display: flex; justify-content: space-between; align-items: center;
 }
 .sq-qnum-check { color: var(--teal); display: none; font-size: 10px; }
@@ -494,7 +496,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
   position: relative; gap: 2px; padding: 0;
 }
 .sq-lbtn-n {
-  font-size: 13px; font-weight: 900; font-family: var(--mono); color: var(--muted);
+  font-size: 13px; font-weight: 900; font-family: var(--mono); color: rgba(240,244,250,.75);
   line-height: 1;
 }
 .sq-lbtn-dot {
@@ -516,7 +518,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .sq-extremes {
   display: flex; justify-content: space-between;
   margin-top: 5px; padding: 0 1px;
-  font-size: 9px; color: var(--muted);
+  font-size: 9px; color: rgba(240,244,250,.5);
 }
 .sq-extremes span:first-child { color: #FF8A80; }
 .sq-extremes span:last-child  { color: #5EEAD4; }
@@ -543,7 +545,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 .sq-choice-btn.sel .sq-choice-letter {
   background: var(--blue); border-color: var(--blue); color: #fff;
 }
-.sq-choice-label { font-size: 13px; font-weight: 700; }
+.sq-choice-label { font-size: 13px; font-weight: 700; color: var(--white); }
 
 /* ── 자유서술 (O5) ── */
 .sq-textarea {
@@ -559,13 +561,13 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 /* ── 제출 영역 ── */
 .sq-submit-area { margin-top: 18px; }
 .sq-remain-note {
-  text-align: center; font-size: 11px; color: var(--muted);
+  text-align: center; font-size: 11px; color: rgba(240,244,250,.6);
   font-style: italic; margin-bottom: 8px; min-height: 16px; transition: color .2s;
 }
 .sq-remain-note.done { color: var(--teal); font-weight: 700; font-style: normal; }
 .sq-submit-btn {
   width: 100%; height: 44px; border: 0; border-radius: 12px;
-  background: var(--surface2); color: var(--muted);
+  background: var(--surface2); color: rgba(240,244,250,.5);
   font-size: 14px; font-weight: 900; cursor: not-allowed;
   transition: all .25s; display: flex; align-items: center; justify-content: center; gap: 6px;
   border: 1px solid var(--border);
@@ -1443,6 +1445,9 @@ function initFirebase() {
         userAgent:  navigator.userAgent.slice(0,120)
       }, { merge:true }).catch(function(){});
     console.log("Firebase OK | Learner:", LEARNER_ID, "| Session:", SESSION_ID);
+    console.log("%c[Firebase] 데이터가 쌓이지 않으면 Firebase 콘솔 → Firestore Rules / Storage Rules 를 확인하세요.", "color:#F5820A;font-weight:bold");
+    console.log("  Firestore Rules: allow read, write: if true;");
+    console.log("  Storage Rules:   allow read, write: if true;");
   } catch(e) { console.warn("Firebase 오류:", e.message); }
 }
 
@@ -1493,7 +1498,9 @@ function goSlide(dir) {
   document.getElementById("s" + cur).classList.add("active");
   pageEnterTime = Date.now();
   updateNav();
-  window.scrollTo(0, 0);
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 
   sendPageLog("enter", cur, {});
   sendLog("page_enter", cur, { label: SLIDE_LABELS[cur] || "" });
