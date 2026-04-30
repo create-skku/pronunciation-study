@@ -1,0 +1,2356 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>한국어 파열음 학습 — Pre Study v2</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ─── 토큰 ─── */
+:root {
+  --bg: #0F1923;
+  --surface: #162130;
+  --surface2: #1E2E40;
+  --border: rgba(255,255,255,.08);
+  --navy: #1C2E4A;
+  --orange: #F5820A;
+  --teal: #1AB8A6;
+  --red: #E03E32;
+  --blue: #4F80FF;
+  --white: #F0F4FA;
+  --muted: rgba(240,244,250,.45);
+  --text: #F0F4FA;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Noto Sans KR', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+/* ─── 로그인 화면 ─── */
+#loginScreen {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at 60% 20%, rgba(79,128,255,.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(245,130,10,.1) 0%, transparent 55%), var(--bg);
+}
+.login-logo { font-size: 40px; margin-bottom: 12px; }
+.login-title { font-size: 22px; font-weight: 900; color: var(--white); margin-bottom: 4px; text-align: center; }
+.login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; font-style: italic; text-align: center; }
+.login-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 10px; letter-spacing: .08em; }
+/* ─── 입력형 로그인 ─── */
+.login-input-wrap {
+  width: 100%; max-width: 320px; position: relative; margin-bottom: 0;
+}
+.login-input {
+  width: 100%; height: 64px; border: 2px solid var(--border); border-radius: 18px;
+  background: var(--surface); color: var(--text);
+  font-size: 32px; font-weight: 900; font-family: var(--mono);
+  text-align: center; letter-spacing: .15em;
+  outline: none; transition: all .2s; -webkit-appearance: none;
+}
+.login-input:focus { border-color: var(--blue); background: rgba(79,128,255,.08); }
+.login-input::placeholder { font-size: 16px; font-weight: 400; letter-spacing: 0; color: rgba(240,244,250,.25); }
+.login-input-hint {
+  font-size: 11px; color: var(--muted); text-align: center;
+  margin-top: 8px; margin-bottom: 0; font-style: italic;
+}
+.login-input-error {
+  font-size: 12px; font-weight: 700; color: #FF8A80;
+  text-align: center; margin-top: 6px; min-height: 18px; transition: opacity .2s;
+}
+.login-start {
+  margin-top: 20px; width: 100%; max-width: 320px; height: 56px;
+  border: 0; border-radius: 16px;
+  background: linear-gradient(135deg, var(--blue), #7B5BFF);
+  color: #fff; font-size: 16px; font-weight: 900; cursor: pointer;
+  opacity: .4; pointer-events: none; transition: all .2s;
+}
+.login-start.ready { opacity: 1; pointer-events: auto; }
+
+/* ─── 메인 앱 ─── */
+#appScreen { display: none; }
+
+/* 상단바 */
+.top-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+}
+.top-left { display: flex; align-items: center; gap: 10px; }
+.top-learner {
+  font-size: 13px; font-weight: 700; color: var(--white);
+  background: rgba(79,128,255,.2); border: 1px solid rgba(79,128,255,.3);
+  border-radius: 20px; padding: 3px 12px; font-family: var(--mono);
+}
+.top-title { font-size: 13px; color: var(--muted); }
+.top-prog { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+.prog-wrap { height: 3px; background: var(--border); }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal)); transition: width .4s ease; }
+
+/* 슬라이드 */
+.slide { display: none; padding: 14px 12px 110px; animation: slideIn .3s ease; }
+.slide.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+
+/* 카드 공통 */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px; margin-bottom: 14px;
+}
+.card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.card-badge {
+  width: 34px; height: 34px; border-radius: 10px; background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; flex-shrink: 0; color: #fff;
+}
+.card-badge.blue { background: var(--blue); }
+.card-badge.teal { background: var(--teal); }
+.card-badge.red { background: var(--red); }
+.card-title { font-size: 17px; font-weight: 900; }
+.card-sub { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+
+/* 타이틀 슬라이드 */
+.hero {
+  background: linear-gradient(145deg, #1a2e45 0%, #0f1e30 100%);
+  border: 1px solid var(--border); border-radius: 22px;
+  padding: 32px 24px; margin-bottom: 14px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,128,255,.2) 0%, transparent 70%);
+}
+.hero-week { font-size: 11px; font-weight: 700; letter-spacing: .15em; color: var(--orange); margin-bottom: 8px; font-family: var(--mono); }
+.hero-title { font-size: 26px; font-weight: 900; line-height: 1.3; margin-bottom: 6px; }
+.hero-viet { font-size: 12px; color: var(--muted); font-style: italic; }
+.phoneme-row { display: flex; gap: 10px; margin-top: 20px; }
+.phoneme-box { flex: 1; border-radius: 14px; padding: 14px 8px; text-align: center; border: 1px solid; }
+.phoneme-box.p  { background: rgba(79,128,255,.1);  border-color: rgba(79,128,255,.3); }
+.phoneme-box.pp { background: rgba(245,130,10,.1);  border-color: rgba(245,130,10,.3); }
+.phoneme-box.ph { background: rgba(26,184,166,.1);  border-color: rgba(26,184,166,.3); }
+.p-char  { font-size: 30px; font-weight: 900; display: block; }
+.p-label { font-size: 10px; color: var(--muted); display: block; margin-top: 4px; }
+.p-name  { font-size: 11px; font-weight: 700; display: block; margin-top: 2px; }
+.phoneme-box.p  .p-char { color: var(--blue); }
+.phoneme-box.pp .p-char { color: var(--orange); }
+.phoneme-box.ph .p-char { color: var(--teal); }
+
+/* 학습 순서 */
+.step-list { display: flex; flex-direction: column; gap: 10px; }
+.step-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+}
+.step-n {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; flex-shrink: 0; font-family: var(--mono);
+}
+.n1{background:rgba(79,128,255,.2);color:var(--blue)}
+.n2{background:rgba(245,130,10,.2);color:var(--orange)}
+.n3{background:rgba(26,184,166,.2);color:var(--teal)}
+.n4{background:rgba(224,62,50,.2);color:var(--red)}
+.n5{background:rgba(79,128,255,.15);color:#A78BFA}
+.step-ko { font-size: 14px; font-weight: 700; }
+.step-viet { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 2px; }
+.step-viet-inline { font-size: 10px; color: var(--muted); font-style: italic; font-weight: 400; }
+
+/* 발음 원리 */
+.pe-list { display: flex; flex-direction: column; gap: 10px; }
+.pe-row {
+  display: grid; grid-template-columns: 50px 1fr;
+  gap: 12px; align-items: start; padding: 14px; border-radius: 14px; border: 1px solid;
+}
+.pe-row.ba  { background: rgba(79,128,255,.08);  border-color: rgba(79,128,255,.25); }
+.pe-row.bba { background: rgba(245,130,10,.08);  border-color: rgba(245,130,10,.25); }
+.pe-row.pa  { background: rgba(26,184,166,.08);  border-color: rgba(26,184,166,.25); }
+.pe-char { font-size: 30px; font-weight: 900; text-align: center; line-height: 1; padding-top: 4px; }
+.pe-char.ba  { color: var(--blue); }
+.pe-char.bba { color: var(--orange); }
+.pe-char.pa  { color: var(--teal); }
+.pe-name { font-size: 13px; font-weight: 900; margin-bottom: 4px; }
+.pe-desc { font-size: 13px; line-height: 1.5; color: rgba(240,244,250,.85); }
+.pe-viet { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 3px; }
+.pe-ex { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pe-wind { font-size: 18px; margin-bottom: 4px; }
+
+/* 손 테스트 */
+.hand-tip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+  font-size: 14px; font-weight: 700; text-align: center; line-height: 1.6;
+  margin-bottom: 14px;
+}
+.hand-tip small { display: block; color: var(--muted); font-size: 12px; font-style: italic; font-weight: 400; margin-top: 4px; }
+.hand-cards { display: flex; flex-direction: column; gap: 10px; }
+.hand-card {
+  border-radius: 14px; padding: 14px 16px;
+  display: grid; grid-template-columns: 54px 1fr auto;
+  align-items: center; gap: 12px; border: 1px solid;
+}
+.hand-card.ba  { background: rgba(79,128,255,.08);  border-color: rgba(79,128,255,.25); }
+.hand-card.bba { background: rgba(245,130,10,.08);  border-color: rgba(245,130,10,.25); }
+.hand-card.pa  { background: rgba(26,184,166,.08);  border-color: rgba(26,184,166,.25); }
+.hand-syl { font-size: 26px; font-weight: 900; text-align: center; }
+.hand-syl.ba  { color: var(--blue); }
+.hand-syl.bba { color: var(--orange); }
+.hand-syl.pa  { color: var(--teal); }
+.hand-ko { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.hand-viet { font-size: 11px; color: var(--muted); font-style: italic; }
+.hand-wind { font-size: 26px; text-align: center; }
+
+/* 듣고 따라하기 테이블 */
+.listen-table {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 12px;
+}
+.listen-head { display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--surface2); }
+.listen-head-cell {
+  padding: 10px 6px; text-align: center;
+  font-size: 11px; font-weight: 800; color: var(--muted);
+  border-right: 1px solid var(--border);
+}
+.listen-head-cell:last-child { border-right: none; }
+.listen-head-cell span { display: block; font-size: 20px; font-weight: 900; margin-bottom: 2px; }
+.lhba span{color:var(--blue)} .lhbba span{color:var(--orange)} .lhpa span{color:var(--teal)}
+.listen-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--border); }
+.listen-cell {
+  padding: 12px 6px; text-align: center;
+  font-size: 16px; font-weight: 900;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; transition: background .15s;
+}
+.listen-cell:last-child { border-right: none; }
+.listen-cell:active, .listen-cell.played { background: rgba(79,128,255,.1); }
+.listen-cell small { font-size: 10px; color: var(--muted); font-weight: 400; }
+.listen-cell.ba  { color: var(--blue); }
+.listen-cell.bba { color: var(--orange); }
+.listen-cell.pa  { color: var(--teal); }
+
+/* 단어 카드 */
+.word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.word-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 12px; position: relative; overflow: hidden;
+  cursor: pointer; transition: all .15s;
+}
+.word-card:active { transform: scale(.97); }
+.word-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.word-card.ba::before  { background: var(--blue); }
+.word-card.bba::before { background: var(--orange); }
+.word-card.pa::before  { background: var(--teal); }
+.word-phoneme { font-size: 10px; font-weight: 800; margin-bottom: 6px; }
+.word-phoneme.ba  { color: var(--blue); }
+.word-phoneme.bba { color: var(--orange); }
+.word-phoneme.pa  { color: var(--teal); }
+.word-ko { font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+.word-viet { font-size: 11px; color: var(--muted); font-style: italic; }
+.word-play { font-size: 16px; position: absolute; top: 10px; right: 12px; }
+
+/* 문장 카드 */
+.sent-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px; margin-bottom: 12px;
+  cursor: pointer; transition: all .15s;
+}
+.sent-card:active { transform: scale(.98); }
+.sent-ko { font-size: 16px; font-weight: 700; line-height: 1.7; margin-bottom: 8px; }
+.sent-viet { font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.5; }
+.sent-play { font-size: 26px; margin-bottom: 10px; }
+.sent-focus {
+  background: rgba(245,130,10,.1); border: 1px solid rgba(245,130,10,.3);
+  border-radius: 12px; padding: 12px 14px; font-size: 12px; color: #FFAA55; font-weight: 600;
+  margin-top: 12px;
+}
+.hl-ba  { color: var(--blue);   font-weight: 800; }
+.hl-bba { color: var(--orange); font-weight: 800; }
+.hl-pa  { color: var(--teal);   font-weight: 800; }
+
+/* 퀴즈 */
+.quiz-intro {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px; font-size: 13px;
+  color: var(--muted); text-align: center; margin-bottom: 14px;
+}
+.quiz-list { display: flex; flex-direction: column; gap: 12px; }
+.quiz-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px;
+}
+.quiz-num { font-size: 11px; font-weight: 800; color: var(--orange); margin-bottom: 8px; font-family: var(--mono); }
+.quiz-word { font-size: 20px; font-weight: 900; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.blur-btn {
+  font-size: 11px; border: 1px solid var(--border); background: var(--surface2);
+  color: var(--muted); cursor: pointer; border-radius: 8px; padding: 2px 8px;
+  font-family: var(--sans);
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; transition: all .15s;
+  background: var(--surface2);
+}
+.quiz-opt.correct { background: rgba(26,184,166,.15); border-color: var(--teal); color: var(--teal); }
+.quiz-opt.wrong   { background: rgba(224,62,50,.15);  border-color: var(--red);  color: #FF8A80; }
+.quiz-opt-n {
+  width: 24px; height: 24px; border-radius: 50%; background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+.quiz-opt.correct .quiz-opt-n { background: var(--teal); color: #fff; }
+.quiz-opt.wrong   .quiz-opt-n { background: var(--red);  color: #fff; }
+
+/* 녹음 섹션 */
+.record-section {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 18px; padding: 20px; margin-bottom: 14px;
+}
+.rec-word-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px; margin-bottom: 12px;
+}
+.rec-word-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.rec-word-label { display: flex; align-items: center; gap: 10px; }
+.rec-num-badge {
+  width: 32px; height: 32px; border-radius: 9px; display: flex;
+  align-items: center; justify-content: center; font-size: 11px;
+  font-weight: 900; font-family: var(--mono); flex-shrink: 0;
+}
+.rec-word-ko { font-size: 22px; font-weight: 900; }
+.rec-word-viet { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 2px; }
+.rec-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rec-main-btn {
+  width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.06); font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .2s; flex-shrink: 0;
+}
+.rec-main-btn.recording { background: var(--red); border-color: var(--red); animation: pulse 1.2s infinite; }
+.rec-main-btn.done { background: var(--teal); border-color: var(--teal); }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.rec-timer { font-size: 14px; font-weight: 900; font-family: var(--mono); min-width: 36px; }
+.rec-mini-btn {
+  flex: 1; min-width: 0; height: 38px; border: 1px solid; border-radius: 10px;
+  font-size: 12px; font-weight: 800; cursor: pointer; transition: opacity .15s;
+}
+.rec-mini-btn:active { opacity: .75; }
+.btn-retry    { background: var(--surface); border-color: var(--border); color: var(--muted); }
+.btn-play     { background: rgba(79,128,255,.15); border-color: rgba(79,128,255,.4); color: var(--blue); }
+.btn-play.playing { background: rgba(79,128,255,.3); border-color: var(--blue); color: #fff; animation: pulse 1s infinite; }
+.btn-download { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.15); color: rgba(240,244,250,.7); }
+.btn-upload   { background: linear-gradient(135deg, var(--teal), #1E9E90); border-color: transparent; color: #fff; }
+.btn-upload:disabled { background: var(--surface); border-color: var(--border); color: var(--muted); cursor: not-allowed; }
+.rec-post-btns { display: none; }
+.rec-post-btns.show { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+/* 미니 오디오 플레이어 */
+.rec-player-wrap { display: none; margin-top: 10px; }
+.rec-player-wrap.show { display: block; }
+.rec-player-wrap audio {
+  width: 100%; height: 36px; border-radius: 10px;
+  background: var(--surface2); outline: none;
+}
+.rec-up-status {
+  margin-top: 8px; border-radius: 10px; padding: 8px 12px;
+  font-size: 12px; font-weight: 700; text-align: center; display: none;
+}
+.rec-up-status.show { display: block; }
+.rec-up-status.uploading { background: rgba(255,255,255,.06); color: var(--muted); }
+.rec-up-status.success   { background: rgba(26,184,166,.2); color: var(--teal); }
+.rec-up-status.error     { background: rgba(224,62,50,.2); color: #FF8A80; }
+.rec-status-text { font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 16px; }
+
+/* 하단 네비 */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  max-width: 640px; margin: 0 auto;
+  padding: 12px 16px; background: rgba(15,25,35,.95);
+  border-top: 1px solid var(--border); backdrop-filter: blur(12px);
+  display: flex; gap: 10px; align-items: center; z-index: 40;
+}
+.nav-prev {
+  width: 48px; height: 52px; border: 1.5px solid var(--border); border-radius: 14px;
+  background: var(--surface); font-size: 18px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: var(--muted);
+  transition: all .15s;
+}
+.nav-prev:disabled { opacity: .3; cursor: default; }
+.nav-prev:not(:disabled):active { background: var(--surface2); }
+.nav-next {
+  flex: 1; height: 52px; border: 0; border-radius: 14px;
+  background: linear-gradient(135deg, var(--blue), #5B3BDD);
+  color: #fff; font-size: 15px; font-weight: 900; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(79,128,255,.3); transition: opacity .15s;
+}
+.nav-next:active { opacity: .85; }
+.nav-next:disabled { background: var(--surface2); box-shadow: none; color: var(--muted); cursor: default; }
+
+/* 팁박스 */
+.tip-box {
+  background: rgba(245,130,10,.1); border: 1px solid rgba(245,130,10,.25);
+  border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700;
+  color: #FFAA55; text-align: center; margin-bottom: 14px;
+}
+.tip-box small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+.info-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; font-size: 13px;
+  color: var(--muted); margin-top: 10px; text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   설문 페이지 — 완전 재설계
+   ══════════════════════════════════════════ */
+
+/* 시각화/설문 공통 래퍼 */
+.survey-slide-wrap {
+  margin-bottom: 10px;
+}
+
+/* ── 헤더 칩 ── */
+.survey-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.survey-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 900; letter-spacing: .12em;
+  font-family: var(--mono); border-radius: 7px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0;
+}
+.chip-a     { background: rgba(79,128,255,.18);  color: var(--blue);   border: 1px solid rgba(79,128,255,.35); }
+.chip-b     { background: rgba(245,130,10,.18);  color: var(--orange); border: 1px solid rgba(245,130,10,.35); }
+.chip-c     { background: rgba(26,184,166,.18);  color: var(--teal);   border: 1px solid rgba(26,184,166,.35); }
+.chip-final { background: rgba(168,139,250,.18); color: #C4B5FD;       border: 1px solid rgba(168,139,250,.35); }
+.survey-header-text h2 { font-size: 17px; font-weight: 900; margin-bottom: 2px; }
+.survey-header-text p  { font-size: 12px; color: rgba(240,244,250,.6); font-style: italic; }
+
+/* ── 척도 안내 — 컴팩트 ── */
+.scale-guide {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; gap: 6px;
+}
+.scale-low  { font-size: 10px; font-weight: 700; color: #FF8A80; white-space: nowrap; }
+.scale-mid  { display: flex; gap: 4px; }
+.scale-mid span {
+  width: 18px; height: 18px; border-radius: 4px; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-family: var(--mono); color: rgba(240,244,250,.65); font-weight: 700;
+}
+.scale-high { font-size: 10px; font-weight: 700; color: #5EEAD4; white-space: nowrap; }
+/* scale-nums 숨김 (scale-mid로 대체) */
+.scale-nums { display: none; }
+
+/* ── 진행 바 ── */
+.sq-progress-bar {
+  height: 3px; background: var(--border); border-radius: 2px;
+  margin-bottom: 4px; overflow: hidden;
+}
+.sq-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal));
+  border-radius: 2px; transition: width .4s ease; width: 0%;
+}
+.sq-progress-label {
+  font-size: 10px; font-family: var(--mono); color: rgba(240,244,250,.55);
+  text-align: right; margin-bottom: 12px;
+}
+
+/* ── 문항 카드 — 패딩 축소 ── */
+.sq-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 10px;
+  transition: border-color .2s;
+}
+.sq-card.answered { border-color: rgba(79,128,255,.4); }
+.sq-qnum {
+  font-size: 9px; font-weight: 900; font-family: var(--mono);
+  color: rgba(240,244,250,.55); letter-spacing: .08em; margin-bottom: 7px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.sq-qnum-check { color: var(--teal); display: none; font-size: 10px; }
+.sq-card.answered .sq-qnum-check { display: inline; }
+.sq-reverse-tag {
+  font-size: 8px; background: rgba(224,62,50,.15); color: #FF8A80;
+  border: 1px solid rgba(224,62,50,.25); border-radius: 4px;
+  padding: 1px 5px; font-weight: 700; letter-spacing: .04em;
+}
+.sq-text {
+  font-size: 13px; font-weight: 700; line-height: 1.55;
+  color: var(--white); margin-bottom: 5px;
+}
+.sq-viet {
+  font-size: 11px; font-style: italic; line-height: 1.5;
+  color: rgba(240,244,250,.45); margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+/* ── Likert 7점 — 작고 터치 친화적 ── */
+.sq-likert {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.sq-lbtn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 40px; border: 1.5px solid var(--border); border-radius: 9px;
+  background: var(--surface2); cursor: pointer; transition: all .12s;
+  position: relative; gap: 2px; padding: 0;
+}
+.sq-lbtn-n {
+  font-size: 13px; font-weight: 900; font-family: var(--mono); color: rgba(240,244,250,.75);
+  line-height: 1;
+}
+.sq-lbtn-dot {
+  width: 3px; height: 3px; border-radius: 50%; background: transparent;
+}
+.sq-lbtn:first-child .sq-lbtn-n { color: #FF8A80; }
+.sq-lbtn:last-child  .sq-lbtn-n { color: #5EEAD4; }
+.sq-lbtn:active { background: rgba(79,128,255,.12); }
+.sq-lbtn.sel {
+  border-color: var(--blue); background: rgba(79,128,255,.22);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79,128,255,.28);
+}
+.sq-lbtn.sel .sq-lbtn-n { color: var(--white); }
+.sq-lbtn.sel .sq-lbtn-dot { background: var(--blue); }
+.sq-lbtn:disabled { cursor: not-allowed; opacity: .5; }
+
+/* 극단 라벨 */
+.sq-extremes {
+  display: flex; justify-content: space-between;
+  margin-top: 5px; padding: 0 1px;
+  font-size: 9px; color: rgba(240,244,250,.5);
+}
+.sq-extremes span:first-child { color: #FF8A80; }
+.sq-extremes span:last-child  { color: #5EEAD4; }
+
+/* ── 종합형 객관식 (O1~O4) ── */
+.sq-choice-group { display: flex; flex-direction: column; gap: 6px; }
+.sq-choice-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 11px;
+  background: var(--surface2); cursor: pointer; transition: all .12s; text-align: left;
+}
+.sq-choice-btn:active { background: rgba(79,128,255,.09); }
+.sq-choice-btn.sel {
+  border-color: var(--blue); background: rgba(79,128,255,.16);
+  box-shadow: 0 3px 12px rgba(79,128,255,.18);
+}
+.sq-choice-letter {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; font-family: var(--mono);
+  background: var(--surface); border: 1px solid var(--border);
+  transition: all .12s;
+}
+.sq-choice-btn.sel .sq-choice-letter {
+  background: var(--blue); border-color: var(--blue); color: #fff;
+}
+.sq-choice-label { font-size: 13px; font-weight: 700; color: var(--white); }
+
+/* ── 자유서술 (O5) ── */
+.sq-textarea {
+  width: 100%; min-height: 80px; padding: 10px 12px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 11px; color: var(--white); font-size: 13px; font-family: var(--sans);
+  resize: vertical; outline: none; transition: border-color .2s; line-height: 1.55;
+  box-sizing: border-box;
+}
+.sq-textarea:focus { border-color: rgba(79,128,255,.5); }
+.sq-textarea::placeholder { color: rgba(240,244,250,.22); font-size: 12px; }
+
+/* ── 제출 영역 ── */
+.sq-submit-area { margin-top: 18px; }
+.sq-remain-note {
+  text-align: center; font-size: 11px; color: rgba(240,244,250,.6);
+  font-style: italic; margin-bottom: 8px; min-height: 16px; transition: color .2s;
+}
+.sq-remain-note.done { color: var(--teal); font-weight: 700; font-style: normal; }
+.sq-submit-btn {
+  width: 100%; height: 44px; border: 0; border-radius: 12px;
+  background: var(--surface2); color: rgba(240,244,250,.5);
+  font-size: 14px; font-weight: 900; cursor: not-allowed;
+  transition: all .25s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--border);
+}
+.sq-submit-btn.ready {
+  background: linear-gradient(135deg, var(--blue) 0%, #6D28D9 100%);
+  color: #fff; cursor: pointer; border-color: transparent;
+  box-shadow: 0 4px 18px rgba(79,128,255,.35);
+}
+.sq-submit-btn.ready:active { transform: scale(.98); opacity: .88; }
+.sq-done-banner {
+  display: none; margin-top: 10px; padding: 10px 14px;
+  background: rgba(26,184,166,.1); border: 1px solid rgba(26,184,166,.28);
+  border-radius: 11px; text-align: center;
+  font-size: 13px; font-weight: 700; color: var(--teal);
+}
+.sq-done-banner.show { display: block; }
+
+
+
+/* ─── 시각화 페이지 이미지 레이아웃 ─── */
+.viz-page {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 20px 16px; margin-bottom: 14px;
+}
+.viz-page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.viz-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(79,128,255,.15); border: 1px solid rgba(79,128,255,.3);
+  border-radius: 20px; padding: 4px 14px;
+  font-size: 11px; font-weight: 800; color: var(--blue);
+  letter-spacing: .1em; font-family: var(--mono);
+}
+.viz-badge.orange { background: rgba(245,130,10,.15); border-color: rgba(245,130,10,.3); color: var(--orange); }
+.viz-badge.teal   { background: rgba(26,184,166,.15);  border-color: rgba(26,184,166,.3);  color: var(--teal); }
+.viz-type-tag {
+  font-size: 11px; font-weight: 800; font-family: var(--mono);
+  color: var(--muted); letter-spacing: .08em;
+}
+.viz-title { font-size: 19px; font-weight: 900; margin-bottom: 4px; }
+.viz-sub   { font-size: 12px; color: rgba(240,244,250,.55); font-style: italic; margin-bottom: 14px; }
+.viz-img-wrap {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; padding: 6px;
+}
+.viz-img-wrap img {
+  width: 100%; height: auto; border-radius: 12px;
+  display: block; object-fit: contain;
+}
+.viz-type-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 14px;
+}
+.viz-type-num {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; font-family: var(--mono); flex-shrink: 0;
+}
+.tnum-1 { background: rgba(79,128,255,.2);  color: var(--blue); }
+.tnum-2 { background: rgba(245,130,10,.2);  color: var(--orange); }
+.tnum-3 { background: rgba(26,184,166,.2);  color: var(--teal); }
+.viz-type-info { flex: 1; }
+.viz-type-name { font-size: 13px; font-weight: 800; color: var(--white); }
+.viz-type-desc { font-size: 11px; color: rgba(240,244,250,.5); margin-top: 2px; }
+
+/* ─── 토스트 ─── */
+#toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  background: rgba(26,184,166,.9); color: #fff; padding: 10px 20px;
+  border-radius: 20px; font-size: 13px; font-weight: 700;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity .3s;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+
+/* ─── 디버그 패널 ─── */
+#dbg {
+  display: none; position: fixed; bottom: 80px; right: 12px;
+  background: rgba(0,0,0,.85); color: #00ff88; font-family: var(--mono);
+  font-size: 10px; padding: 8px 12px; border-radius: 10px; max-width: 220px;
+  z-index: 300; line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<!-- ─── 로그인 화면 ─── -->
+<div id="loginScreen">
+  <div class="login-logo">🔊</div>
+  <div class="login-title">한국어 파열음 학습<br><span style="font-size:14px;font-weight:500;opacity:.65">Học phát âm phụ âm tắc tiếng Hàn</span></div>
+  <div class="login-sub">Học phát âm phụ âm tắc tiếng Hàn — Pre Study</div>
+  <div class="login-label">참여자 번호를 입력하세요 · Nhập số của bạn (01 ~ 12)</div>
+  <div class="login-input-wrap">
+    <input
+      class="login-input"
+      id="learnerInput"
+      type="number"
+      min="1" max="12"
+      placeholder="번호 입력"
+      inputmode="numeric"
+      oninput="onLearnerInput(this)"
+      onkeydown="if(event.key==='Enter') doLogin()"
+    />
+    <div class="login-input-hint">숫자 1 ~ 12 입력 후 시작 · Nhập số từ 1 đến 12</div>
+    <div class="login-input-error" id="loginError"></div>
+  </div>
+  <button class="login-start" id="loginStart" onclick="doLogin()">시작하기 · Bắt đầu →</button>
+</div>
+
+<!-- ─── 메인 앱 ─── -->
+<div id="appScreen">
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="top-learner" id="topLearner">--</div>
+      <div class="top-title">파열음 학습 · Học phụ âm tắc</div>
+    </div>
+    <div class="top-prog" id="topProg">1 / 9</div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-fill" id="progFill" style="width:11%"></div>
+  </div>
+
+  <div id="slides">
+
+  <!-- S1: 타이틀 -->
+  <div class="slide active" id="s1">
+    <div class="hero">
+      <div class="hero-week">1주차 · TUẦN 1</div>
+      <div class="hero-title">한국어 파열음<br>발음 학습<br><span style="font-size:15px;font-weight:500;opacity:.65">Học phát âm phụ âm tắc tiếng Hàn</span></div>
+      <div class="hero-viet">Học phát âm phụ âm tắc tiếng Hàn</div>
+      <div class="phoneme-row">
+        <div class="phoneme-box p">
+          <span class="p-char">ㅂ</span>
+          <span class="p-label">평음</span>
+          <span class="p-name">Bình thường</span>
+        </div>
+        <div class="phoneme-box pp">
+          <span class="p-char">ㅃ</span>
+          <span class="p-label">경음</span>
+          <span class="p-name">Căng thẳng</span>
+        </div>
+        <div class="phoneme-box ph">
+          <span class="p-char">ㅍ</span>
+          <span class="p-label">격음</span>
+          <span class="p-name">Bật hơi</span>
+        </div>
+      </div>
+    </div>
+    <div class="info-box">
+      발음 원리 → 따라하기 → 단어읽기 → 테스트 → 녹음 과제<br><small style="font-size:10px;opacity:.55">Nguyên tắc → Nghe nhắc → Đọc → Kiểm tra → Ghi âm</small>
+    </div>
+  </div>
+
+  <!-- S2: 학습 순서 -->
+  <div class="slide" id="s2">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge">📋</div>
+        <div><div class="card-title">학습 순서</div><div class="card-sub">Trình tự học</div></div>
+      </div>
+      <div class="step-list">
+        <div class="step-item"><div class="step-n n1">01</div><div><div class="step-ko">🔊 발음 원리 설명<br><span class="step-viet-inline">Giải thích nguyên tắc phát âm</span></div><div class="step-viet">Giải thích nguyên tắc phát âm</div></div></div>
+        <div class="step-item"><div class="step-n n2">02</div><div><div class="step-ko">👂 듣고 따라하기<br><span class="step-viet-inline">Nghe và bắt chước theo</span></div><div class="step-viet">Nghe và bắt chước theo</div></div></div>
+        <div class="step-item"><div class="step-n n3">03</div><div><div class="step-ko">📖 소리내어 읽기<br><span class="step-viet-inline">Đọc to theo</span></div><div class="step-viet">Đọc to theo</div></div></div>
+        <div class="step-item"><div class="step-n n4">04</div><div><div class="step-ko">✅ 발음 테스트<br><span class="step-viet-inline">Kiểm tra phát âm</span></div><div class="step-viet">Kiểm tra phát âm</div></div></div>
+        <div class="step-item"><div class="step-n n5">05</div><div><div class="step-ko">🎙️ 발음 녹음 과제<br><span class="step-viet-inline">Bài tập ghi âm phát âm</span></div><div class="step-viet">Bài tập ghi âm phát âm</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: 발음 원리 -->
+  <div class="slide" id="s3">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge">01</div>
+        <div><div class="card-title">발음 원리 설명 · Nguyên tắc phát âm</div><div class="card-sub">Giải thích nguyên tắc phát âm</div></div>
+      </div>
+      <div class="tip-box">
+        💡 세 소리의 차이는 <b>입에서 나오는 바람의 양</b>입니다.<br><small style="font-size:11px;font-weight:400;color:rgba(240,244,250,.5)">Ba âm khác nhau ở lượng hơi thở ra từ miệng</small>
+        <small>Ba âm khác nhau ở lượng hơi thở ra từ miệng</small>
+      </div>
+      <div class="pe-list">
+        <div class="pe-row ba">
+          <div class="pe-char ba">ㅂ</div>
+          <div>
+            <div class="pe-name" style="color:var(--blue)">평음 (Âm bình thường)</div>
+            <div class="pe-wind">🤏</div>
+            <div class="pe-desc"><b>바람이 거의 없어요</b> — 입술을 살짝 터뜨려요<br><span style="font-size:11px;opacity:.55;font-style:italic">Hơi thở rất ít — nhả môi nhẹ nhàng</span></div>
+            <div class="pe-viet">Hơi thở rất ít — nhả môi nhẹ nhàng</div>
+            <div class="pe-ex">예: <b>바</b>지 (quần)</div>
+          </div>
+        </div>
+        <div class="pe-row bba">
+          <div class="pe-char bba">ㅃ</div>
+          <div>
+            <div class="pe-name" style="color:var(--orange)">경음 (Âm căng thẳng)</div>
+            <div class="pe-wind">🚫💨</div>
+            <div class="pe-desc"><b>바람 없음 + 목을 조여요</b> — 힘을 주고 터뜨려요<br><span style="font-size:11px;opacity:.55;font-style:italic">Không có hơi + siết cổ họng</span></div>
+            <div class="pe-viet">Không có hơi + siết cổ họng</div>
+            <div class="pe-ex">예: <b>빠</b>르다 (nhanh)</div>
+          </div>
+        </div>
+        <div class="pe-row pa">
+          <div class="pe-char pa">ㅍ</div>
+          <div>
+            <div class="pe-name" style="color:var(--teal)">격음 (Âm bật hơi)</div>
+            <div class="pe-wind">💨💨💨</div>
+            <div class="pe-desc"><b>바람이 강하게 나와요</b> — 손에 바람이 느껴져요!<br><span style="font-size:11px;opacity:.55;font-style:italic">Hơi thở mạnh — cảm nhận gió ở bàn tay</span></div>
+            <div class="pe-viet">Hơi thở mạnh — cảm nhận được gió ở tay</div>
+            <div class="pe-ex">예: <b>파</b>란색 (màu xanh)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: 손 테스트 -->
+  <div class="slide" id="s4">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge blue">01</div>
+        <div><div class="card-title">손 테스트로 확인하세요! · Hãy thử bằng bàn tay!</div><div class="card-sub">Thử nghiệm bằng bàn tay!</div></div>
+      </div>
+      <div class="hand-tip">
+        ✋ 입 앞에 손을 가져다 대고 발음해 보세요.<br><small style="font-weight:400;font-size:11px;opacity:.6">Đặt tay trước miệng và phát âm thử.</small>
+        <small>Đặt tay trước miệng và phát âm.</small>
+      </div>
+      <div class="hand-cards">
+        <div class="hand-card ba">
+          <div class="hand-syl ba">바</div>
+          <div><div class="hand-ko">바람이 거의 없음 · Gần như không có gió</div><div class="hand-viet">Gần như không có gió</div></div>
+          <div class="hand-wind">🤏</div>
+        </div>
+        <div class="hand-card bba">
+          <div class="hand-syl bba">빠</div>
+          <div><div class="hand-ko">바람 없음 + 강한 긴장 · Không có gió + căng thẳng</div><div class="hand-viet">Không có gió + căng thẳng</div></div>
+          <div class="hand-wind">🤜</div>
+        </div>
+        <div class="hand-card pa">
+          <div class="hand-syl pa">파</div>
+          <div><div class="hand-ko">💨 바람이 강하게! · Gió mạnh!</div><div class="hand-viet">Gió thổi ra mạnh!</div></div>
+          <div class="hand-wind">💨</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: 듣고 따라하기 -->
+  <div class="slide" id="s5">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge">02</div>
+        <div><div class="card-title">듣고 따라하기 (2번씩) · Nghe và nhắc lại (×2)</div><div class="card-sub">Nghe và nhắc lại (2 lần)</div></div>
+      </div>
+      <div class="listen-table">
+        <div class="listen-head">
+          <div class="listen-head-cell lhba"><span>ㅂ</span>평음</div>
+          <div class="listen-head-cell lhbba"><span>ㅃ</span>경음</div>
+          <div class="listen-head-cell lhpa"><span>ㅍ</span>격음</div>
+        </div>
+        <div class="listen-row">
+          <div class="listen-cell ba" onclick="playAudio('ba_ba',this)">🔊 바<small>ba</small></div>
+          <div class="listen-cell bba" onclick="playAudio('bba_bba',this)">🔊 빠<small>bba</small></div>
+          <div class="listen-cell pa" onclick="playAudio('pa_pa',this)">🔊 파<small>pa</small></div>
+        </div>
+        <div class="listen-row">
+          <div class="listen-cell ba" onclick="playAudio('ba_bal',this)">🔊 발<small>chân</small></div>
+          <div class="listen-cell bba" onclick="playAudio('bba_bbal',this)">🔊 빨<small>nhanh</small></div>
+          <div class="listen-cell pa" onclick="playAudio('pa_pal',this)">🔊 팔<small>tám</small></div>
+        </div>
+        <div class="listen-row">
+          <div class="listen-cell ba" onclick="playAudio('ba_bae',this)">🔊 배<small>bụng</small></div>
+          <div class="listen-cell bba" onclick="playAudio('bba_bbae',this)">🔊 빼<small>bớt</small></div>
+          <div class="listen-cell pa" onclick="playAudio('pa_pae',this)">🔊 패<small>thua</small></div>
+        </div>
+        <div class="listen-row">
+          <div class="listen-cell ba" onclick="playAudio('ba_bom',this)">🔊 봄<small>xuân</small></div>
+          <div class="listen-cell bba" onclick="playAudio('bba_bbom',this)">🔊 뽐<small>khoe</small></div>
+          <div class="listen-cell pa" onclick="playAudio('pa_pom',this)">🔊 폼<small>kiểu</small></div>
+        </div>
+      </div>
+      <div class="info-box">🔊 누르면 소리가 나옵니다. 두 번씩 따라 말하세요.<br><span style="font-size:11px;font-style:italic">Nhấn để nghe. Nhắc lại 2 lần.</span></div>
+    </div>
+  </div>
+
+  <!-- S6: 단어 읽기 -->
+  <div class="slide" id="s6">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge teal">03</div>
+        <div><div class="card-title">소리내어 읽기 — 단어 · Đọc to — Từ vựng</div><div class="card-sub">Đọc to theo — Từ vựng</div></div>
+      </div>
+      <div class="word-grid">
+        <div class="word-card ba" onclick="playAudio('word_baji',this)">
+          <div class="word-phoneme ba">ㅂ 평음</div><div class="word-play">🔊</div>
+          <div class="word-ko">바지</div><div class="word-viet">quần</div>
+        </div>
+        <div class="word-card bba" onclick="playAudio('word_bbaruda',this)">
+          <div class="word-phoneme bba">ㅃ 경음</div><div class="word-play">🔊</div>
+          <div class="word-ko">빠르다</div><div class="word-viet">nhanh chóng</div>
+        </div>
+        <div class="word-card pa" onclick="playAudio('word_parangsaek',this)">
+          <div class="word-phoneme pa">ㅍ 격음</div><div class="word-play">🔊</div>
+          <div class="word-ko">파란색</div><div class="word-viet">màu xanh</div>
+        </div>
+        <div class="word-card bba" onclick="playAudio('word_bbang',this)">
+          <div class="word-phoneme bba">ㅃ 경음</div><div class="word-play">🔊</div>
+          <div class="word-ko">빵</div><div class="word-viet">bánh mì</div>
+        </div>
+        <div class="word-card pa" onclick="playAudio('word_pul',this)">
+          <div class="word-phoneme pa">ㅍ 격음</div><div class="word-play">🔊</div>
+          <div class="word-ko">풀</div><div class="word-viet">cỏ / keo</div>
+        </div>
+        <div class="word-card ba" onclick="playAudio('word_bareum',this)">
+          <div class="word-phoneme ba">ㅂ 평음</div><div class="word-play">🔊</div>
+          <div class="word-ko">발음</div><div class="word-viet">phát âm</div>
+        </div>
+      </div>
+      <div class="info-box">각 단어를 듣고 두 번씩 소리 내어 읽으세요.<br><span style="font-size:11px;font-style:italic">Nghe và đọc to 2 lần.</span></div>
+    </div>
+  </div>
+
+  <!-- S7: 문장 읽기 -->
+  <div class="slide" id="s7">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge teal">03</div>
+        <div><div class="card-title">소리내어 읽기 — 문장 · Đọc to — Câu</div><div class="card-sub">Đọc to theo — Câu</div></div>
+      </div>
+      <div class="sent-card" onclick="playAudio('sent_1',this)">
+        <div class="sent-play">🔊</div>
+        <div class="sent-ko">저는 여름마다 <span class="hl-ba">바</span>지를 <span class="hl-bba">빨</span>리 <span class="hl-bba">빨</span>아요.</div>
+        <div class="sent-viet">Mỗi mùa hè, tôi giặt quần nhanh.</div>
+      </div>
+      <div class="sent-card" onclick="playAudio('sent_2',this)">
+        <div class="sent-play">🔊</div>
+        <div class="sent-ko"><span class="hl-pa">파</span>란 <span class="hl-pa">파</span>도가 <span class="hl-bba">빠</span>르게 밀려와요.</div>
+        <div class="sent-viet">Những con sóng xanh ập đến nhanh chóng.</div>
+      </div>
+      <div class="sent-focus">
+        💡 <span class="hl-ba">ㅂ(바지·빨리)</span>, <span class="hl-bba">ㅃ(빠르게·빨리)</span>, <span class="hl-pa">ㅍ(파란·파도)</span>에 집중하세요.<br><small style="font-size:11px;font-weight:400;opacity:.7">Hãy chú ý vào ㅂ, ㅃ, ㅍ trong câu.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8: 발음 테스트 (퀴즈) -->
+  <div class="slide" id="s8">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge red">04</div>
+        <div><div class="card-title">발음 테스트 · Kiểm tra phát âm</div><div class="card-sub">Nghe và chọn chữ đúng</div></div>
+      </div>
+      <div class="quiz-intro">
+        각 문항을 두 번씩 들려줍니다. 맞는 번호를 선택하세요.<br><span style="font-style:italic;font-size:11px">Mỗi câu phát 2 lần. Chọn đáp án đúng.</span><br>
+        <span style="font-style:italic">Mỗi câu phát 2 lần. Chọn số đúng.</span>
+      </div>
+      <div class="quiz-list">
+        <div class="quiz-item">
+          <div class="quiz-num">문항 01 · Câu 01</div>
+          <div class="quiz-word">
+            <span onclick="playAudio('quiz_1',null)" style="cursor:pointer">🔊</span>
+            <span id="q1w" style="filter:blur(5px)">'빨리'</span>
+            <button class="blur-btn" onclick="document.getElementById('q1w').style.filter=''">정답 · Xem đáp án</button>
+          </div>
+          <div class="quiz-opts" id="q1">
+            <div class="quiz-opt" onclick="checkQ(this,false,'q1')"><span class="quiz-opt-n">①</span>발리 <small style="opacity:.5;font-size:10px">bali</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,true,'q1')"><span class="quiz-opt-n">②</span>빨리 <small style="opacity:.5;font-size:10px">bbali</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,false,'q1')"><span class="quiz-opt-n">③</span>팔리 <small style="opacity:.5;font-size:10px">pali</small></div>
+          </div>
+        </div>
+        <div class="quiz-item">
+          <div class="quiz-num">문항 02 · Câu 02</div>
+          <div class="quiz-word">
+            <span onclick="playAudio('quiz_2',null)" style="cursor:pointer">🔊</span>
+            <span id="q2w" style="filter:blur(5px)">'파도'</span>
+            <button class="blur-btn" onclick="document.getElementById('q2w').style.filter=''">정답 · Xem đáp án</button>
+          </div>
+          <div class="quiz-opts" id="q2">
+            <div class="quiz-opt" onclick="checkQ(this,false,'q2')"><span class="quiz-opt-n">①</span>바도 <small style="opacity:.5;font-size:10px">bado</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,false,'q2')"><span class="quiz-opt-n">②</span>빠도 <small style="opacity:.5;font-size:10px">bbado</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,true,'q2')"><span class="quiz-opt-n">③</span>파도 <small style="opacity:.5;font-size:10px">pado</small></div>
+          </div>
+        </div>
+        <div class="quiz-item">
+          <div class="quiz-num">문항 03 · Câu 03</div>
+          <div class="quiz-word">
+            <span onclick="playAudio('quiz_3',null)" style="cursor:pointer">🔊</span>
+            <span id="q3w" style="filter:blur(5px)">'뿔'</span>
+            <button class="blur-btn" onclick="document.getElementById('q3w').style.filter=''">정답 · Xem đáp án</button>
+          </div>
+          <div class="quiz-opts" id="q3">
+            <div class="quiz-opt" onclick="checkQ(this,false,'q3')"><span class="quiz-opt-n">①</span>불 <small style="opacity:.5;font-size:10px">bul</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,true,'q3')"><span class="quiz-opt-n">②</span>뿔 <small style="opacity:.5;font-size:10px">bbul</small></div>
+            <div class="quiz-opt" onclick="checkQ(this,false,'q3')"><span class="quiz-opt-n">③</span>풀 <small style="opacity:.5;font-size:10px">pul</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S9: 녹음 과제 -->
+  <div class="slide" id="s9">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-badge" style="background:var(--blue)">05</div>
+        <div><div class="card-title">발음 녹음 과제 · Bài tập ghi âm</div><div class="card-sub">Bài tập ghi âm phát âm</div></div>
+      </div>
+      <div class="tip-box">
+        🎙️ 아래 단어를 소리 내어 읽고 녹음하세요.
+        <small>Đọc to từ bên dưới và ghi âm</small>
+      </div>
+      <div class="record-section">
+
+        <!-- 단어 1: 바지 -->
+        <div class="rec-word-item" id="recItem_1">
+          <div class="rec-word-head">
+            <div class="rec-word-label">
+              <div class="rec-num-badge n1">ㅂ<br>01</div>
+              <div>
+                <div class="rec-word-ko">바지</div>
+                <div class="rec-word-viet">quần</div>
+              </div>
+            </div>
+          </div>
+          <div class="rec-controls">
+            <button class="rec-main-btn" id="recBtn_1" onclick="toggleRec(1)">🔴</button>
+            <div class="rec-timer" id="recTimer_1">0:00</div>
+          </div>
+          <div class="rec-post-btns" id="recPost_1">
+            <button class="rec-mini-btn btn-retry" onclick="retryRec(1)">↩ 다시 · Thử lại</button>
+            <button class="rec-mini-btn btn-play" id="recPlayBtn_1" onclick="playRec(1)">▶ 듣기 · Nghe lại</button>
+            <button class="rec-mini-btn btn-download" onclick="downloadRec(1)">💾 저장 · Lưu</button>
+            <button class="rec-mini-btn btn-upload" id="recUpBtn_1" onclick="uploadRec(1)">📤 업로드 · Tải lên</button>
+          </div>
+          <div class="rec-player-wrap" id="recPlayer_1">
+            <audio id="recAudio_1" controls></audio>
+          </div>
+          <div class="rec-status-text" id="recStatus_1">🎙️ 버튼을 눌러 녹음을 시작하세요 · Nhấn nút để bắt đầu ghi âm</div>
+          <div class="rec-up-status" id="recUpStatus_1"></div>
+        </div>
+
+      </div><!-- /record-section -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- S10: 시각화 A — 피드백 유형 1 -->
+  <div class="slide" id="s10">
+    <div class="viz-page">
+      <div class="viz-page-header">
+        <div class="viz-badge">PROTOTYPE · A</div>
+        <div class="viz-type-tag">피드백 유형 1 · Loại phản hồi 1</div>
+      </div>
+      <div class="viz-title">시각화 A</div>
+      <div class="viz-sub">아래 시각화를 천천히 살펴보세요 · Hãy quan sát hình ảnh dưới đây</div>
+      <div class="viz-img-wrap">
+        <img src="./image/v1.png" alt="피드백 유형 1 시각화"
+             onerror="this.style.display='none';this.parentNode.innerHTML='<div style=\'padding:40px;text-align:center;color:rgba(240,244,250,.4);font-size:13px\'>이미지를 불러올 수 없습니다 · Không thể tải hình ảnh<br><small>./image/v1.png</small></div>'">
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- S11 -->
+  <div class="slide" id="s11">
+    <div class="survey-slide-wrap">
+      <!-- 헤더 -->
+      <div class="survey-header">
+        <div class="survey-chip chip-a">📋 SURVEY · A</div>
+        <div class="survey-header-text">
+          <h2>시각화 A 설문 · Khảo sát hình A</h2>
+          <p>방금 본 시각화 A에 대해 솔직하게 답해 주세요<br>Hãy trả lời thành thật về hình A bạn vừa xem</p>
+        </div>
+      </div>
+
+      <!-- 척도 안내 -->
+      <div class="scale-guide">
+        <div class="scale-low">1 전혀 아님<br><span style="font-size:9px;opacity:.7">Hoàn toàn không</span></div>
+        <div class="scale-mid">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+        </div>
+        <div class="scale-high">7 매우 그렇다<br><span style="font-size:9px;opacity:.7">Hoàn toàn đồng ý</span></div>
+      </div>
+
+      <!-- 진행 바 -->
+      <div class="sq-progress-bar"><div class="sq-progress-fill" id="pbar_A"></div></div>
+      <div class="sq-progress-label" id="plabel_A">0 / 6 완료</div>
+
+      <!-- 문항 자동 생성 -->
+      <div id="surveyA_qs"></div>
+
+      <!-- 제출 -->
+      <div class="sq-submit-area">
+        <div class="sq-remain-note" id="note_A">모든 문항에 답해야 제출할 수 있습니다 · Vui lòng trả lời tất cả câu hỏi</div>
+        <button class="sq-submit-btn" id="submitA" onclick="submitPageSurvey('A')" disabled>
+          ✔ A 설문 제출 · Gửi khảo sát A
+        </button>
+      </div>
+      <div class="sq-done-banner" id="savedA">✅ A 설문이 저장되었습니다 · Đã lưu khảo sát A</div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- S12: 시각화 B — 피드백 유형 2 -->
+  <div class="slide" id="s12">
+    <div class="viz-page">
+      <div class="viz-page-header">
+        <div class="viz-badge orange">PROTOTYPE · B</div>
+        <div class="viz-type-tag">피드백 유형 2 · Loại phản hồi 2</div>
+      </div>
+      <div class="viz-title">시각화 B</div>
+      <div class="viz-sub">아래 시각화를 천천히 살펴보세요 · Hãy quan sát hình ảnh dưới đây</div>
+      <div class="viz-img-wrap">
+        <img src="./image/v2.png" alt="피드백 유형 2 시각화"
+             onerror="this.style.display='none';this.parentNode.innerHTML='<div style=\'padding:40px;text-align:center;color:rgba(240,244,250,.4);font-size:13px\'>이미지를 불러올 수 없습니다 · Không thể tải hình ảnh<br><small>./image/v2.png</small></div>'">
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- S13 -->
+  <div class="slide" id="s13">
+    <div class="survey-slide-wrap">
+      <!-- 헤더 -->
+      <div class="survey-header">
+        <div class="survey-chip chip-b">📋 SURVEY · B</div>
+        <div class="survey-header-text">
+          <h2>시각화 B 설문 · Khảo sát hình B</h2>
+          <p>방금 본 시각화 B에 대해 솔직하게 답해 주세요<br>Hãy trả lời thành thật về hình B bạn vừa xem</p>
+        </div>
+      </div>
+
+      <!-- 척도 안내 -->
+      <div class="scale-guide">
+        <div class="scale-low">1 전혀 아님<br><span style="font-size:9px;opacity:.7">Hoàn toàn không</span></div>
+        <div class="scale-mid">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+        </div>
+        <div class="scale-high">7 매우 그렇다<br><span style="font-size:9px;opacity:.7">Hoàn toàn đồng ý</span></div>
+      </div>
+
+      <!-- 진행 바 -->
+      <div class="sq-progress-bar"><div class="sq-progress-fill" id="pbar_B"></div></div>
+      <div class="sq-progress-label" id="plabel_B">0 / 6 완료</div>
+
+      <!-- 문항 자동 생성 -->
+      <div id="surveyB_qs"></div>
+
+      <!-- 제출 -->
+      <div class="sq-submit-area">
+        <div class="sq-remain-note" id="note_B">모든 문항에 답해야 제출할 수 있습니다 · Vui lòng trả lời tất cả câu hỏi</div>
+        <button class="sq-submit-btn" id="submitB" onclick="submitPageSurvey('B')" disabled>
+          ✔ B 설문 제출 · Gửi khảo sát B
+        </button>
+      </div>
+      <div class="sq-done-banner" id="savedB">✅ B 설문이 저장되었습니다 · Đã lưu khảo sát B</div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- S14: 시각화 C — 피드백 유형 3 -->
+  <div class="slide" id="s14">
+    <div class="viz-page">
+      <div class="viz-page-header">
+        <div class="viz-badge teal">PROTOTYPE · C</div>
+        <div class="viz-type-tag">피드백 유형 3 · Loại phản hồi 3</div>
+      </div>
+      <div class="viz-title">시각화 C</div>
+      <div class="viz-sub">아래 시각화를 천천히 살펴보세요 · Hãy quan sát hình ảnh dưới đây</div>
+      <div class="viz-img-wrap">
+        <img src="./image/v3.png" alt="피드백 유형 3 시각화"
+             onerror="this.style.display='none';this.parentNode.innerHTML='<div style=\'padding:40px;text-align:center;color:rgba(240,244,250,.4);font-size:13px\'>이미지를 불러올 수 없습니다 · Không thể tải hình ảnh<br><small>./image/v3.png</small></div>'">
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- S15 -->
+  <div class="slide" id="s15">
+    <div class="survey-slide-wrap">
+      <!-- 헤더 -->
+      <div class="survey-header">
+        <div class="survey-chip chip-c">📋 SURVEY · C</div>
+        <div class="survey-header-text">
+          <h2>시각화 C 설문 · Khảo sát hình C</h2>
+          <p>방금 본 시각화 C에 대해 솔직하게 답해 주세요<br>Hãy trả lời thành thật về hình C bạn vừa xem</p>
+        </div>
+      </div>
+
+      <!-- 척도 안내 -->
+      <div class="scale-guide">
+        <div class="scale-low">1 전혀 아님<br><span style="font-size:9px;opacity:.7">Hoàn toàn không</span></div>
+        <div class="scale-mid">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+        </div>
+        <div class="scale-high">7 매우 그렇다<br><span style="font-size:9px;opacity:.7">Hoàn toàn đồng ý</span></div>
+      </div>
+
+      <!-- 진행 바 -->
+      <div class="sq-progress-bar"><div class="sq-progress-fill" id="pbar_C"></div></div>
+      <div class="sq-progress-label" id="plabel_C">0 / 6 완료</div>
+
+      <!-- 문항 자동 생성 -->
+      <div id="surveyC_qs"></div>
+
+      <!-- 제출 -->
+      <div class="sq-submit-area">
+        <div class="sq-remain-note" id="note_C">모든 문항에 답해야 제출할 수 있습니다 · Vui lòng trả lời tất cả câu hỏi</div>
+        <button class="sq-submit-btn" id="submitC" onclick="submitPageSurvey('C')" disabled>
+          ✔ C 설문 제출 · Gửi khảo sát C
+        </button>
+      </div>
+      <div class="sq-done-banner" id="savedC">✅ C 설문이 저장되었습니다 · Đã lưu khảo sát C</div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <!-- S16 최종 설문 -->
+  <div class="slide" id="s16">
+    <div class="survey-slide-wrap">
+      <div class="survey-header">
+        <div class="survey-chip chip-final">📋 FINAL SURVEY</div>
+        <div class="survey-header-text">
+          <h2>종합 설문 · Khảo sát tổng hợp</h2>
+          <p>세 가지 시각화를 모두 본 뒤 전체를 비교하며 답해 주세요<br>Sau khi xem cả ba, hãy so sánh và trả lời</p>
+        </div>
+      </div>
+
+      <!-- 진행 바 -->
+      <div class="sq-progress-bar"><div class="sq-progress-fill" id="pbar_Final"></div></div>
+      <div class="sq-progress-label" id="plabel_Final">0 / 5 완료</div>
+
+      <div id="surveyFinal_qs"></div>
+
+      <div class="sq-submit-area">
+        <div class="sq-remain-note" id="note_Final">모든 문항에 답해야 제출할 수 있습니다 · Vui lòng trả lời tất cả câu hỏi</div>
+        <button class="sq-submit-btn" id="submitFinal" onclick="submitPageSurvey('Final')" disabled>
+          🎉 최종 제출하기 · Gửi câu trả lời cuối cùng
+        </button>
+      </div>
+      <div class="sq-done-banner" id="savedFinal">🎉 모든 설문이 완료되었습니다. 수고하셨습니다!<br>Bạn đã hoàn thành tất cả khảo sát. Cảm ơn bạn!</div>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  </div><!-- /slides -->
+
+  <!-- 하단 네비 -->
+  <div class="bottom-nav">
+    <button class="nav-prev" id="prevBtn" onclick="goSlide(-1)" disabled>◀</button>
+    <button class="nav-next" id="nextBtn" onclick="goSlide(1)">다음 · Tiếp theo →</button>
+  </div>
+</div><!-- /appScreen -->
+
+<!-- 토스트 -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  FIREBASE 설정
+// ═══════════════════════════════════════════════════════
+// ★ Firebase Rules 확인 필요
+// Firestore: allow read, write: if true;  (테스트용)
+// Storage:   allow read, write: if true;  (테스트용)
+// 실서비스 전 인증 기반 Rules로 교체 필요
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDgjCXlw3U10ZNbxS3IfSlyFZt0ZoLOg-o",
+    authDomain: "test01-b9256.firebaseapp.com",
+    projectId: "test01-b9256",
+    storageBucket: "test01-b9256.firebasestorage.app",
+    messagingSenderId: "506014539335",
+    appId: "1:506014539335:web:caf85876d582609a75db62"
+};
+
+// ═══════════════════════════════════════════════════════
+//  상수
+// ═══════════════════════════════════════════════════════
+var WEEK     = 1;
+var ROUND    = 1;
+var STUDY_ID = "pre_study";
+var TOTAL_SLIDES = 16;
+
+// ─────────────────────────────────────────────────────
+//  슬라이드 레이블 (물리 슬라이드 번호 기준)
+// ─────────────────────────────────────────────────────
+var SLIDE_LABELS = {
+  1:"타이틀", 2:"학습순서", 3:"발음원리", 4:"손테스트",
+  5:"듣고따라하기", 6:"단어읽기", 7:"문장읽기", 8:"퀴즈",
+  9:"녹음과제", 10:"시각화A", 11:"설문A", 12:"시각화B",
+  13:"설문B", 14:"시각화C", 15:"설문C", 16:"최종설문"
+};
+
+// ─────────────────────────────────────────────────────
+//  카운터밸런싱
+//  SLIDE_ORDER: 실제 진행할 물리 슬라이드 번호 배열
+//  (로그인 후 buildSlideOrder()로 ID에 맞게 설정)
+//
+//  ID 01,02 → ABC: [1~9, 10,11,12,13,14,15, 16]
+//  ID 03,04 → ACB: [1~9, 10,11,14,15,12,13, 16]
+//  ID 05,06 → BAC: [1~9, 12,13,10,11,14,15, 16]
+//  ID 07,08 → BCA: [1~9, 12,13,14,15,10,11, 16]
+//  ID 09,10 → CAB: [1~9, 14,15,10,11,12,13, 16]
+//  ID 11,12 → CBA: [1~9, 14,15,12,13,10,11, 16]
+// ─────────────────────────────────────────────────────
+var SLIDE_ORDER = [];   // 로그인 후 채워짐
+var SLIDE_POS   = 0;    // 현재 SLIDE_ORDER 인덱스
+var SURVEY_SLIDES = {}; // 로그인 후 채워짐
+
+// 시각화-설문 쌍 (물리 슬라이드 번호)
+var VIZ_PAIRS = {
+  A: { viz:10, survey:11, key:"A" },
+  B: { viz:12, survey:13, key:"B" },
+  C: { viz:14, survey:15, key:"C" }
+};
+
+function buildSlideOrder(learnerId) {
+  var id = parseInt(learnerId, 10);
+  var order;
+  if      (id <= 2)  order = ["A","B","C"];
+  else if (id <= 4)  order = ["A","C","B"];
+  else if (id <= 6)  order = ["B","A","C"];
+  else if (id <= 8)  order = ["B","C","A"];
+  else if (id <= 10) order = ["C","A","B"];
+  else               order = ["C","B","A"];
+
+  // 물리 슬라이드 번호 배열 생성
+  var base = [1,2,3,4,5,6,7,8,9];
+  var viz  = [];
+  order.forEach(function(t) {
+    viz.push(VIZ_PAIRS[t].viz);
+    viz.push(VIZ_PAIRS[t].survey);
+  });
+  SLIDE_ORDER = base.concat(viz).concat([16]);
+
+  // SURVEY_SLIDES 재구성 (위치 → 설문 key)
+  SURVEY_SLIDES = {};
+  order.forEach(function(t) {
+    SURVEY_SLIDES[VIZ_PAIRS[t].survey] = t;
+  });
+  SURVEY_SLIDES[16] = "Final";
+
+  console.log("순서:", order.join("→"), "| SLIDE_ORDER:", SLIDE_ORDER);
+  return order;
+}
+
+// ─────────────────────────────────────────────────────
+//  설문 문항 정의
+//  immediate: A/B/C 직후 즉시 응답 (Q1~Q5)
+//  final:     마지막 페이지 (Q6 + 추가 비교 문항)
+// ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════
+//  설문 문항 데이터
+// ══════════════════════════════════════════
+
+// 반복형: A/B/C 직후 각각 Q1~Q6
+var SQ_IMMEDIATE = [
+  { id:"Q1", type:"likert",
+    text:"이 시각화는 내 발음과 목표 발음의 차이를 이해하는 데 도움이 되었다.",
+    viet:"Hình ảnh trực quan này giúp tôi hiểu sự khác biệt giữa phát âm của tôi và phát âm mẫu." },
+  { id:"Q2", type:"likert",
+    text:"이 시각화는 내 발음에서 특히 어떤 부분을 고쳐야 하는지 알게 해 주었다.",
+    viet:"Hình ảnh trực quan này giúp tôi biết rõ phần nào trong phát âm của mình cần sửa." },
+  { id:"Q3", type:"likert",
+    text:"이 시각화는 내가 어느 방향으로 발음을 수정해야 하는지 알게 해 주었다.",
+    viet:"Hình ảnh trực quan này giúp tôi biết mình cần điều chỉnh cách phát âm theo hướng nào." },
+  { id:"Q4", type:"likert",
+    text:"이 시각화는 혼자서도 해석하기 쉬웠다.",
+    viet:"Tôi có thể tự hiểu hình ảnh trực quan này một cách dễ dàng." },
+  { id:"Q5", type:"likert",
+    text:"이 시각화를 본 뒤 다시 연습해 보고 싶었다.",
+    viet:"Sau khi xem hình ảnh trực quan này, tôi muốn luyện tập phát âm lại." },
+  { id:"Q6", type:"likert", reverse:true,
+    text:"이 시각화는 이해하기에 지나치게 복잡하게 느껴졌다.",
+    viet:"Hình ảnh trực quan này khiến tôi cảm thấy quá phức tạp để hiểu." }
+];
+
+// 종합형: A/B/C 모두 본 뒤 — O1~O5
+// O1~O4: 3지선다 (A/B/C), O5: 자유서술
+var SQ_FINAL = [
+  { id:"O1", type:"choice3",
+    text:"세 안 중 본실험에서 실제로 받고 싶은 시각화는 무엇입니까?",
+    viet:"Trong ba phương án dưới đây, bạn thực sự muốn nhận hình ảnh trực quan nào trong thí nghiệm chính?",
+    options:["A — PRAAT 원형 · Hình PRAAT gốc","B — 주석형 PRAAT · Hình PRAAT có chú thích","C — 교사 제작 시각화 · Hình trực quan do giáo viên thiết kế"] },
+  { id:"O2", type:"choice3",
+    text:"세 안 중 가장 이해하기 쉬운 시각화는 무엇입니까?",
+    viet:"Trong ba phương án, hình ảnh trực quan nào dễ hiểu nhất?",
+    options:["A","B","C"] },
+  { id:"O3", type:"choice3",
+    text:"세 안 중 발음을 어떻게 고쳐야 할지 가장 잘 알게 해 준 시각화는 무엇입니까?",
+    viet:"Trong ba phương án, hình ảnh trực quan nào giúp bạn hiểu rõ nhất cách sửa phát âm?",
+    options:["A","B","C"] },
+  { id:"O4", type:"choice3",
+    text:"세 안 중 가장 복잡하게 느껴진 시각화는 무엇입니까?",
+    viet:"Trong ba phương án, hình ảnh trực quan nào khiến bạn cảm thấy phức tạp nhất?",
+    options:["A","B","C"] },
+  { id:"O5", type:"text",
+    text:"가장 적합하다고 생각한 시각화를 선택한 이유를 간단히 적어 주세요.",
+    viet:"Vui lòng viết ngắn gọn lý do bạn chọn hình ảnh trực quan mà bạn cho là phù hợp nhất." }
+];
+
+// ═══════════════════════════════════════════════════════
+//  이전 세션 버퍼 복원 (비정상 종료 대비)
+// ═══════════════════════════════════════════════════════
+(function recoverOldBuffer() {
+  try {
+    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith("log_buffer_"); });
+    keys.forEach(function(k) {
+      var items = JSON.parse(localStorage.getItem(k) || "[]");
+      if (items.length > 0) {
+        LOG_BUFFER_RECOVERY = LOG_BUFFER_RECOVERY.concat(items);
+      }
+      localStorage.removeItem(k);
+    });
+    if (LOG_BUFFER_RECOVERY.length > 0) {
+      console.log("[복원] 이전 세션 미전송 로그", LOG_BUFFER_RECOVERY.length, "건 복원됨");
+    }
+  } catch(ignore) {}
+})();
+
+// ═══════════════════════════════════════════════════════
+//  런타임 상태
+// ═══════════════════════════════════════════════════════
+var LOG_BUFFER_RECOVERY = [];   // 이전 세션 복원 버퍼
+var db = null, storage = null, fbReady = false;
+var LEARNER_ID  = "";
+var SESSION_ID  = "";
+var ATTEMPT_ID  = "";   // 학습자별 시도 순번 (01, 02, …) — Firestore 카운터
+var cur         = 1;
+var sessionStart    = Date.now();
+var pageEnterTime   = Date.now();
+var quizDone        = {};
+
+// ── 페이지 방문 누적 (같은 페이지 재방문 처리) ──────────────
+var pageVisitCount  = {};   // { pageNum: visitCount }
+var pageEnterTimes  = {};   // { pageNum: [enterTimestamp, ...] }
+
+// ── 로컬 버퍼: Firebase 저장 실패 시 임시 보관 후 재전송 ─────
+var LOG_BUFFER = [];
+var BUFFER_FLUSH_INTERVAL = 8000;  // 8초마다 재전송 시도
+
+// 설문 제출 완료 추적 (다음 버튼 잠금용)
+var surveySubmitted = { A: false, B: false, C: false, Final: false };
+
+// 녹음 상태 (1~3)
+var recState = {
+  1: { mediaRec:null, chunks:[], blob:null, mime:"", timer:null, sec:0, recording:false },
+  2: { mediaRec:null, chunks:[], blob:null, mime:"", timer:null, sec:0, recording:false },
+  3: { mediaRec:null, chunks:[], blob:null, mime:"", timer:null, sec:0, recording:false }
+};
+var REC_WORDS = { 1:"baji" };
+var REC_KO    = { 1:"바지" };
+
+// ═══════════════════════════════════════════════════════
+//  로그인: 입력 검증
+// ═══════════════════════════════════════════════════════
+function onLearnerInput(input) {
+  var v = parseInt(input.value, 10);
+  var errEl = document.getElementById("loginError");
+  var startBtn = document.getElementById("loginStart");
+  if (!input.value) {
+    errEl.textContent = "";
+    startBtn.classList.remove("ready");
+    return;
+  }
+  if (isNaN(v) || v < 1 || v > 12) {
+    errEl.textContent = "⚠ 1~12 사이의 번호를 입력하세요";
+    startBtn.classList.remove("ready");
+    return;
+  }
+  errEl.textContent = "";
+  var padded = (v < 10 ? "0" : "") + v;
+  LEARNER_ID = padded;
+  startBtn.classList.add("ready");
+}
+
+function doLogin() {
+  if (!LEARNER_ID) return;
+  var v = parseInt(document.getElementById("learnerInput").value, 10);
+  if (isNaN(v) || v < 1 || v > 12) {
+    document.getElementById("loginError").textContent = "⚠ 1~12 사이의 번호를 입력하세요";
+    return;
+  }
+  LEARNER_ID = (v < 10 ? "0" : "") + v;
+
+  // SESSION_ID: 타임스탬프 기반 — 같은 학습자가 여러 번 실행해도 항상 고유
+  SESSION_ID = STUDY_ID + "_W" + WEEK + "_" + LEARNER_ID + "_" + new Date().toISOString().slice(0,19).replace(/[T:]/g,"-");
+  // ATTEMPT_ID: Firestore에서 이 학습자의 기존 세션 수를 읽어 +1 부여
+  // (비동기이므로 initFirebase 내부에서 확정, 그 전까지는 "01" 사용)
+  ATTEMPT_ID = "01";
+
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("appScreen").style.display  = "block";
+  document.getElementById("topLearner").textContent   = "ID " + LEARNER_ID;
+
+  // 카운터밸런싱 순서 결정 (ID 기반)
+  var cbOrder = buildSlideOrder(LEARNER_ID);
+  SLIDE_POS = 0;
+
+  initFirebase();
+  buildAllSurveys();   // 설문 문항 DOM 생성
+  updateNav();
+
+  // ── 전체 클릭 수집 (강화 버전) ─────────────────────────────
+  document.addEventListener("click", function(e) {
+    var el   = e.target;
+    var btn  = el.closest ? el.closest("button,a,[onclick],[data-log]") : null;
+    var card = el.closest ? el.closest(".listen-cell,.word-card,.sent-card,.quiz-opt,.sq-opt-btn") : null;
+    var targetEl = btn || card || el;
+
+    // 의미 있는 식별자 추출
+    var elId   = targetEl.id || "";
+    var elCls  = (targetEl.className || "").toString().replace(/\s+/g,".").slice(0,60);
+    var elText = (targetEl.textContent || "").trim().replace(/\s+/g," ").slice(0,50);
+    var elTag  = targetEl.tagName || "";
+
+    // 위치 정보 (뷰포트 기준 %)
+    var vw = window.innerWidth  || 1;
+    var vh = window.innerHeight || 1;
+    var pctX = Math.round(e.clientX / vw * 100);
+    var pctY = Math.round(e.clientY / vh * 100);
+
+    // onclick 속성으로 함수명 추출
+    var onclickFn = (targetEl.getAttribute ? targetEl.getAttribute("onclick") : "") || "";
+    var fnMatch   = onclickFn.match(/^([\w]+)/);
+    var fnName    = fnMatch ? fnMatch[1] : "";
+
+    sendLog("click", cur, {
+      tag:       elTag,
+      id:        elId,
+      cls:       elCls,
+      text:      elText,
+      fn:        fnName,           // 실행된 함수명 (playAudio, checkQ 등)
+      posX:      pctX,             // 클릭 X 위치 (뷰포트 %)
+      posY:      pctY,             // 클릭 Y 위치 (뷰포트 %)
+      pageLabel: SLIDE_LABELS[cur] || ""
+    });
+  }, true);
+
+  // ── 세션 종료 전 마지막 데이터 저장 ────────────────────────
+  window.addEventListener("beforeunload", function() {
+    // 마지막 페이지 leave 기록 (동기적으로 최대한 시도)
+    var stayed = Math.round((Date.now() - pageEnterTime) / 1000);
+    if (fbReady && db) {
+      // sendBeacon은 비동기 보장이 더 강함
+      var payload = JSON.stringify({
+        type: "session_end",
+        lastPage: cur,
+        lastPageLabel: SLIDE_LABELS[cur] || "",
+        totalElapsed: Math.round((Date.now() - sessionStart) / 1000),
+        lastStaySec: stayed,
+        bufferRemaining: LOG_BUFFER.length
+      });
+      try {
+        // Firestore REST API fallback으로 session_end 기록
+        var url = "https://firestore.googleapis.com/v1/projects/" + FIREBASE_CONFIG.projectId + "/databases/(default)/documents/learners/" + LEARNER_ID + "/sessions/" + SESSION_ID + "/events";
+        navigator.sendBeacon(url, payload);
+      } catch(ignore) {}
+    }
+    // 로컬스토리지에 버퍼 백업 (다음 세션에서 확인 가능)
+    try {
+      if (LOG_BUFFER.length > 0) {
+        localStorage.setItem("log_buffer_" + SESSION_ID, JSON.stringify(LOG_BUFFER));
+      }
+    } catch(ignore) {}
+  });
+
+  cur = SLIDE_ORDER[0];
+  sendLog("session_start", 0, { sessionId: SESSION_ID, learnerId: LEARNER_ID, vizOrder: SLIDE_ORDER.slice(9,15).map(function(n){return SLIDE_LABELS[n]||n;}).join(",") });
+  sendPageLog("enter", 1, {});
+
+  // S1 안내음: 로그인 클릭 직후 재생 (사용자 제스처 내에서 실행)
+  playPageAudio(1);
+}
+
+// ═══════════════════════════════════════════════════════
+//  Firebase 초기화
+// ═══════════════════════════════════════════════════════
+//
+//  Firestore 계층 구조:
+//
+//  learners/{learnerId}/
+//    sessions/{sessionId}               ← 세션 메타
+//      events/{autoId}                  ← 모든 클릭·재생 이벤트
+//      pages/{pageNum}                  ← 페이지별 체류 시간
+//      surveys/
+//        A  ← { answers:{Q1..Q5}, submittedAt }
+//        B  ← { answers:{Q1..Q5}, submittedAt }
+//        C  ← { answers:{Q1..Q5}, submittedAt }
+//        Final ← { answers:{Q6}, submittedAt }
+//      recordings/
+//        baji       ← { url, durationSec, ... }
+//        bbaruda    ← { ... }
+//        parangsaek ← { ... }
+//
+//  Storage:
+//    recordings/{learnerId}/{sessionId}/{filename}
+// ═══════════════════════════════════════════════════════
+function initFirebase() {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db      = firebase.firestore();
+    storage = firebase.storage();
+    fbReady = true;
+
+    // ── ATTEMPT_ID 계산: 이 학습자의 기존 세션 수 조회 후 +1 ──
+    db.collection("learners").doc(LEARNER_ID)
+      .collection("sessions").get()
+      .then(function(snap) {
+        var count = snap.size + 1;            // 현재 세션 포함 시도 순번
+        ATTEMPT_ID = (count < 10 ? "0" : "") + count;
+
+        // ── 세션 메타 문서 저장 ──────────────────────────────
+        db.collection("learners").doc(LEARNER_ID)
+          .collection("sessions").doc(SESSION_ID)
+          .set({
+            learnerId:   LEARNER_ID,
+            sessionId:   SESSION_ID,
+            attemptId:   ATTEMPT_ID,          // 몇 번째 시도인지
+            studyId:     STUDY_ID,
+            week:        WEEK,
+            startedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+            userAgent:   navigator.userAgent.slice(0,120),
+            platform:    navigator.platform || "",
+            language:    navigator.language || "",
+            screenW:     window.screen.width,
+            screenH:     window.screen.height
+          }, { merge:true }).catch(function(){});
+
+        // 상단바에 시도 차수 표시
+        var topEl = document.getElementById("topLearner");
+        if (topEl) topEl.textContent = "ID " + LEARNER_ID + "  (" + ATTEMPT_ID + "차)";
+
+        // 버퍼에 쌓인 로그 즉시 재전송 (ATTEMPT_ID 확정 후)
+        flushLogBuffer();
+
+        console.log("Firebase OK | Learner:", LEARNER_ID, "| Session:", SESSION_ID, "| Attempt:", ATTEMPT_ID);
+      })
+      .catch(function(e) {
+        // 조회 실패 시 타임스탬프로 ATTEMPT_ID 대체
+        ATTEMPT_ID = "T" + Date.now().toString().slice(-4);
+        db.collection("learners").doc(LEARNER_ID)
+          .collection("sessions").doc(SESSION_ID)
+          .set({
+            learnerId:   LEARNER_ID,
+            sessionId:   SESSION_ID,
+            attemptId:   ATTEMPT_ID,
+            studyId:     STUDY_ID,
+            week:        WEEK,
+            startedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+            userAgent:   navigator.userAgent.slice(0,120)
+          }, { merge:true }).catch(function(){});
+        console.warn("attemptId 조회 실패, 대체값 사용:", ATTEMPT_ID);
+      });
+
+    // ── 버퍼 주기적 플러시 시작 ─────────────────────────────
+    setInterval(flushLogBuffer, BUFFER_FLUSH_INTERVAL);
+
+    console.log("%c[Firebase] 데이터가 쌓이지 않으면 Firebase 콘솔 → Firestore Rules / Storage Rules 를 확인하세요.", "color:#F5820A;font-weight:bold");
+  } catch(e) { console.warn("Firebase 초기화 오류:", e.message); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  로그 전송 헬퍼
+// ═══════════════════════════════════════════════════════
+// ── 로컬 버퍼 플러시: 실패했던 로그 재전송 ─────────────────
+function flushLogBuffer() {
+  // 복원된 이전 세션 버퍼도 처리 (세션 메타 준비 후)
+  if (fbReady && db && LOG_BUFFER_RECOVERY.length > 0) {
+    var recovered = LOG_BUFFER_RECOVERY.splice(0, 10);
+    recovered.forEach(function(item) {
+      db.collection("learners").doc(item.learnerId || LEARNER_ID)
+        .collection("sessions").doc(item.sessionId || SESSION_ID)
+        .collection("events").add(Object.assign(item, {
+          ts:        firebase.firestore.FieldValue.serverTimestamp(),
+          recovered: true
+        })).catch(function(){});
+    });
+  }
+  if (!fbReady || !db || LOG_BUFFER.length === 0) return;
+  var toSend = LOG_BUFFER.splice(0, 20);   // 한 번에 최대 20개
+  var batch = db.batch();
+  var col = db.collection("learners").doc(LEARNER_ID)
+               .collection("sessions").doc(SESSION_ID)
+               .collection("events");
+  toSend.forEach(function(item) {
+    batch.set(col.doc(), Object.assign(item, {
+      ts:        firebase.firestore.FieldValue.serverTimestamp(),
+      buffered:  true    // 버퍼에서 재전송됨 표시
+    }));
+  });
+  batch.commit().catch(function() {
+    // 재전송도 실패 시 버퍼 앞에 다시 추가
+    LOG_BUFFER.unshift.apply(LOG_BUFFER, toSend);
+  });
+}
+
+function sendLog(eventType, page, payload) {
+  var logData = {
+    eventType:  eventType,
+    page:       page,
+    pageLabel:  SLIDE_LABELS[page] || "",
+    slidePos:   SLIDE_POS,
+    elapsed:    Math.round((Date.now() - sessionStart) / 1000),
+    attemptId:  ATTEMPT_ID,
+    payload:    payload || {}
+  };
+
+  if (!fbReady || !db) {
+    // Firebase 미준비: 버퍼에 임시 저장
+    LOG_BUFFER.push(logData);
+    return;
+  }
+
+  db.collection("learners").doc(LEARNER_ID)
+    .collection("sessions").doc(SESSION_ID)
+    .collection("events").add(Object.assign(logData, {
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    }))
+    .catch(function() {
+      // 저장 실패 시 버퍼에 추가
+      LOG_BUFFER.push(logData);
+    });
+}
+
+function sendPageLog(action, pageNum, extra) {
+  // 방문 카운터 갱신
+  if (action === "enter") {
+    pageVisitCount[pageNum] = (pageVisitCount[pageNum] || 0) + 1;
+    if (!pageEnterTimes[pageNum]) pageEnterTimes[pageNum] = [];
+    pageEnterTimes[pageNum].push(Date.now());
+  }
+
+  var visitNo  = pageVisitCount[pageNum] || 1;
+  var baseData = Object.assign({
+    pageLabel:  SLIDE_LABELS[pageNum] || "",
+    action:     action,
+    visitNo:    visitNo,             // 이 페이지의 몇 번째 방문인지
+    slidePos:   SLIDE_POS,
+    elapsed:    Math.round((Date.now() - sessionStart) / 1000),
+    attemptId:  ATTEMPT_ID
+  }, extra || {});
+
+  if (!fbReady || !db) return;
+
+  // pages/{pageNum}/visits/{visitNo_action} 형태로 방문마다 별도 문서
+  // → 재방문 시 덮어쓰지 않고 누적
+  var docKey = String(pageNum) + "_v" + visitNo + "_" + action;
+  db.collection("learners").doc(LEARNER_ID)
+    .collection("sessions").doc(SESSION_ID)
+    .collection("pages").doc(docKey)
+    .set(Object.assign(baseData, {
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    }), { merge:true }).catch(function(){});
+
+  // 페이지 요약 문서도 업데이트 (분석 편의용)
+  var summaryData = {
+    pageLabel:    SLIDE_LABELS[pageNum] || "",
+    totalVisits:  visitNo,
+    lastAction:   action,
+    lastElapsed:  Math.round((Date.now() - sessionStart) / 1000),
+    updatedAt:    firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (action === "leave" && extra && extra.staySec !== undefined) {
+    // 누적 체류시간
+    summaryData["totalStaySec_v" + visitNo] = extra.staySec;
+  }
+  db.collection("learners").doc(LEARNER_ID)
+    .collection("sessions").doc(SESSION_ID)
+    .collection("pageSummary").doc(String(pageNum))
+    .set(summaryData, { merge:true }).catch(function(){});
+}
+
+// ═══════════════════════════════════════════════════════
+//  네비게이션
+// ═══════════════════════════════════════════════════════
+function goSlide(dir) {
+  var stayed = Math.round((Date.now() - pageEnterTime) / 1000);
+  sendPageLog("leave", cur, { staySec: stayed });
+  sendLog("page_leave", cur, { staySec: stayed });
+
+  var nextPos = SLIDE_POS + dir;
+  if (nextPos < 0 || nextPos >= SLIDE_ORDER.length) return;
+
+  document.getElementById("s" + cur).classList.remove("active");
+  SLIDE_POS = nextPos;
+  cur = SLIDE_ORDER[SLIDE_POS];
+  document.getElementById("s" + cur).classList.add("active");
+  pageEnterTime = Date.now();
+  updateNav();
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  sendPageLog("enter", cur, {});
+  sendLog("page_enter", cur, { label: SLIDE_LABELS[cur] || "", pos: SLIDE_POS });
+  // 시각화 페이지(10,12,14) 진입 시 재생 중이던 음원 즉시 중지
+  if (cur === 10 || cur === 12 || cur === 14) {
+    stopAllAudio();
+  } else {
+    playPageAudio(cur);
+  }
+}
+
+function updateNav() {
+  var totalSteps = SLIDE_ORDER.length || TOTAL_SLIDES;
+  document.getElementById("topProg").textContent = (SLIDE_POS + 1) + " / " + totalSteps;
+  document.getElementById("progFill").style.width = Math.round((SLIDE_POS + 1) / totalSteps * 100) + "%";
+  document.getElementById("prevBtn").disabled = (SLIDE_POS === 0);
+
+  var nb = document.getElementById("nextBtn");
+
+  if (SLIDE_POS >= SLIDE_ORDER.length - 1) {
+    nb.textContent = "🎉 완료! · Xong!";
+    nb.disabled = true;
+    return;
+  }
+
+  // 설문 슬라이드: 제출 전이면 다음 버튼 잠금
+  var surveyKey = SURVEY_SLIDES[cur];
+  if (surveyKey && surveyKey !== "Final") {
+    if (!surveySubmitted[surveyKey]) {
+      nb.textContent = "설문을 먼저 제출하세요 · Vui lòng gửi khảo sát";
+      nb.disabled = true;
+    } else {
+      nb.textContent = "다음 · Tiếp theo →";
+      nb.disabled = false;
+    }
+    return;
+  }
+  if (surveyKey === "Final") {
+    if (!surveySubmitted["Final"]) {
+      nb.textContent = "설문을 먼저 제출하세요 · Vui lòng gửi khảo sát";
+      nb.disabled = true;
+    } else {
+      nb.textContent = "🎉 완료! · Xong!";
+      nb.disabled = true;
+    }
+    return;
+  }
+
+  nb.textContent = "다음 · Tiếp theo →";
+  nb.disabled = false;
+}
+
+// ══════════════════════════════════════════
+//  설문 DOM 빌더
+// ══════════════════════════════════════════
+window._surveyAnswers = { A:{}, B:{}, C:{}, Final:{} };
+
+function buildAllSurveys() {
+  buildSurveyBlock("surveyA_qs",     SQ_IMMEDIATE, "A");
+  buildSurveyBlock("surveyB_qs",     SQ_IMMEDIATE, "B");
+  buildSurveyBlock("surveyC_qs",     SQ_IMMEDIATE, "C");
+  buildSurveyBlock("surveyFinal_qs", SQ_FINAL,     "Final");
+}
+
+function buildSurveyBlock(containerId, questions, key) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+
+  questions.forEach(function(q, idx) {
+    var card = document.createElement("div");
+    card.className = "sq-card";
+    card.id = "sqcard_" + key + "_" + q.id;
+
+    var qnum = '<div class="sq-qnum">' +
+      '<span>Q' + (idx+1) + ' / ' + questions.length + '</span>' +
+      (q.reverse ? '<span class="sq-reverse-tag">역문항</span>' : '') +
+      '<span class="sq-qnum-check">✔ 답변됨</span>' +
+      '</div>';
+    var vietLine = q.viet
+      ? '<div class="sq-viet">' + q.viet + '</div>'
+      : '';
+    var qtext = '<div class="sq-text">' + q.text + '</div>' + vietLine;
+    var inner = '';
+
+    if (q.type === "likert") {
+      var btns = [1,2,3,4,5,6,7].map(function(n) {
+        return '<button class="sq-lbtn" data-key="' + key + '" data-q="' + q.id + '" data-v="' + n +
+               '" onclick="selectLikert(this,\'' + key + '\',\'' + q.id + '\',' + n + ')">' +
+               '<span class="sq-lbtn-n">' + n + '</span>' +
+               '<span class="sq-lbtn-dot"></span></button>';
+      }).join("");
+      inner = '<div class="sq-likert" id="track_' + key + '_' + q.id + '">' + btns + '</div>' +
+              '<div class="sq-extremes"><span>전혀 그렇지 않다</span><span>매우 그렇다</span></div>';
+
+    } else if (q.type === "choice3") {
+      var letters = ["A","B","C"];
+      var opts = q.options.map(function(opt, i) {
+        return '<button class="sq-choice-btn" data-key="' + key + '" data-q="' + q.id + '" data-v="' + letters[i] +
+               '" onclick="selectChoice(this,\'' + key + '\',\'' + q.id + '\',\'' + letters[i] + '\')">' +
+               '<span class="sq-choice-letter">' + letters[i] + '</span>' +
+               '<span class="sq-choice-label">' + opt + '</span></button>';
+      }).join("");
+      inner = '<div class="sq-choice-group" id="track_' + key + '_' + q.id + '">' + opts + '</div>';
+
+    } else if (q.type === "text") {
+      inner = '<textarea class="sq-textarea" id="txt_' + key + '_' + q.id +
+              '" placeholder="여기에 자유롭게 답변을 적어 주세요… · Câu trả lời tự do" rows="4"' +
+              ' oninput="onTextInput(\'' + key + '\',\'' + q.id + '\')"' +
+              ' onblur="onTextInput(\'' + key + '\',\'' + q.id + '\')"></textarea>';
+    }
+
+    card.innerHTML = qnum + qtext + inner;
+    container.appendChild(card);
+  });
+}
+
+// ── 답변 핸들러 ────────────────────────────────────────
+
+function selectLikert(btn, key, qid, val) {
+  if (surveySubmitted[key]) return;
+  document.querySelectorAll("#track_" + key + "_" + qid + " .sq-lbtn")
+    .forEach(function(b){ b.classList.remove("sel"); });
+  btn.classList.add("sel");
+  window._surveyAnswers[key][qid] = val;
+  markCardAnswered(key, qid);
+  updateSurveyProgress(key);
+}
+
+function selectChoice(btn, key, qid, val) {
+  if (surveySubmitted[key]) return;
+  document.querySelectorAll("#track_" + key + "_" + qid + " .sq-choice-btn")
+    .forEach(function(b){ b.classList.remove("sel"); });
+  btn.classList.add("sel");
+  window._surveyAnswers[key][qid] = val;
+  markCardAnswered(key, qid);
+  updateSurveyProgress(key);
+}
+
+function onTextInput(key, qid) {
+  if (surveySubmitted[key]) return;
+  var ta = document.getElementById("txt_" + key + "_" + qid);
+  var val = ta ? ta.value.trim() : "";
+  window._surveyAnswers[key][qid] = val || null;
+  if (val) markCardAnswered(key, qid);
+  updateSurveyProgress(key);
+}
+
+function markCardAnswered(key, qid) {
+  var card = document.getElementById("sqcard_" + key + "_" + qid);
+  if (card) card.classList.add("answered");
+}
+
+function updateSurveyProgress(key) {
+  var required = (key === "Final") ? SQ_FINAL : SQ_IMMEDIATE;
+  var answered = required.filter(function(q) {
+    var a = window._surveyAnswers[key][q.id];
+    return a !== undefined && a !== null && a !== "";
+  }).length;
+  var total = required.length;
+  var pct = Math.round(answered / total * 100);
+
+  var barEl   = document.getElementById("pbar_" + key);
+  var lblEl   = document.getElementById("plabel_" + key);
+  var noteEl  = document.getElementById("note_" + key);
+  var submitEl = document.getElementById("submit" + key);
+
+  if (barEl)  barEl.style.width = pct + "%";
+  if (lblEl)  lblEl.textContent = answered + " / " + total + " 완료";
+
+  if (answered >= total) {
+    if (noteEl)  { noteEl.textContent = "✔ 모든 문항 완료 · Hoàn thành! — 아래 버튼을 눌러 제출하세요"; noteEl.classList.add("done"); }
+    if (submitEl){ submitEl.classList.add("ready"); submitEl.disabled = false; }
+  } else {
+    var rem = total - answered;
+    if (noteEl)  { noteEl.textContent = rem + " câu hỏi còn lại"; noteEl.classList.remove("done"); }
+    if (submitEl){ submitEl.classList.remove("ready"); submitEl.disabled = true; }
+  }
+}
+
+// ── 설문 제출 ──────────────────────────────────────────
+function submitPageSurvey(key) {
+  var required = (key === "Final") ? SQ_FINAL : SQ_IMMEDIATE;
+  var answers  = window._surveyAnswers[key];
+  var answered = required.filter(function(q) {
+    var a = answers[q.id]; return a !== undefined && a !== null && a !== "";
+  }).length;
+
+  if (answered < required.length) {
+    showToast("⚠️ 모든 문항에 답해 주세요 (" + (required.length - answered) + "개 남음)");
+    return;
+  }
+
+  var data = {
+    surveyKey:   key,
+    learnerId:   LEARNER_ID,
+    sessionId:   SESSION_ID,
+    answers:     answers,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if (fbReady && db) {
+    db.collection("learners").doc(LEARNER_ID)
+      .collection("sessions").doc(SESSION_ID)
+      .collection("surveys").doc("survey_" + key)
+      .set(data)
+      .then(function(){ showToast("✅ " + key + " 설문 저장 완료!"); })
+      .catch(function(e){ showToast("⚠️ 저장 실패: " + e.message); });
+  }
+
+  sendLog("survey_submit", cur, { key: key, answers: answers });
+
+  surveySubmitted[key] = true;
+  var submitEl = document.getElementById("submit" + key);
+  if (submitEl) { submitEl.disabled = true; submitEl.textContent = "✅ 제출 완료 · Đã gửi"; submitEl.classList.remove("ready"); }
+  var doneEl = document.getElementById("saved" + key);
+  if (doneEl) doneEl.classList.add("show");
+
+  // 모든 인터랙션 요소 비활성화
+  ["sq-lbtn","sq-choice-btn","sq-textarea"].forEach(function(cls) {
+    document.querySelectorAll("#survey" + key + "_qs ." + cls).forEach(function(el) {
+      el.disabled = true; el.style.pointerEvents = "none";
+    });
+  });
+
+  updateNav();
+}
+
+// ═══════════════════════════════════════════════════════
+//  오디오 재생 (mp3 우선, fallback → Web Speech API)
+// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════
+//  오디오 통합 관리
+//  - 안내음(페이지)과 클릭음을 하나의 activeAudio로 관리
+//  - 어느 쪽이든 새 오디오 재생 시 기존 음원 즉시 중단
+// ══════════════════════════════════════════
+
+var activeAudio = null;  // 현재 재생 중인 Audio 객체 (안내음·클릭음 통합)
+var pageAudioTimer = null; // 안내음 delay 타이머
+
+// 모든 재생 중단
+function stopAllAudio() {
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.currentTime = 0;
+    activeAudio = null;
+  }
+  if (pageAudioTimer) {
+    clearTimeout(pageAudioTimer);
+    pageAudioTimer = null;
+  }
+  if (window.speechSynthesis) {
+    speechSynthesis.cancel();
+  }
+}
+
+// 페이지 안내음: 1초 delay 후 재생 (수정 1)
+function playPageAudio(pageNum) {
+  if (pageNum < 1 || pageNum > 9) return;
+  stopAllAudio();
+  var padded = pageNum < 10 ? "0" + pageNum : "" + pageNum;
+  pageAudioTimer = setTimeout(function() {
+    stopAllAudio();
+    var ga = new Audio("./mp3/week1/" + padded + ".mp3");
+    activeAudio = ga;
+    ga.play().catch(function(e) {
+      console.warn("안내음 재생 실패 (S" + pageNum + "):", e.message);
+    });
+  }, 1000);
+}
+
+// TTS fallback 맵
+var KO_MAP = {
+  "ba_ba":"바","ba_bal":"발","ba_bae":"배","ba_bom":"봄",
+  "bba_bba":"빠","bba_bbal":"빨","bba_bbae":"빼","bba_bbom":"뽐",
+  "pa_pa":"파","pa_pal":"팔","pa_pae":"패","pa_pom":"폼",
+  "word_baji":"바지","word_bbaruda":"빠르다","word_parangsaek":"파란색",
+  "word_bbang":"빵","word_pul":"풀","word_bareum":"발음",
+  "sent_1":"저는 여름마다 바지를 빨리 빨아요.",
+  "sent_2":"파란 파도가 빠르게 밀려와요.",
+  "quiz_1":"빨리","quiz_2":"파도","quiz_3":"뿔"
+};
+
+// key → 실제 파일명 매핑
+// 수정 2: 파일명 공백 → 언더바 (_)
+// 수정 4: quiz 전용 mp3 연결 (08_01빨리, 08_02파도, 08_03뿔)
+var AUDIO_FILE_MAP = {
+  // S5 듣고 따라하기
+  "ba_ba":    "05_01바",
+  "bba_bba":  "05_02빠",
+  "pa_pa":    "05_03파",
+  "ba_bal":   "05_04발",
+  "bba_bbal": "05_05빨",
+  "pa_pal":   "05_06팔",
+  "ba_bae":   "05_07배",
+  "bba_bbae": "05_08빼",
+  "pa_pae":   "05_09패",
+  "ba_bom":   "05_10봄",
+  "bba_bbom": "05_11뽐",
+  "pa_pom":   "05_12폼",
+  // S6 단어 읽기
+  "word_baji":       "06_01바지",
+  "word_bbaruda":    "06_02빠르다",
+  "word_parangsaek": "06_03파란색",
+  "word_bbang":      "06_04빵",
+  "word_pul":        "06_05풀",
+  "word_bareum":     "06_06발음",
+  // S7 문장 읽기 — 공백을 언더바로 교체 (수정 2)
+  "sent_1": "07_01저는_여름마다_바지를_빨리_빨아요",
+  "sent_2": "07_02파란_파도가_빠르게_밀려와요",
+  // S8 퀴즈 — 전용 mp3 연결 (수정 4)
+  "quiz_1": "08_01빨리",
+  "quiz_2": "08_02파도",
+  "quiz_3": "08_03뿔"
+};
+
+// 클릭 오디오 재생 (수정 3: 안내음 포함 기존 음원 모두 중단)
+function playAudio(key, el) {
+  stopAllAudio();  // 안내음·이전 클릭음 모두 중단
+
+  var filename = AUDIO_FILE_MAP[key] || key;
+  var src = "./mp3/week1/" + filename + ".mp3";
+
+  var audio = new Audio(src);
+  activeAudio = audio;
+  audio.onerror = function() {
+    var txt = KO_MAP[key];
+    if (txt && window.speechSynthesis) {
+      var u = new SpeechSynthesisUtterance(txt);
+      u.lang = "ko-KR"; u.rate = 0.85;
+      speechSynthesis.speak(u);
+    }
+  };
+  audio.play().catch(function(){});
+  sendLog("audio_play", cur, { key: key, file: filename });
+  if (el) {
+    el.classList.add("played");
+    setTimeout(function() { el.classList.remove("played"); }, 600);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  퀴즈
+// ═══════════════════════════════════════════════════════
+function checkQ(el, correct, qid) {
+  if (quizDone[qid]) return;
+  quizDone[qid] = true;
+  var opts = document.getElementById(qid).querySelectorAll(".quiz-opt");
+  opts.forEach(function(o) { o.style.pointerEvents = "none"; });
+  el.classList.add(correct ? "correct" : "wrong");
+  if (!correct) {
+    opts.forEach(function(o) {
+      if ((o.getAttribute("onclick") || "").indexOf("true") > -1) o.classList.add("correct");
+    });
+  }
+  sendLog("quiz_answer", cur, { qid: qid, correct: correct });
+}
+
+// ═══════════════════════════════════════════════════════
+//  녹음
+// ═══════════════════════════════════════════════════════
+function toggleRec(idx) {
+  // 녹음 버튼 클릭 시 재생 중인 음원 즉시 중지
+  stopAllAudio();
+  recState[idx].recording ? stopRec(idx) : startRec(idx);
+}
+
+function startRec(idx) {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    var s = recState[idx];
+    s.chunks = []; s.blob = null; s.sec = 0;
+    // 시도 횟수 증가 (attemptCount: 처음 녹음=1, 다시 누를 때마다 +1)
+    s.attemptCount = (s.attemptCount || 0) + 1;
+
+    var mime = "";
+    if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) mime = "audio/webm;codecs=opus";
+    else if (MediaRecorder.isTypeSupported("audio/webm")) mime = "audio/webm";
+    else if (MediaRecorder.isTypeSupported("audio/mp4")) mime = "audio/mp4";
+    s.mime = mime || "audio/webm";
+    s.mediaRec = mime ? new MediaRecorder(stream,{mimeType:mime}) : new MediaRecorder(stream);
+    s.mediaRec.ondataavailable = function(e) { if(e.data && e.data.size>0) s.chunks.push(e.data); };
+    s.mediaRec.onstop = function() {
+      s.blob = new Blob(s.chunks, { type: s.mime });
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      onRecDone(idx);
+    };
+    s.mediaRec.start();
+    s.recording = true;
+    document.getElementById("recBtn_"+idx).className = "rec-main-btn recording";
+    document.getElementById("recBtn_"+idx).textContent = "⏹";
+    document.getElementById("recStatus_"+idx).textContent = "🔴 녹음 중 · Đang ghi âm... 단어를 발음하세요";
+    document.getElementById("recPost_"+idx).classList.remove("show");
+    s.timer = setInterval(function() {
+      s.sec++;
+      var m = Math.floor(s.sec/60), ss = ("0"+s.sec%60).slice(-2);
+      document.getElementById("recTimer_"+idx).textContent = m+":"+ss;
+    }, 1000);
+    sendLog("rec_start", cur, { word: REC_KO[idx], attempt: s.attemptCount });
+  }).catch(function(e) { alert("마이크 권한이 필요합니다: "+e.message); });
+}
+
+function stopRec(idx) {
+  var s = recState[idx];
+  if (s.mediaRec && s.mediaRec.state !== "inactive") s.mediaRec.stop();
+  clearInterval(s.timer);
+  s.recording = false;
+  document.getElementById("recBtn_"+idx).className = "rec-main-btn done";
+  document.getElementById("recBtn_"+idx).textContent = "✅";
+  sendLog("rec_stop", cur, { word: REC_KO[idx], sec: s.sec, attempt: s.attemptCount || 1 });
+}
+
+function onRecDone(idx) {
+  var s = recState[idx];
+  document.getElementById("recStatus_"+idx).textContent = "✅ 녹음 완료 · Ghi âm xong! 아래에서 듣거나 업로드하세요.";
+  document.getElementById("recPost_"+idx).classList.add("show");
+  // 미리듣기 audio src 연결
+  var audioEl = document.getElementById("recAudio_"+idx);
+  if (audioEl && s.blob) {
+    if (audioEl._prevUrl) URL.revokeObjectURL(audioEl._prevUrl);
+    var url = URL.createObjectURL(s.blob);
+    audioEl._prevUrl = url;
+    audioEl.src = url;
+    audioEl.load();
+  }
+}
+
+// 녹음 미리듣기 (▶ 듣기 버튼)
+function playRec(idx) {
+  stopAllAudio();  // 페이지 안내음 등 기존 음원 중지
+  var audioEl = document.getElementById("recAudio_"+idx);
+  var playerWrap = document.getElementById("recPlayer_"+idx);
+  var playBtn = document.getElementById("recPlayBtn_"+idx);
+  var s = recState[idx];
+  if (!s.blob) return;
+
+  // 플레이어 표시 토글
+  var isShown = playerWrap.classList.contains("show");
+  if (isShown) {
+    audioEl.pause();
+    playerWrap.classList.remove("show");
+    playBtn.textContent = "▶ 듣기 · Nghe";
+    playBtn.classList.remove("playing");
+  } else {
+    playerWrap.classList.add("show");
+    playBtn.textContent = "⏹ 닫기 · Đóng";
+    playBtn.classList.add("playing");
+    audioEl.play().catch(function(){});
+    // 재생 끝나면 버튼 원래대로
+    audioEl.onended = function() {
+      playBtn.textContent = "▶ 듣기 · Nghe";
+      playBtn.classList.remove("playing");
+    };
+  }
+  sendLog("rec_playback", cur, { word: REC_KO[idx] });
+}
+
+function retryRec(idx) {
+  stopAllAudio();  // 재생 중이던 음원 중지
+  var s = recState[idx];
+  s.blob = null; s.chunks = [];
+  document.getElementById("recBtn_"+idx).className = "rec-main-btn";
+  document.getElementById("recBtn_"+idx).textContent = "🔴";
+  document.getElementById("recTimer_"+idx).textContent = "0:00";
+  document.getElementById("recStatus_"+idx).textContent = "🎙️ 버튼을 눌러 녹음을 시작하세요";
+  document.getElementById("recPost_"+idx).classList.remove("show");
+  document.getElementById("recUpStatus_"+idx).className = "rec-up-status";
+  // 미리듣기 플레이어 초기화
+  var audioEl = document.getElementById("recAudio_"+idx);
+  var playerWrap = document.getElementById("recPlayer_"+idx);
+  var playBtn = document.getElementById("recPlayBtn_"+idx);
+  if (audioEl) { audioEl.pause(); audioEl.src = ""; }
+  if (playerWrap) playerWrap.classList.remove("show");
+  if (playBtn) { playBtn.textContent = "▶ 듣기 · Nghe"; playBtn.classList.remove("playing"); }
+  sendLog("rec_retry", cur, { word: REC_KO[idx] });
+}
+
+function downloadRec(idx) {
+  stopAllAudio();  // 재생 중이던 음원 중지
+  var s = recState[idx];
+  if (!s.blob) return;
+  var ext = s.mime.indexOf("mp4") > -1 ? "mp4" : "webm";
+  var fn  = LEARNER_ID+"_W"+WEEK+"_"+REC_WORDS[idx]+"."+ext;
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(s.blob); a.download = fn; a.click();
+  sendLog("rec_download", cur, { word: REC_KO[idx], filename: fn });
+}
+
+function uploadRec(idx) {
+  stopAllAudio();  // 재생 중이던 음원 중지
+  var s     = recState[idx];
+  var stEl  = document.getElementById("recUpStatus_"+idx);
+  var upBtn = document.getElementById("recUpBtn_"+idx);
+  if (!s.blob) { alert("먼저 녹음하세요."); return; }
+  if (!fbReady || !storage) {
+    stEl.className = "rec-up-status show error";
+    stEl.textContent = "❌ Firebase 연결 실패";
+    return;
+  }
+  stEl.className = "rec-up-status show uploading";
+  stEl.textContent = "⏳ 업로드 중 · Đang tải lên...";
+  upBtn.disabled = true;
+
+  var ext = s.mime.indexOf("mp4") > -1 ? "mp4" : "webm";
+  var ts  = new Date().toISOString().slice(0,19).replace(/[T:]/g,"-");
+  var fn  = LEARNER_ID+"_W"+WEEK+"_"+REC_WORDS[idx]+"_"+ts+"."+ext;
+  // Storage 경로: recordings/{learnerId}/{sessionId}/{filename}
+  var storagePath = "recordings/"+LEARNER_ID+"/"+SESSION_ID+"/"+fn;
+
+  storage.ref(storagePath).put(s.blob, { contentType: s.mime })
+    .then(function(snap) { return snap.ref.getDownloadURL(); })
+    .then(function(url) {
+      // Firestore: learners/{id}/sessions/{sid}/recordings/{wordKey}
+      return db.collection("learners").doc(LEARNER_ID)
+        .collection("sessions").doc(SESSION_ID)
+        .collection("recordings").doc(REC_WORDS[idx])
+        .set({
+          word:        REC_KO[idx],
+          wordKey:     REC_WORDS[idx],
+          filename:    fn,
+          storagePath: storagePath,
+          fileUrl:     url,
+          mimeType:    s.mime,
+          durationSec: s.sec,
+          size:        s.blob.size,
+          attemptCount: s.attemptCount || 1,
+          uploadedAt:  firebase.firestore.FieldValue.serverTimestamp()
+        });
+    })
+    .then(function() {
+      stEl.className = "rec-up-status show success";
+      stEl.textContent = "✅ 업로드 완료 · Tải lên thành công!";
+      upBtn.disabled = false;
+      sendLog("rec_uploaded", cur, { word: REC_KO[idx], filename: fn, sec: s.sec, attempt: s.attemptCount || 1 });
+      showToast("🎙️ " + REC_KO[idx] + " 업로드 완료 · Tải lên xong!");
+    })
+    .catch(function(e) {
+      stEl.className = "rec-up-status show error";
+      var msg = e.message || "";
+      stEl.textContent = (msg.indexOf("unauthorized")>-1||msg.indexOf("permission-denied")>-1)
+        ? "❌ 권한 오류 — Firebase Storage Rules 확인 필요"
+        : "❌ 실패: " + msg.slice(0,60);
+      upBtn.disabled = false;
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  유틸
+// ═══════════════════════════════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2400);
+}
+
+window.addEventListener("beforeunload", function() {
+  sendLog("session_end", cur, {
+    lastPage: cur,
+    totalSec: Math.round((Date.now()-sessionStart)/1000)
+  });
+});
+</script>
+</body>
+</html>
