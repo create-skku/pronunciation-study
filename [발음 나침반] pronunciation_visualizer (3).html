@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>발음 나침반 — 연구자 시각화 생성 도구</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0D1117;
+  --surface:  #161B22;
+  --surface2: #1C2330;
+  --border:   rgba(255,255,255,.08);
+  --border2:  rgba(255,255,255,.14);
+  --teal:     #1DB882;
+  --blue:     #4A9EFF;
+  --red:      #FF5B5B;
+  --orange:   #F5820A;
+  --text:     #E6EDF3;
+  --muted:    rgba(230,237,243,.5);
+  --mono:     'DM Mono', monospace;
+  --sans:     'Pretendard', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+body { max-width: 1280px; margin: 0 auto; padding: 0; }
+
+/* ── 헤더 ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--teal), #0D9B6A);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.logo-name { font-size: 16px; font-weight: 700; letter-spacing: -.02em; }
+.logo-sub  { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+.header-badge {
+  font-size: 10px; font-family: var(--mono); font-weight: 500;
+  background: rgba(26,184,130,.15); color: var(--teal);
+  border: 1px solid rgba(26,184,130,.3); border-radius: 20px;
+  padding: 3px 12px; letter-spacing: .06em;
+}
+
+/* ── 레이아웃 ── */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  min-height: calc(100vh - 65px);
+}
+
+/* ── 왼쪽 패널 ── */
+.panel {
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 28px 24px; overflow-y: auto; max-height: calc(100vh - 65px);
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-track { background: transparent; }
+.panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.section-title {
+  font-size: 10px; font-weight: 600; letter-spacing: .12em;
+  color: var(--muted); font-family: var(--mono);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.section { margin-bottom: 28px; }
+
+/* ── 입력 필드 ── */
+label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; }
+input[type="text"], input[type="number"], select {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; font-family: var(--sans);
+  border-radius: 8px; padding: 9px 12px; outline: none;
+  transition: border-color .15s;
+}
+input:focus, select:focus { border-color: var(--teal); }
+select option { background: var(--surface2); }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.input-full { margin-bottom: 12px; }
+
+/* ── 슬라이더 ── */
+.slider-wrap { margin-bottom: 14px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.slider-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.slider-val {
+  font-size: 12px; font-family: var(--mono); font-weight: 500;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 8px; color: var(--text); min-width: 60px; text-align: center;
+}
+input[type="range"] {
+  width: 100%; -webkit-appearance: none; height: 4px;
+  background: var(--border2); border-radius: 2px; outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--teal); cursor: pointer; border: 2px solid var(--bg);
+  transition: transform .15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+/* ── 타깃 선택 탭 ── */
+.phone-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.phone-tab {
+  flex: 1; padding: 8px 4px; border: 1.5px solid var(--border);
+  border-radius: 8px; background: var(--surface2);
+  text-align: center; cursor: pointer; transition: all .15s;
+}
+.phone-tab.active-lax  { border-color: var(--teal); background: rgba(29,184,130,.12); }
+.phone-tab.active-asp  { border-color: var(--orange); background: rgba(245,130,10,.12); }
+.phone-tab.active-tens { border-color: var(--blue); background: rgba(74,158,255,.12); }
+.phone-tab-char { font-size: 20px; font-weight: 700; display: block; }
+.phone-tab.active-lax  .phone-tab-char { color: var(--teal); }
+.phone-tab.active-asp  .phone-tab-char { color: var(--orange); }
+.phone-tab.active-tens .phone-tab-char { color: var(--blue); }
+.phone-tab-name { font-size: 10px; color: var(--muted); display: block; margin-top: 2px; }
+
+/* ── 버튼 ── */
+.btn-primary {
+  width: 100%; height: 44px; border: 0; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), #0D9B6A);
+  color: #fff; font-size: 14px; font-weight: 700; font-family: var(--sans);
+  cursor: pointer; transition: opacity .15s; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { opacity: .85; }
+.btn-secondary {
+  width: 100%; height: 40px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface2); color: var(--text); font-size: 13px;
+  font-weight: 600; font-family: var(--sans); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-secondary:hover { border-color: var(--border2); background: var(--surface); }
+
+/* ── 오른쪽 — 캔버스 영역 ── */
+.canvas-area {
+  padding: 28px 32px;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+}
+.canvas-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+}
+.canvas-title { font-size: 16px; font-weight: 700; }
+.canvas-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.export-btns { display: flex; gap: 8px; }
+.btn-export {
+  height: 34px; padding: 0 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text); font-size: 12px; font-weight: 600;
+  font-family: var(--sans); cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all .15s;
+}
+.btn-export:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ── SVG 캔버스 카드 ── */
+.chart-card {
+  background: #FFFFFF;
+  border-radius: 16px; overflow: hidden;
+  flex: 1; min-height: 500px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 8px 40px rgba(0,0,0,.18);
+}
+#vizSvg { width: 100%; height: auto; display: block; }
+
+/* ── 학습자 목록 테이블 ── */
+.learner-table {
+  width: 100%; border-collapse: collapse; margin-top: 8px;
+  font-size: 12px;
+}
+.learner-table th {
+  text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border);
+  color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  font-family: var(--mono);
+}
+.learner-table td {
+  padding: 7px 8px; border-bottom: 1px solid var(--border);
+  font-size: 12px; font-family: var(--mono);
+}
+.learner-table tr:last-child td { border-bottom: none; }
+.learner-table tr:hover td { background: var(--surface2); cursor: pointer; }
+.dot-cell { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.badge-correct { color: var(--teal); font-size: 10px; }
+.badge-wrong   { color: var(--red);  font-size: 10px; }
+
+/* ── 토글 ── */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-label { font-size: 13px; }
+.toggle-sub   { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  background: var(--border2); border-radius: 10px;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--teal); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%; background: #fff;
+  transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(16px); }
+
+/* ── 구분선 ── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── 토스트 ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  background: var(--surface2); border: 1px solid var(--teal); border-radius: 10px;
+  padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--teal);
+  transform: translateY(80px); opacity: 0; transition: all .3s;
+  pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── 반응형 ── */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .panel { max-height: none; border-right: none; border-bottom: 1px solid var(--border); }
+  .canvas-area { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-mark">🧭</div>
+    <div>
+      <div class="logo-name">발음 나침반 · La bàn phát âm</div>
+      <div class="logo-sub">RESEARCHER VISUALIZATION TOOL v1.0</div>
+    </div>
+  </div>
+  <div class="header-badge">RESEARCHER MODE</div>
+</header>
+
+<div class="layout">
+
+  <!-- ── 왼쪽 입력 패널 ── -->
+  <aside class="panel">
+
+    <!-- 학습자 기본 정보 -->
+    <div class="section">
+      <div class="section-title">학습자 정보</div>
+      <div class="input-row">
+        <div>
+          <label>학습자 ID</label>
+          <input type="text" id="learnerId" value="VN-07" placeholder="예: VN-01">
+        </div>
+        <div>
+          <label>연습 단어</label>
+          <input type="text" id="wordKo" value="바지" placeholder="바지">
+        </div>
+      </div>
+      <div class="input-row">
+        <div>
+          <label>베트남어 단어</label>
+          <input type="text" id="wordViet" value="quần" placeholder="quần">
+        </div>
+        <div>
+          <label>목표 자음</label>
+          <select id="targetPhone" onchange="updateTargetPhone()">
+            <option value="lax">ㅂ 평음 (lax)</option>
+            <option value="asp">ㅍ 격음 (aspirated)</option>
+            <option value="tens">ㅃ 경음 (tense)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 목표 자음 선택 -->
+    <div class="section">
+      <div class="section-title">목표 자음 타입</div>
+      <div class="phone-tabs">
+        <div class="phone-tab active-lax" id="tabLax" onclick="selectTarget('lax')">
+          <span class="phone-tab-char">ㅂ</span>
+          <span class="phone-tab-name">평음 · bình thường</span>
+        </div>
+        <div class="phone-tab" id="tabAsp" onclick="selectTarget('asp')">
+          <span class="phone-tab-char">ㅍ</span>
+          <span class="phone-tab-name">격음 · bật hơi</span>
+        </div>
+        <div class="phone-tab" id="tabTens" onclick="selectTarget('tens')">
+          <span class="phone-tab-char">ㅃ</span>
+          <span class="phone-tab-name">경음 · căng thẳng</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학습자 발화 데이터 입력 -->
+    <div class="section">
+      <div class="section-title">학습자 발화값 입력</div>
+
+      <div class="slider-wrap">
+        <div class="slider-header">
+          <span class="slider-label">숨 길이 (VOT) · Độ dài hơi thở</span>
+          <span class="slider-val" id="votVal">40 ms</span>
+        </div>
+        <input type="range" id="votSlider" min="0" max="120" value="40"
+               oninput="updateVOT(this.value)">
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">짧게 · ngắn (0)</span>
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">길게 · dài (120)</span>
+        </div>
+      </div>
+
+      <div class="slider-wrap">
+        <div class="slider-header">
+          <span class="slider-label">소리 시작 높이 (F0) · Cao độ khởi đầu</span>
+          <span class="slider-val" id="f0Val">175 Hz</span>
+        </div>
+        <input type="range" id="f0Slider" min="100" max="280" value="175"
+               oninput="updateF0(this.value)">
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">낮게 · thấp (100)</span>
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">높게 · cao (280)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 여러 시도 데이터 -->
+    <div class="section">
+      <div class="section-title">시도 기록 관리</div>
+      <div class="input-row">
+        <div>
+          <label>VOT (ms)</label>
+          <input type="number" id="addVot" value="" placeholder="예: 38" min="0" max="150">
+        </div>
+        <div>
+          <label>F0 시작 (Hz)</label>
+          <input type="number" id="addF0" value="" placeholder="예: 172" min="80" max="300">
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="addAttempt()" style="margin-bottom:12px">
+        + 시도 추가 · Thêm lần thử
+      </button>
+      <div style="max-height:160px;overflow-y:auto">
+        <table class="learner-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>VOT</th>
+              <th>F0</th>
+              <th>판정</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="attemptBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 표시 옵션 -->
+    <div class="section">
+      <div class="section-title">시각화 옵션</div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">목표 영역 타원 표시</div>
+          <div class="toggle-sub">show target cluster ellipses</div>
+        </div>
+        <div class="toggle on" id="toggleEllipse" onclick="toggleOpt('ellipse')"></div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">교정 화살표 표시</div>
+          <div class="toggle-sub">show correction arrow</div>
+        </div>
+        <div class="toggle on" id="toggleArrow" onclick="toggleOpt('arrow')"></div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">시도 궤적 선 표시</div>
+          <div class="toggle-sub">show attempt trail lines</div>
+        </div>
+        <div class="toggle on" id="toggleTrail" onclick="toggleOpt('trail')"></div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">교정 말풍선 표시</div>
+          <div class="toggle-sub">show feedback callouts</div>
+        </div>
+        <div class="toggle on" id="toggleCallout" onclick="toggleOpt('callout')"></div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">베트남어 라벨 포함</div>
+          <div class="toggle-sub">include Vietnamese labels</div>
+        </div>
+        <div class="toggle on" id="toggleViet" onclick="toggleOpt('viet')"></div>
+      </div>
+    </div>
+
+    <!-- 실행 버튼 -->
+    <div class="divider"></div>
+    <button class="btn-primary" onclick="generateViz()">
+      🧭 시각화 생성하기 · Tạo hình ảnh
+    </button>
+    <button class="btn-secondary" onclick="exportSVG()">
+      💾 SVG 다운로드
+    </button>
+    <button class="btn-secondary" onclick="exportPNG()" style="margin-top:8px">
+      🖼 PNG 이미지 저장
+    </button>
+
+  </aside>
+
+  <!-- ── 오른쪽 캔버스 ── -->
+  <main class="canvas-area">
+    <div class="canvas-header">
+      <div>
+        <div class="canvas-title">발음 나침반 · 시각화 미리보기</div>
+        <div class="canvas-meta" id="canvasMeta">학습자 VN-07 · 단어: 바지 · 목표: ㅂ 평음</div>
+      </div>
+      <div class="export-btns">
+        <button class="btn-export" onclick="copyToClipboard()">📋 SVG 복사</button>
+        <button class="btn-export" onclick="resetAll()">↺ 초기화</button>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <svg id="vizSvg" viewBox="0 0 700 540" xmlns="http://www.w3.org/2000/svg"
+           style="background:white;font-family:'Pretendard',sans-serif">
+        <!-- JS로 채워짐 -->
+      </svg>
+    </div>
+  </main>
+</div>
+
+<div id="toast">✅ 완료!</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  상태
+// ════════════════════════════════════════════════
+var state = {
+  learnerId:   'VN-07',
+  wordKo:      '바지',
+  wordViet:    'quần',
+  targetPhone: 'lax',
+  vot:  40,
+  f0:   175,
+  attempts: [],
+  opts: { ellipse:true, arrow:true, trail:true, callout:true, viet:true }
+};
+
+// 언어별 목표 클러스터 (VOT ms, F0 Hz, 타원 rx, ry)
+var CLUSTERS = {
+  lax:  { vot:18,  f0:148, rvot:32, rf0:30, char:'ㅂ', name:'평음', viet:'bình thường', col:'#16A34A' },
+  asp:  { vot:75,  f0:188, rvot:36, rf0:28, char:'ㅍ', name:'격음', viet:'bật hơi',    col:'#D97706' },
+  tens: { vot:10,  f0:205, rvot:22, rf0:28, char:'ㅃ', name:'경음', viet:'căng thẳng', col:'#2563EB' }
+};
+
+// ════════════════════════════════════════════════
+//  슬라이더 / 입력 핸들러
+// ════════════════════════════════════════════════
+function updateVOT(v) {
+  state.vot = +v;
+  document.getElementById('votVal').textContent = v + ' ms';
+  generateViz();
+}
+function updateF0(v) {
+  state.f0 = +v;
+  document.getElementById('f0Val').textContent = v + ' Hz';
+  generateViz();
+}
+function selectTarget(t) {
+  state.targetPhone = t;
+  ['Lax','Asp','Tens'].forEach(function(n) {
+    document.getElementById('tab'+n).className = 'phone-tab';
+  });
+  var tabMap = { lax:'Lax', asp:'Asp', tens:'Tens' };
+  document.getElementById('tab'+tabMap[t]).className = 'phone-tab active-'+t;
+  document.getElementById('targetPhone').value = t;
+  generateViz();
+}
+function updateTargetPhone() {
+  selectTarget(document.getElementById('targetPhone').value);
+}
+function toggleOpt(key) {
+  state.opts[key] = !state.opts[key];
+  var el = document.getElementById('toggle'+key.charAt(0).toUpperCase()+key.slice(1));
+  el.classList.toggle('on', state.opts[key]);
+  generateViz();
+}
+
+// ════════════════════════════════════════════════
+//  시도 추가 / 삭제
+// ════════════════════════════════════════════════
+function addAttempt() {
+  var vot = +document.getElementById('addVot').value;
+  var f0  = +document.getElementById('addF0').value;
+  if (!vot || !f0) { showToast('⚠ VOT와 F0 값을 모두 입력하세요'); return; }
+  state.attempts.push({ vot: vot, f0: f0 });
+  document.getElementById('addVot').value = '';
+  document.getElementById('addF0').value  = '';
+  renderAttemptTable();
+  generateViz();
+}
+function removeAttempt(i) {
+  state.attempts.splice(i, 1);
+  renderAttemptTable();
+  generateViz();
+}
+function renderAttemptTable() {
+  var cl = CLUSTERS[state.targetPhone];
+  var html = '';
+  state.attempts.forEach(function(a, i) {
+    var dVot = Math.abs(a.vot - cl.vot);
+    var dF0  = Math.abs(a.f0  - cl.f0);
+    var ok   = dVot < cl.rvot && dF0 < cl.rf0;
+    html += '<tr onclick="highlightAttempt('+i+')">' +
+      '<td style="color:var(--muted)">' + (i+1) + '</td>' +
+      '<td>' + a.vot + '</td>' +
+      '<td>' + a.f0  + '</td>' +
+      '<td class="'+(ok?'badge-correct':'badge-wrong')+'">' + (ok?'✔ 목표':'✗ 이탈') + '</td>' +
+      '<td><span onclick="event.stopPropagation();removeAttempt('+i+')" style="cursor:pointer;color:var(--muted);font-size:12px">✕</span></td>' +
+      '</tr>';
+  });
+  document.getElementById('attemptBody').innerHTML = html || '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:12px">시도 없음</td></tr>';
+}
+function highlightAttempt(i) {
+  state.vot = state.attempts[i].vot;
+  state.f0  = state.attempts[i].f0;
+  document.getElementById('votSlider').value = state.vot;
+  document.getElementById('f0Slider').value  = state.f0;
+  document.getElementById('votVal').textContent = state.vot + ' ms';
+  document.getElementById('f0Val').textContent  = state.f0  + ' Hz';
+  generateViz();
+}
+
+// ════════════════════════════════════════════════
+//  좌표 변환 (데이터 → SVG)
+// ════════════════════════════════════════════════
+// 플롯 영역: x=80..620, y=80..440 (VOT 0~120, F0 100~280)
+var PX1=80, PX2=620, PY1=80, PY2=440;
+var VOT_MIN=0, VOT_MAX=120, F0_MIN=100, F0_MAX=280;
+
+function toX(vot) { return PX1 + (vot - VOT_MIN) / (VOT_MAX - VOT_MIN) * (PX2-PX1); }
+function toY(f0)  { return PY2 - (f0  - F0_MIN)  / (F0_MAX  - F0_MIN)  * (PY2-PY1); }
+
+// ════════════════════════════════════════════════
+//  SVG 생성 메인
+// ════════════════════════════════════════════════
+function generateViz() {
+  var s = state;
+  var cl = CLUSTERS[s.targetPhone];
+
+  // 메타 업데이트
+  document.getElementById('canvasMeta').textContent =
+    '학습자 ' + (s.learnerId||'--') + ' · 단어: ' + (s.wordKo||'--') + ' · 목표: ' + cl.char + ' ' + cl.name;
+
+  var svg = document.getElementById('vizSvg');
+  var parts = [];
+
+  // ── defs (arrowhead) ──
+  parts.push('<defs>' +
+    '<marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+    '<path d="M2 1L8 5L2 9" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>' +
+    '<marker id="arrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+    '<path d="M2 1L8 5L2 9" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>' +
+    '</defs>');
+
+  // ── 제목 ──
+  var vietLine = s.opts.viet ? '<text x="350" y="56" text-anchor="middle" font-size="12" fill="#888" font-style="italic">La bàn phát âm · 연습: ' + esc(s.wordKo) + ' (' + esc(s.wordViet) + ') / 목표: ' + cl.char + ' ' + cl.name + '</text>' : '';
+  parts.push('<text x="350" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#111">발음 나침반</text>' + vietLine);
+
+  // ── 플롯 배경 ──
+  parts.push('<rect x="' + PX1 + '" y="' + PY1 + '" width="' + (PX2-PX1) + '" height="' + (PY2-PY1) + '" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>');
+
+  // 격자선
+  [0,30,60,90,120].forEach(function(v) {
+    var x = toX(v);
+    parts.push('<line x1="' + x + '" y1="' + PY1 + '" x2="' + x + '" y2="' + PY2 + '" stroke="#E2E8F0" stroke-width="0.8" stroke-dasharray="4 4"/>');
+    parts.push('<text x="' + x + '" y="' + (PY2+16) + '" text-anchor="middle" font-size="10" fill="#94A3B8">' + v + '</text>');
+  });
+  [100,140,180,220,260].forEach(function(f) {
+    var y = toY(f);
+    parts.push('<line x1="' + PX1 + '" y1="' + y + '" x2="' + PX2 + '" y2="' + y + '" stroke="#E2E8F0" stroke-width="0.8" stroke-dasharray="4 4"/>');
+    parts.push('<text x="' + (PX1-8) + '" y="' + (y+4) + '" text-anchor="end" font-size="10" fill="#94A3B8">' + f + '</text>');
+  });
+
+  // ── 세 소리 영역 타원 ──
+  if (s.opts.ellipse) {
+    Object.keys(CLUSTERS).forEach(function(k) {
+      var c = CLUSTERS[k];
+      var isTarget = (k === s.targetPhone);
+      var cx = toX(c.vot), cy = toY(c.f0);
+      var rx = c.rvot / (VOT_MAX-VOT_MIN) * (PX2-PX1);
+      var ry = c.rf0  / (F0_MAX -F0_MIN)  * (PY2-PY1);
+      var alpha = isTarget ? '0.15' : '0.07';
+      var strokeAlpha = isTarget ? '0.6' : '0.25';
+      var strokeDash  = isTarget ? '' : 'stroke-dasharray="6 3"';
+      parts.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + c.col + '" fill-opacity="' + alpha + '" stroke="' + c.col + '" stroke-width="' + (isTarget?1.8:1) + '" stroke-opacity="' + strokeAlpha + '" ' + strokeDash + '/>');
+      parts.push('<text x="' + (cx-rx+14) + '" y="' + (cy-8) + '" font-size="20" font-weight="700" fill="' + c.col + '">' + c.char + '</text>');
+      parts.push('<text x="' + (cx-rx+14) + '" y="' + (cy+10) + '" font-size="11" fill="' + c.col + '">' + c.name + '</text>');
+      if (s.opts.viet) parts.push('<text x="' + (cx-rx+14) + '" y="' + (cy+24) + '" font-size="10" fill="' + c.col + '" font-style="italic">' + c.viet + '</text>');
+    });
+  }
+
+  // ── 시도 궤적 ──
+  if (s.opts.trail && s.attempts.length > 1) {
+    for (var i = 1; i < s.attempts.length; i++) {
+      var x1 = toX(s.attempts[i-1].vot), y1 = toY(s.attempts[i-1].f0);
+      var x2 = toX(s.attempts[i].vot),   y2 = toY(s.attempts[i].f0);
+      parts.push('<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrG)"/>');
+    }
+  }
+  // 시도 점들
+  if (s.attempts.length > 0) {
+    s.attempts.forEach(function(a, i) {
+      var ax = toX(a.vot), ay = toY(a.f0);
+      var dVot = Math.abs(a.vot - cl.vot);
+      var dF0  = Math.abs(a.f0  - cl.f0);
+      var ok   = dVot < cl.rvot && dF0 < cl.rf0;
+      var dotColor = ok ? '#16A34A' : '#94A3B8';
+      parts.push('<circle cx="' + ax + '" cy="' + ay + '" r="5" fill="' + dotColor + '" fill-opacity="0.55" stroke="white" stroke-width="1.2"/>');
+      parts.push('<text x="' + (ax+7) + '" y="' + (ay-6) + '" font-size="9" fill="#94A3B8">' + (i+1) + '</text>');
+    });
+  }
+
+  // ── 목표 점 (초록) ──
+  var tx = toX(cl.vot), ty = toY(cl.f0);
+  parts.push('<circle cx="' + tx + '" cy="' + ty + '" r="10" fill="' + cl.col + '" stroke="white" stroke-width="2.5"/>');
+  // 목표 라벨
+  var tlx = Math.min(tx+14, PX2-110), tly = ty-22;
+  if (tly < PY1+10) tly = ty+30;
+  parts.push('<rect x="' + tlx + '" y="' + tly + '" width="105" height="38" rx="7" fill="' + cl.col + '" fill-opacity="0.1" stroke="' + cl.col + '" stroke-width="0.8"/>');
+  parts.push('<text x="' + (tlx+52) + '" y="' + (tly+14) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + cl.col + '">목표 ' + cl.char + ' · ' + cl.name + '</text>');
+  if (s.opts.viet) parts.push('<text x="' + (tlx+52) + '" y="' + (tly+29) + '" text-anchor="middle" font-size="10" fill="' + cl.col + '" font-style="italic">Mục tiêu</text>');
+
+  // ── 내 발음 점 (빨강) ──
+  var mx = toX(s.vot), my = toY(s.f0);
+  parts.push('<circle cx="' + mx + '" cy="' + my + '" r="11" fill="#EF4444" stroke="white" stroke-width="2.5"/>');
+  // 내 발음 라벨 (반대쪽으로 배치)
+  var mlx, mly;
+  if (mx < 400) { mlx = mx+16; mly = my-28; }
+  else          { mlx = mx-130; mly = my-28; }
+  if (mly < PY1+8) mly = my+20;
+  parts.push('<rect x="' + mlx + '" y="' + mly + '" width="115" height="38" rx="7" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="0.8"/>');
+  parts.push('<text x="' + (mlx+57) + '" y="' + (mly+14) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#DC2626">내 발음 · Của tôi</text>');
+  parts.push('<text x="' + (mlx+57) + '" y="' + (mly+29) + '" text-anchor="middle" font-size="10" fill="#DC2626" font-style="italic">VOT:' + s.vot + 'ms F0:' + s.f0 + 'Hz</text>');
+
+  // ── 교정 화살표 ──
+  if (s.opts.arrow) {
+    var dist = Math.sqrt(Math.pow(mx-tx,2)+Math.pow(my-ty,2));
+    if (dist > 18) {
+      var ang = Math.atan2(ty-my, tx-mx);
+      var ax2 = tx - Math.cos(ang)*13, ay2 = ty - Math.sin(ang)*13;
+      var ax1 = mx + Math.cos(ang)*13, ay1 = my + Math.sin(ang)*13;
+      parts.push('<line x1="' + ax1 + '" y1="' + ay1 + '" x2="' + ax2 + '" y2="' + ay2 + '" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" marker-end="url(#arr)"/>');
+    }
+  }
+
+  // ── 교정 말풍선 ──
+  if (s.opts.callout) {
+    var dVot = s.vot - cl.vot;
+    var dF0  = s.f0  - cl.f0;
+    var msgs = [];
+    if (Math.abs(dVot) > cl.rvot * 0.4) {
+      msgs.push({ ko: dVot>0 ? '숨 조금 짧게' : '숨 조금 길게',
+                  vt: dVot>0 ? 'ngắn hơn một chút' : 'dài hơn một chút' });
+    }
+    if (Math.abs(dF0) > cl.rf0 * 0.4) {
+      msgs.push({ ko: dF0>0 ? '소리 조금 낮게' : '소리 조금 높게',
+                  vt: dF0>0 ? 'thấp hơn một chút' : 'cao hơn một chút' });
+    }
+    var midX = (mx+tx)/2, midY = (my+ty)/2;
+    msgs.forEach(function(m, i) {
+      var bx = midX + (i===0 ? -70 : 20);
+      var by = midY - 60 - i*55;
+      bx = Math.max(PX1+4, Math.min(PX2-128, bx));
+      by = Math.max(PY1+4, by);
+      parts.push('<rect x="' + bx + '" y="' + by + '" width="124" height="40" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>');
+      parts.push('<text x="' + (bx+62) + '" y="' + (by+15) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#15803D">' + m.ko + '</text>');
+      if (s.opts.viet) parts.push('<text x="' + (bx+62) + '" y="' + (by+31) + '" text-anchor="middle" font-size="10" fill="#16A34A" font-style="italic">' + m.vt + '</text>');
+    });
+  }
+
+  // ── 축 ──
+  parts.push('<line x1="' + PX1 + '" y1="' + PY2 + '" x2="' + (PX2+20) + '" y2="' + PY2 + '" stroke="#475569" stroke-width="1.2" marker-end="url(#arrG)"/>');
+  parts.push('<line x1="' + PX1 + '" y1="' + (PY2+0) + '" x2="' + PX1 + '" y2="' + (PY1-16) + '" stroke="#475569" stroke-width="1.2" marker-end="url(#arrG)"/>');
+  parts.push('<text x="350" y="484" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">숨 길이 · Độ dài hơi thở</text>');
+  if (s.opts.viet) {
+    parts.push('<text x="' + (PX1+4) + '" y="484" font-size="10" fill="#94A3B8" font-style="italic">짧게 · ngắn</text>');
+    parts.push('<text x="' + (PX2-4) + '" y="484" text-anchor="end" font-size="10" fill="#94A3B8" font-style="italic">길게 · dài</text>');
+  }
+  parts.push('<text x="26" y="265" text-anchor="middle" font-size="13" font-weight="700" fill="#334155" transform="rotate(-90,26,265)">소리 시작 높이 · Cao độ</text>');
+  if (s.opts.viet) {
+    parts.push('<text x="' + (PX1-12) + '" y="' + (PY1+4) + '" text-anchor="middle" font-size="10" fill="#94A3B8" font-style="italic">높게</text>');
+    parts.push('<text x="' + (PX1-12) + '" y="' + (PY2-4) + '" text-anchor="middle" font-size="10" fill="#94A3B8" font-style="italic">낮게</text>');
+  }
+
+  // ── 범례 ──
+  parts.push('<rect x="80" y="500" width="540" height="32" rx="8" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="0.8"/>');
+  parts.push('<circle cx="110" cy="516" r="6" fill="#16A34A" stroke="white" stroke-width="1.5"/>');
+  parts.push('<text x="120" y="520" font-size="11" fill="#475569">목표 Mục tiêu</text>');
+  parts.push('<circle cx="230" cy="516" r="7" fill="#EF4444" stroke="white" stroke-width="1.5"/>');
+  parts.push('<text x="242" y="520" font-size="11" fill="#475569">내 발음 Phát âm của tôi</text>');
+  parts.push('<circle cx="385" cy="516" r="5" fill="#94A3B8" fill-opacity="0.6" stroke="white" stroke-width="1.5"/>');
+  parts.push('<text x="395" y="520" font-size="11" fill="#475569">이전 시도 Lần thử trước</text>');
+  // 학습자 ID 우측
+  parts.push('<text x="618" y="520" text-anchor="end" font-size="11" font-weight="700" fill="#94A3B8">' + esc(s.learnerId) + '</text>');
+
+  svg.innerHTML = parts.join('\n');
+}
+
+// ════════════════════════════════════════════════
+//  유틸
+// ════════════════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getSVGString() {
+  var svg = document.getElementById('vizSvg');
+  var clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' + clone.outerHTML;
+}
+
+function exportSVG() {
+  var str = getSVGString();
+  var blob = new Blob([str], { type:'image/svg+xml' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pronunciation-map-' + (state.learnerId||'learner') + '.svg';
+  a.click();
+  showToast('✅ SVG 저장 완료');
+}
+
+function exportPNG() {
+  var svg = document.getElementById('vizSvg');
+  var svgData = getSVGString();
+  var canvas = document.createElement('canvas');
+  canvas.width = 1400; canvas.height = 1080;
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, 1400, 1080);
+  var img = new Image();
+  var blob = new Blob([svgData], { type:'image/svg+xml' });
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, 1400, 1080);
+    var a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'pronunciation-map-' + (state.learnerId||'learner') + '.png';
+    a.click();
+    URL.revokeObjectURL(img.src);
+    showToast('🖼 PNG 저장 완료');
+  };
+  img.src = URL.createObjectURL(blob);
+}
+
+function copyToClipboard() {
+  var str = getSVGString();
+  navigator.clipboard.writeText(str).then(function() {
+    showToast('📋 SVG 복사 완료');
+  }).catch(function() {
+    showToast('⚠ 클립보드 접근 불가');
+  });
+}
+
+function resetAll() {
+  state.attempts = [];
+  state.vot = 40; state.f0 = 175;
+  document.getElementById('votSlider').value = 40;
+  document.getElementById('f0Slider').value  = 175;
+  document.getElementById('votVal').textContent = '40 ms';
+  document.getElementById('f0Val').textContent  = '175 Hz';
+  renderAttemptTable();
+  generateViz();
+  showToast('↺ 초기화 완료');
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+// ════════════════════════════════════════════════
+//  학습자 정보 → 실시간 반영
+// ════════════════════════════════════════════════
+['learnerId','wordKo','wordViet'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', function() {
+    state[id] = this.value;
+    generateViz();
+  });
+});
+
+// ── 초기 렌더 ──
+renderAttemptTable();
+generateViz();
+</script>
+</body>
+</html>
