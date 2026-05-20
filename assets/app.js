@@ -23,9 +23,11 @@ let pageEnterTime = Date.now();
 function getParams() {
   const p = new URLSearchParams(location.search);
   const bodyGroup = document.body && document.body.getAttribute('data-group');
+  // 주차 우선순위: URL ?week=X > body data-week > 기본 1
+  const bodyWeek = document.body && document.body.getAttribute('data-week');
   return {
     lid:   p.get('lid') || '',
-    week:  parseInt(p.get('week') || '1', 10),
+    week:  parseInt(p.get('week') || bodyWeek || '1', 10),
     group: bodyGroup || (p.get('lid') || '').charAt(0).toUpperCase(),
   };
 }
