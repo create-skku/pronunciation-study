@@ -15,5 +15,6 @@ window.FIREBASE_CONFIG = {
   appId: "1:506014539335:web:caf85876d582609a75db62"
 };
 
-window.FEEDBACK_LOG_COLLECTION = "feedback_views_TEST"; // 분리된 테스트 컬렉션
+window.FEEDBACK_LOG_COLLECTION = "feedback_views"; // 운영용 컬렉션 (기존 study_week*.html 구조와 키 정합)
 window.EXPERIMENT_ID = "main_study";
+window.STUDY_ID = "main_study";   // 세션 ID prefix — 기존 study 와 동일 형식 유지

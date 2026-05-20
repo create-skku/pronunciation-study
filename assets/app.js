@@ -8,16 +8,26 @@
 
 const cfg = window.FIREBASE_CONFIG;
 const OFFLINE = !!window.OFFLINE_MODE;
+const STUDY_ID = window.STUDY_ID || 'main_study';
 // 관리자 검수 모드 — URL 에 ?admin=1 이 붙으면 Firebase 로깅/업로드 전부 스킵
 const IS_ADMIN = new URLSearchParams(location.search).get('admin') === '1';
 let db = null, storage = null, fbReady = false;
-let SESSION_ID = '';
+let SESSION_ID = '';           // 세션 메타 생성 후 채워짐 (학습자 ID 확정 후)
+let ATTEMPT_ID = '';           // 학습자의 이번 세션 차수 (01, 02, ...)
+let sessionStart = Date.now(); // elapsed 계산 기준 (세션 메타 set 시점에 재설정)
+let sessionMetaReady = false;  // SESSION_ID 확정 + 메타 문서 set 완료 여부
 let CURRENT = { lid:'', week:1, group:'A', t:'T1', data:null, content:null };
 let slideEnter = {};   // slide name → enter timestamp
 let slideVisit = {};   // slide name → visit count
 let currentSlide = 0;
 let slideList = [];    // ['cover','error','correction','viz_baji','viz_bbareuda','viz_paransaek','key_points','practice','rerecord']
 let pageEnterTime = Date.now();
+
+// ── 로그 버퍼 (기존 study_week*.html 과 동일 패턴) ─────────────
+// 세션 메타 준비 전 / Firebase 실패 시 로컬에 쌓아두고 주기적 flush
+const LOG_BUFFER = [];
+const BUFFER_FLUSH_INTERVAL = 5000;
+let _flushTimer = null;
 
 // ── 유틸 ───────────────────────────────────────────────────────────────
 function getParams() {
@@ -109,16 +119,25 @@ async function doLogin() {
     return;
   }
 
-  // 정상 진입 — URL에 lid 추가
+  // 정상 진입 — URL 에 lid 만 추가 (week 는 body data-week 에 이미 있으면 URL 에 안 박음)
   const newUrl = new URL(location.href);
   newUrl.searchParams.set('lid', raw);
-  newUrl.searchParams.set('week', String(week));
+  const bodyWeek = document.body && document.body.getAttribute('data-week');
+  if (!bodyWeek) {
+    newUrl.searchParams.set('week', String(week));
+  } else {
+    newUrl.searchParams.delete('week');
+  }
   history.replaceState({}, '', newUrl);
 
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appScreen').style.display = 'block';
   startBtn.disabled = false;
   startBtn.textContent = '피드백 보기 · Xem phản hồi →';
+
+  // 세션 ID 확정 + 메타 문서 set (await 으로 메타 준비된 후 본 로드)
+  const pageGroupForMeta = getPageGroup();
+  await initSessionMeta(raw, week, pageGroupForMeta);
 
   await loadAll();
 }
@@ -141,8 +160,34 @@ function el(tag, attrs, ...kids) {
 }
 
 // ── Firebase ─────────────────────────────────────────────────────────────
+//
+//  Firestore 계층 구조 (기존 study_week*.html 과 동일 키 정합, 컬렉션만 분리):
+//
+//  feedback_views/{learnerId}/                       ← 마커 문서 (rerecorded_W{week})
+//    sessions/{sessionId}
+//      │  learnerId, sessionId, attemptId, studyId, week, group, mode:'feedback'
+//      │  startedAt, userAgent, platform, language, screenW, screenH
+//      │
+//      ├── events/{autoId}    ← 모든 행동 로그
+//      │     eventType:  session_start | session_end
+//      │                  page_enter   | page_leave
+//      │                  audio_play   | tts_speak
+//      │                  rec_start    | rec_stop | rec_uploaded | session_complete
+//      │     page:       슬라이드 인덱스
+//      │     pageLabel:  슬라이드 이름 (cover/personalized/...)
+//      │     slidePos:   현재 슬라이드 위치
+//      │     elapsed:    세션 시작부터 경과 초
+//      │     attemptId:  시도 차수 (01, 02…)
+//      │     payload:    { 이벤트별 상세 }
+//      │     ts:         서버 타임스탬프
+//      │
+//      └── recordings/{wordKey}   ← 단어별 재녹음 (doc id = baji/bbareuda/...)
+//            word, wordKey, filename, storagePath, fileUrl, mimeType,
+//            durationSec, size, attemptCount, uploadedAt
+//
+//  Storage: recordings/{EXPERIMENT_ID}/{learnerId}/week{WEEK}/{filename}
+// ═══════════════════════════════════════════════════════════════════════
 function initFirebase() {
-  SESSION_ID = 'fb' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
   if (OFFLINE) {
     console.log('%c[OFFLINE_MODE]', 'color:#f5820a;font-weight:bold', 'Firebase 비활성');
     return;
@@ -152,24 +197,112 @@ function initFirebase() {
     db = firebase.firestore();
     storage = firebase.storage();
     fbReady = true;
-    console.log('Firebase OK · session', SESSION_ID);
+    console.log('Firebase OK · waiting for learner ID');
   } catch (e) {
     console.warn('Firebase 초기화 실패:', e);
   }
+  // 주기적 버퍼 플러시
+  if (!_flushTimer) _flushTimer = setInterval(flushLogBuffer, BUFFER_FLUSH_INTERVAL);
 }
 
-function log(eventType, payload) {
-  const data = Object.assign({}, payload || {}, {
-    eventType, learnerId: CURRENT.lid, week: CURRENT.week,
-    group: CURRENT.group, tType: CURRENT.t, sessionId: SESSION_ID,
+// 학습자 ID 확정 후 세션 ID 생성 + 메타 문서 set + ATTEMPT_ID 조회
+function initSessionMeta(lid, week, group) {
+  if (!lid || sessionMetaReady) return Promise.resolve();
+  const iso = new Date().toISOString().slice(0,19).replace(/[T:]/g,'-');
+  SESSION_ID = STUDY_ID + '_W' + week + '_' + lid + '_FB_' + iso;   // _FB_ 로 학습 세션과 구별
+  sessionStart = Date.now();
+
+  if (IS_ADMIN || OFFLINE || !fbReady) {
+    ATTEMPT_ID = '00';
+    sessionMetaReady = true;
+    console.log('[session] SESSION_ID=' + SESSION_ID + ' (skip meta — admin/offline/no-fb)');
+    return Promise.resolve();
+  }
+
+  const learnerRef = db.collection(window.FEEDBACK_LOG_COLLECTION).doc(lid);
+  return learnerRef.collection('sessions').get()
+    .then(snap => {
+      const count = snap.size + 1;
+      ATTEMPT_ID = (count < 10 ? '0' : '') + count;
+    })
+    .catch(() => { ATTEMPT_ID = 'T' + Date.now().toString().slice(-4); })
+    .then(() => {
+      return learnerRef.collection('sessions').doc(SESSION_ID).set({
+        learnerId: lid,
+        sessionId: SESSION_ID,
+        attemptId: ATTEMPT_ID,
+        studyId:   STUDY_ID,
+        week:      week,
+        group:     group,
+        mode:      'feedback',
+        startedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent.slice(0,120),
+        platform:  navigator.platform || '',
+        language:  navigator.language || '',
+        screenW:   window.screen.width,
+        screenH:   window.screen.height
+      }, { merge: true });
+    })
+    .then(() => {
+      sessionMetaReady = true;
+      console.log('Session meta OK | Learner:', lid, '| Session:', SESSION_ID, '| Attempt:', ATTEMPT_ID);
+      flushLogBuffer();
+    })
+    .catch(e => {
+      console.warn('세션 메타 저장 실패 (계속 진행):', e);
+      sessionMetaReady = true;   // 메타 실패해도 이벤트 로그는 시도
+      flushLogBuffer();
+    });
+}
+
+function flushLogBuffer() {
+  if (IS_ADMIN || OFFLINE || !fbReady || !sessionMetaReady) return;
+  if (LOG_BUFFER.length === 0) return;
+  const toSend = LOG_BUFFER.splice(0, 20);
+  const col = db.collection(window.FEEDBACK_LOG_COLLECTION).doc(CURRENT.lid)
+                .collection('sessions').doc(SESSION_ID).collection('events');
+  const batch = db.batch();
+  toSend.forEach(item => {
+    batch.set(col.doc(), Object.assign(item, {
+      ts:       firebase.firestore.FieldValue.serverTimestamp(),
+      buffered: true
+    }));
   });
-  if (IS_ADMIN) { console.log('[ADMIN/skip]', eventType, data); return; }
-  if (!fbReady) { console.log('[log]', eventType, data); return; }
-  data.ts = firebase.firestore.FieldValue.serverTimestamp();
+  batch.commit().catch(() => {
+    LOG_BUFFER.unshift.apply(LOG_BUFFER, toSend);
+  });
+}
+
+// 기존 study_week*.html 의 sendLog() 와 동일한 페이로드 구조
+function log(eventType, payload) {
+  const page = currentSlide;
+  const pageLabel = slideList[currentSlide] || '';
+  const logData = {
+    eventType,
+    page,
+    pageLabel,
+    slidePos:  page,
+    elapsed:   Math.round((Date.now() - sessionStart) / 1000),
+    attemptId: ATTEMPT_ID,
+    learnerId: CURRENT.lid,
+    week:      CURRENT.week,
+    group:     CURRENT.group,
+    tType:     CURRENT.t,
+    sessionId: SESSION_ID,
+    payload:   payload || {}
+  };
+
+  if (IS_ADMIN) { console.log('[ADMIN/skip]', eventType, logData); return; }
+  if (!fbReady || !sessionMetaReady) {
+    LOG_BUFFER.push(logData);
+    return;
+  }
   db.collection(window.FEEDBACK_LOG_COLLECTION)
     .doc(CURRENT.lid).collection('sessions').doc(SESSION_ID)
-    .collection('events').add(data)
-    .catch(e => console.warn('log fail', e));
+    .collection('events').add(Object.assign(logData, {
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    }))
+    .catch(() => { LOG_BUFFER.push(logData); });
 }
 
 // ── 데이터 로드 ──────────────────────────────────────────────────────────
@@ -256,7 +389,7 @@ function buildAll() {
   $('loading').style.display = 'none';
   $('content').style.display = 'block';
   showSlide(0);
-  log('page_load', { slideCount: slideList.length });
+  log('session_start', { slideCount: slideList.length, mode: 'feedback' });
 }
 
 function buildCover(c) {
@@ -363,7 +496,7 @@ function playAudioFile(path) {
   a.play().catch(function (err) {
     console.warn('audio play failed:', err);
   });
-  log('play_audio', { path: path });
+  log('audio_play', { path: path });
 }
 
 function audioBtn(path, kind, label) {
@@ -892,8 +1025,8 @@ function showSlide(idx) {
     const prevName = slideList[currentSlide];
     const enterTs = slideEnter[prevName];
     if (enterTs) {
-      log('slide_leave', { slide: prevName, slideIdx: currentSlide,
-                           duration_ms: Date.now() - enterTs });
+      log('page_leave', { slide: prevName, slideIdx: currentSlide,
+                          duration_ms: Date.now() - enterTs });
     }
     slides[currentSlide].classList.remove('active');
   }
@@ -904,7 +1037,7 @@ function showSlide(idx) {
   const name = slideList[idx];
   slideEnter[name] = Date.now();
   slideVisit[name] = (slideVisit[name] || 0) + 1;
-  log('slide_enter', { slide: name, slideIdx: idx, visitCount: slideVisit[name] });
+  log('page_enter', { slide: name, slideIdx: idx, visitNo: slideVisit[name] });
 
   // 상단 진행률
   $('prog-fill').style.width = ((idx+1)/slideList.length*100) + '%';
@@ -945,16 +1078,15 @@ async function toggleRecord(idx) {
         $(`audio-new-${idx}`).src = url;
         $(`audio-row-${idx}`).style.display = 'flex';
         $(`upload-btn-${idx}`).style.display = 'flex';
-        log('rerecord_done', { word, idx, duration_sec: s.sec });
+        log('rec_stop', { word, idx, duration_sec: s.sec });
       };
       s.mediaRec.start();
-      s.state = 'recording'; s.sec = 0;
       btn.textContent = '⏹  녹음 중지'; btn.classList.add('recording');
       s.timer = setInterval(() => {
         s.sec++;
         $(`rec-timer-${idx}`).textContent = s.sec + 's';
       }, 1000);
-      log('rerecord_start', { word, idx });
+      log('rec_start', { word, idx });
     } catch (e) {
       alert('마이크 권한 거부: ' + e.message);
     }
@@ -978,14 +1110,14 @@ async function uploadRecording(idx) {
     btn.textContent = '✓ 업로드 (관리자 검수 — 스킵)';
     btn.style.background = 'rgba(220,53,69,.3)';
     btn.disabled = true;
-    console.log('[ADMIN/skip] rerecord_upload', { word, idx, duration_sec: s.sec });
+    console.log('[ADMIN/skip] rec_uploaded', { word, idx, duration_sec: s.sec });
     return;
   }
   if (OFFLINE || !fbReady) {
     btn.textContent = '✓ 업로드 (오프라인 스킵)';
     btn.style.background = 'rgba(245,130,10,.3)';
     btn.disabled = true;
-    log('rerecord_upload_skipped_offline', { word, idx, duration_sec: s.sec });
+    log('rec_uploaded_skipped', { word, idx, duration_sec: s.sec, reason: OFFLINE ? 'offline' : 'no_firebase' });
     return;
   }
 
@@ -995,16 +1127,37 @@ async function uploadRecording(idx) {
   const fn = `${CURRENT.lid}_W${CURRENT.week}_${word}_retry_${ts}.${ext}`;
   const path = `recordings/${window.EXPERIMENT_ID}/${CURRENT.lid}/week${CURRENT.week}/${fn}`;
   try {
-    await storage.ref(path).put(s.blob, { contentType: s.mime || 'audio/webm' });
-    await db.collection(window.FEEDBACK_LOG_COLLECTION)
+    // 1) Storage 업로드 + 다운로드 URL 획득
+    const snap = await storage.ref(path).put(s.blob, { contentType: s.mime || 'audio/webm' });
+    const fileUrl = await snap.ref.getDownloadURL();
+
+    // 2) Firestore: recordings/{wordKey} — 단어별 1개 문서, attemptCount 누적
+    //    (기존 study_week*.html 의 recordings/ 구조와 동일)
+    const recRef = db.collection(window.FEEDBACK_LOG_COLLECTION)
       .doc(CURRENT.lid).collection('sessions').doc(SESSION_ID)
-      .collection('rerecordings').add({
-        storagePath: path, word, idx, mime: s.mime, duration_sec: s.sec,
-        ts: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+      .collection('recordings').doc(word);
+    const prev = await recRef.get();
+    const prevCount = (prev.exists && prev.data().attemptCount) ? prev.data().attemptCount : 0;
+    const attemptCount = prevCount + 1;
+
+    await recRef.set({
+      word,
+      wordKey:      word,
+      filename:     fn,
+      storagePath:  path,
+      fileUrl:      fileUrl,
+      mimeType:     s.mime || 'audio/webm',
+      durationSec:  s.sec,
+      size:         s.blob.size,
+      attemptCount,
+      uploadedAt:   firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
     btn.textContent = `✓ ${word} 업로드 완료`; btn.style.background = 'rgba(34,197,94,.3)';
-    log('rerecord_upload', { word, idx, storagePath: path, duration_sec: s.sec });
-    // 3개 단어 모두 업로드 됐는지 확인 → 재녹음 완료 마커 set (재로그인 차단용)
+    log('rec_uploaded', { word, idx, storagePath: path, filename: fn,
+                          duration_sec: s.sec, size: s.blob.size, attemptCount });
+
+    // 3) 3개 단어 모두 업로드 → 재녹음 완료 마커 set
     try {
       const done = [1,2,3].every(i => $(`upload-btn-${i}`) && $(`upload-btn-${i}`).textContent.startsWith('✓'));
       if (done) {
@@ -1013,7 +1166,7 @@ async function uploadRecording(idx) {
         marker['rerecorded_W' + CURRENT.week + '_at'] = firebase.firestore.FieldValue.serverTimestamp();
         await db.collection(window.FEEDBACK_LOG_COLLECTION)
           .doc(CURRENT.lid).set(marker, { merge: true });
-        log('rerecord_session_complete', { week: CURRENT.week });
+        log('session_complete', { week: CURRENT.week });
       }
     } catch (e) {
       console.warn('재녹음 완료 마커 set 실패:', e);
@@ -1028,10 +1181,11 @@ async function uploadRecording(idx) {
 window.addEventListener('beforeunload', () => {
   const prevName = slideList[currentSlide];
   if (prevName && slideEnter[prevName]) {
-    log('slide_leave', { slide: prevName, slideIdx: currentSlide,
-                         duration_ms: Date.now() - slideEnter[prevName] });
+    log('page_leave', { slide: prevName, slideIdx: currentSlide,
+                        duration_ms: Date.now() - slideEnter[prevName] });
   }
-  log('page_leave', { duration_ms: Date.now() - pageEnterTime });
+  log('session_end', { duration_ms: Date.now() - pageEnterTime,
+                       elapsed_sec: Math.round((Date.now() - sessionStart) / 1000) });
 });
 
 // ── 관리자 배지 ─────────────────────────────────────────────────────────
@@ -1046,28 +1200,29 @@ function showAdminBadge() {
     'text-align:center;padding:6px 10px;letter-spacing:.5px;' +
     'box-shadow:0 2px 8px rgba(0,0,0,.2)';
   document.body.appendChild(badge);
-  // 상단 바가 가려지지 않게 body 여백 보정
   document.body.style.paddingTop = '28px';
 }
 
 // ── 시작 ────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initFirebase();
   if (IS_ADMIN) showAdminBadge();
-  // 로그인 화면이 있고 URL 에 lid 가 없으면 로그인 대기
   const loginScreen = document.getElementById('loginScreen');
   const appScreen   = document.getElementById('appScreen');
   const params = getParams();
   if (loginScreen) {
     if (params.lid) {
-      // 검수 링크 (?lid=...) — 로그인 건너뛰고 바로 진입
       loginScreen.style.display = 'none';
       if (appScreen) appScreen.style.display = 'block';
+      if (!fbReady && !OFFLINE) await new Promise(r => setTimeout(r, 250));
+      await initSessionMeta(params.lid, params.week, params.group);
       loadAll();
     }
-    // 그 외엔 로그인 화면 그대로 표시, doLogin() 대기
   } else {
-    // 로그인 화면이 없는 페이지 (review.html 등) — 바로 로드
+    if (params.lid) {
+      if (!fbReady && !OFFLINE) await new Promise(r => setTimeout(r, 250));
+      await initSessionMeta(params.lid, params.week, params.group);
+    }
     loadAll();
   }
 });
