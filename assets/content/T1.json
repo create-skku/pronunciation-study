@@ -1,0 +1,157 @@
+{
+  "t": "T1",
+  "label": "3지 미변별",
+  "label_short": "바 ≈ 빠 ≈ 파",
+  "label_vn": "Không phân biệt 3 âm",
+  "fallback_when_unreliable": {
+    "label": "3지 미변별 — 가장 흔한 베트남 학습자 패턴",
+    "diagnosis": "평음·경음·격음 세 자음이 비슷한 음가로 발음되어 구분이 거의 형성되지 않은 단계로 보입니다. 측정이 완전하지 않더라도, 이 패턴에서는 기식의 양과 후두 긴장 둘 다 베트남어에 없는 동작이라 동시에 약하게 나타나는 것이 일반적입니다.",
+    "likely_issues": [
+      "평음 ㅂ: 베트남어 /b/ 처럼 무기식·짧게 발음되어 격음·경음과 구분이 약함",
+      "격음 ㅍ: 강한 기식이 부족해 평음과 합쳐지는 인상",
+      "경음 ㅃ: 후두 긴장 자체가 베트남어에 없어 평음으로 흡수"
+    ],
+    "focus": "셋을 동시에 다 신경 쓰지 말고, 입 앞 손바닥 시험으로 격음(파)에 가장 강한 바람·평음(바)에 부드러운 바람·경음(빠)에 거의 바람 없이 짧고 단단하게 — 이 세 가지 바람의 양 차이부터 만드세요."
+  },
+  "cover": {
+    "title": "파열음 발음 피드백",
+    "title_vn": "Phản hồi phát âm phụ âm tắc",
+    "subtitle": "평음 · 경음 · 격음 발음 연습",
+    "subtitle_vn": "Luyện tập phát âm: âm bình thường · căng thẳng · bật hơi"
+  },
+  "error_type": {
+    "number": "01",
+    "title": "발음 오류 유형 — 3지 미변별",
+    "features": "'바'·'빠'·'파' 세 소리가 비슷하게 들려서 세 소리의 차이가 잘 나지 않습니다.",
+    "features_vn": "Ba âm '바·빠·파' nghe giống nhau, chưa phân biệt được rõ ràng.",
+    "examples": "바지 → 빠지처럼  /  파란색 → 바란색처럼",
+    "cause": "세 소리를 구별하는 기식(바람의 양)과 성문 긴장(목의 조임)을 아직 의식하지 않고 발음하기 때문입니다.",
+    "cause_vn": "Chưa ý thức được: lượng hơi thở và độ căng cổ họng.",
+    "goal_by_group": {
+      "A": "파형에서 세 소리의 하얀 공백 길이 차이가 보이도록 발음하기.",
+      "B": "발음 나침반에서 '바·빠·파'가 서로 다른 위치에 떨어지도록 발음하기.",
+      "C": "손으로 바람의 차이를 느끼고, 세 소리를 천천히 분리해서 발음하기."
+    },
+    "goal_vn_by_group": {
+      "A": "Phát âm sao cho khác biệt khoảng trắng 3 âm rõ trên dạng sóng.",
+      "B": "Phát âm để '바·빠·파' rơi vào 3 vị trí khác nhau trên la bàn phát âm.",
+      "C": "Cảm nhận sự khác biệt hơi thở bằng tay và phân biệt 3 âm chậm rãi."
+    }
+  },
+  "correction": {
+    "number": "02",
+    "title": "유형별 교정 설명",
+    "intro": "손을 입 앞에 대고 이렇게 연습해 보세요.",
+    "intro_vn": "Đặt tay trước miệng và luyện như sau.",
+    "sections": [
+      {
+        "heading": "① 바람의 양으로 구분",
+        "heading_vn": "Phân biệt bằng lượng hơi thở",
+        "items": [
+          {"k": "파 → 💨 손에 바람이 강하게! 하얀 공백(VOT)이 가장 길어요", "vn": "파 → hơi mạnh, khoảng trắng dài nhất"},
+          {"k": "바 → 바람이 조금만. 하얀 공백이 짧아요", "vn": "바 → hơi nhẹ, khoảng trắng ngắn"},
+          {"k": "빠 → 바람 없음 + 검은 막대(폐쇄)가 더 길어요", "vn": "빠 → không có hơi + thanh đen dài hơn"}
+        ]
+      },
+      {
+        "heading": "② '빠' 발음법",
+        "heading_vn": "Cách phát âm '빠'",
+        "items": [
+          {"k": "기침 직전처럼 목을 조인 채 터뜨리기 — 바람 없이, 힘만!", "vn": "Siết cổ họng rồi bật ra — không hơi, chỉ có lực"}
+        ]
+      }
+    ],
+    "warning": "'빠'를 강하게 하려다 바람이 나오면 '파'가 됩니다.",
+    "warning_vn": "Phát âm '빠' mạnh quá mà ra hơi sẽ thành '파'."
+  },
+  "key_points": {
+    "number": "03",
+    "title": "핵심 포인트",
+    "title_vn": "Điểm cốt lõi",
+    "points_by_group": {
+      "A": [
+        "'파' 하얀 공백 가장 길게 / '빠' 하얀 공백 거의 없게 / '바' 짧게",
+        "'빠': 목 조임 → 검은 막대 길어짐  |  바람 막기 → 하얀 공백 없어짐",
+        "파형에서 세 소리의 차이가 눈에 보이도록 발음해 보세요"
+      ],
+      "B": [
+        "발음 나침반에서 '파'는 오른쪽(bật hơi), '빠'는 위(sắc), '바'는 가운데로",
+        "세 점이 서로 다른 사분면에 떨어져야 합니다",
+        "베트남어 성조 방향을 떠올리며 발음해 보세요"
+      ],
+      "C": [
+        "'파'는 바람이 가장 많은 소리, '빠'는 바람이 가장 적은 소리",
+        "'빠'의 힘은 바람이 아닌 목의 긴장에서 옵니다",
+        "처음엔 천천히 '바 — 빠 — 파' 순서로 연습하세요"
+      ]
+    },
+    "points_vn_by_group": {
+      "A": [
+        "'파' khoảng trắng dài nhất / '빠' hầu như không có / '바' ngắn",
+        "'빠': căng cổ họng → vạch đen dài ra  |  chặn hơi → khoảng trắng biến mất",
+        "Phát âm sao cho thấy rõ sự khác biệt 3 âm trên dạng sóng."
+      ],
+      "B": [
+        "Trên la bàn: '파' bên phải (bật hơi), '빠' phía trên (sắc), '바' ở giữa",
+        "Ba điểm phải rơi vào ba góc phần tư khác nhau.",
+        "Hãy phát âm gợi nhớ hướng thanh điệu tiếng Việt."
+      ],
+      "C": [
+        "'파' là âm có nhiều hơi nhất, '빠' là âm có ít hơi nhất.",
+        "Lực của '빠' đến từ độ căng cổ họng, không phải từ hơi.",
+        "Lúc đầu hãy luyện chậm theo thứ tự '바 — 빠 — 파'."
+      ]
+    }
+  },
+  "practice": {
+    "number": "04",
+    "title": "짧은 연습",
+    "title_vn": "Luyện tập ngắn",
+    "instruction": "다음 소리들을 듣고 두 번씩 따라 말합니다.",
+    "instruction_vn": "Nghe và nhắc lại mỗi âm 2 lần",
+    "syllables": [
+      {"type": "평음 ㅂ", "type_color": "ba",  "syl": "바", "word": "바지",   "word_vn": "quần"},
+      {"type": "경음 ㅃ", "type_color": "bba", "syl": "빠", "word": "빠르다", "word_vn": "nhanh"},
+      {"type": "격음 ㅍ", "type_color": "pa",  "syl": "파", "word": "파란색", "word_vn": "màu xanh"}
+    ]
+  },
+  "rerecord": {
+    "number": "05",
+    "title": "재녹음 과제",
+    "title_vn": "Bài tập ghi âm lại",
+    "instructions_by_group": {
+      "A": [
+        "손을 입 앞에 대고 바람의 차이를 느끼면서 다시 녹음해 보세요.",
+        "'바지 / 빠르다 / 파란색'을 천천히, 세 소리의 차이를 의식하면서 녹음해 주세요.",
+        "파형에서 세 소리의 하얀 공백 길이가 달라졌는지 확인해 보세요."
+      ],
+      "B": [
+        "베트남어 성조 방향을 떠올리며 다시 녹음해 보세요.",
+        "'바지 / 빠르다 / 파란색'을 천천히, 세 소리의 차이를 의식하면서 녹음해 주세요.",
+        "발음 나침반에서 세 점이 서로 다른 위치에 떨어졌는지 확인해 보세요."
+      ],
+      "C": [
+        "손을 입 앞에 대고 바람의 차이를 느끼면서 다시 녹음해 보세요.",
+        "'바지 / 빠르다 / 파란색'을 천천히, 세 소리의 차이를 의식하면서 녹음해 주세요."
+      ]
+    },
+    "instructions_vn_by_group": {
+      "A": [
+        "Đặt tay trước miệng, cảm nhận hơi thở rồi ghi âm lại.",
+        "Ghi âm '바지/빠르다/파란색' chậm rãi, ý thức rõ ba âm.",
+        "Kiểm tra trong dạng sóng xem khoảng trắng ba âm có khác nhau không."
+      ],
+      "B": [
+        "Nhớ lại các hướng thanh điệu tiếng Việt rồi ghi âm lại.",
+        "Ghi âm '바지/빠르다/파란색' chậm rãi, ý thức rõ ba âm.",
+        "Kiểm tra trên la bàn phát âm xem 3 điểm có rơi vào 3 vị trí khác nhau không."
+      ],
+      "C": [
+        "Đặt tay trước miệng, cảm nhận hơi thở rồi ghi âm lại.",
+        "Ghi âm '바지/빠르다/파란색' chậm rãi, ý thức rõ ba âm."
+      ]
+    },
+    "encouragement": "잘하고 있어요! 파이팅! 😊",
+    "encouragement_vn": "Bạn đang làm rất tốt! Cố lên!"
+  }
+}

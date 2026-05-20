@@ -1,0 +1,157 @@
+{
+  "t": "T2",
+  "label": "평음·경음 혼동",
+  "label_short": "바 ≈ 빠 (파는 구분)",
+  "label_vn": "Nhầm lẫn 바/빠",
+  "fallback_when_unreliable": {
+    "label": "평음·경음 혼동 — 격음은 어느 정도 구분",
+    "diagnosis": "강한 기식이 있는 격음(파)은 어느 정도 구분되지만, 평음(바)과 경음(빠) 둘 다 베트남어 /b/ 영역으로 흡수되어 서로 분리가 안 되는 단계입니다. 핵심은 경음의 후두 긴장 — 베트남어에 없는 동작이라 평음과 같은 음가로 굳어집니다.",
+    "likely_issues": [
+      "경음 ㅃ: 후두 긴장 부족 → 평음 ㅂ 과 같이 발음",
+      "평음 ㅂ: 너무 약해 경음과 합쳐짐 (혹은 반대로 너무 단단하게 발음해 경음에 가까워짐)",
+      "격음 ㅍ: 비교적 잘 구분되는 편 — 강점으로 활용"
+    ],
+    "focus": "ㅂ과 ㅃ 의 분리에 집중. ㅃ 은 '입술을 한 박자 더 꽉 다물었다가 짧고 단단하게 터뜨림' — 평음보다 모음을 살짝 더 높게 시작. ㅂ 은 부드럽게, 모음을 자연스러운 톤으로."
+  },
+  "cover": {
+    "title": "파열음 발음 피드백",
+    "title_vn": "Phản hồi phát âm phụ âm tắc",
+    "subtitle": "평음 · 경음 · 격음 발음 연습",
+    "subtitle_vn": "Luyện tập phát âm: âm bình thường · căng thẳng · bật hơi"
+  },
+  "error_type": {
+    "number": "01",
+    "title": "발음 오류 유형 — 평음·경음 혼동",
+    "features": "'파'는 잘 구분되는데, '바'와 '빠'가 비슷하게 들립니다. 경음(빠)이 평음(바)처럼 약하게 나오고 있어요.",
+    "features_vn": "Phân biệt được '파' nhưng '바' và '빠' nghe giống nhau.",
+    "examples": "빠르다 → 바르다처럼  /  까만색 → 가만색처럼",
+    "cause": "'빠'는 베트남어에 없는 소리예요. 후두의 긴장(성문 긴장)을 이용해야 하는데 이 느낌이 아직 익숙하지 않기 때문입니다.",
+    "cause_vn": "'빠' không có trong tiếng Việt. Cần dùng độ căng thanh quản.",
+    "goal_by_group": {
+      "A": "파형에서 '빠'의 검은 막대가 '바'보다 길고, 하얀 공백이 '바'보다 짧게 보이도록 발음하기.",
+      "B": "발음 나침반에서 '빠'를 위쪽(sắc)으로, '바'를 가운데(ngang)로 분리해서 발음하기.",
+      "C": "기침 직전처럼 목을 살짝 조인 채 터뜨리는 느낌으로 '빠' 발음하기."
+    },
+    "goal_vn_by_group": {
+      "A": "Thanh đen '빠' dài hơn '바' và khoảng trắng ngắn hơn trên dạng sóng.",
+      "B": "Phát âm '빠' lên hướng sắc, '바' giữ ngang trên la bàn.",
+      "C": "Phát âm '빠' với cảm giác siết cổ họng giống trước khi ho."
+    }
+  },
+  "correction": {
+    "number": "02",
+    "title": "유형별 교정 설명",
+    "intro": "'빠'의 핵심은 바람이 아니라 목의 긴장입니다.",
+    "intro_vn": "Điểm mấu chốt của '빠': căng cổ họng.",
+    "sections": [
+      {
+        "heading": "이렇게 해보세요",
+        "heading_vn": "Hãy thử",
+        "items": [
+          {"k": "기침하기 직전처럼 목을 살짝 조이세요", "vn": "Siết nhẹ cổ họng giống trước khi ho"},
+          {"k": "그 상태에서 입술을 탁! 터뜨리면 '빠'", "vn": "Bật môi ra mạnh → đó là '빠'"}
+        ]
+      },
+      {
+        "heading": "파형 교정 목표",
+        "heading_vn": "Mục tiêu trong dạng sóng",
+        "items": [
+          {"k": "✅ '빠' 검은 막대(폐쇄)가 '바'보다 길어야 합니다", "vn": "Thanh đen '빠' phải dài hơn '바'"},
+          {"k": "✅ '빠' 하얀 공백(VOT)이 '바'보다 짧아야 합니다", "vn": "Khoảng trắng '빠' phải ngắn hơn '바'"}
+        ]
+      }
+    ],
+    "warning": "강하게 하려다 바람이 나오면 '파'가 됩니다. 바람은 줄이고, 목의 긴장은 높이세요.",
+    "warning_vn": "Phát âm mạnh mà ra hơi sẽ thành '파'. Giảm hơi, tăng độ căng cổ họng."
+  },
+  "key_points": {
+    "number": "03",
+    "title": "핵심 포인트",
+    "title_vn": "Điểm cốt lõi",
+    "points_by_group": {
+      "A": [
+        "목 조임 → 검은 막대 길어짐  |  바람 막기 → 하얀 공백 짧아짐",
+        "'바 — 빠' 번갈아 발음 → 파형에서 두 소리 차이 눈으로 확인",
+        "거울 앞에서 입 모양도 함께 확인하세요"
+      ],
+      "B": [
+        "'빠'는 발음 나침반 위쪽(sắc 방향), '바'는 가운데(ngang)",
+        "두 점이 위·아래로 갈리도록 발음해 보세요",
+        "베트남어 sắc 성조 느낌을 떠올리면 도움이 됩니다"
+      ],
+      "C": [
+        "'빠' = 바람 없이 + 목 긴장으로 강하게",
+        "'바 — 빠' 번갈아 연습: 딱딱함의 차이 느끼기",
+        "거울 앞에서 입 모양도 확인해 보세요"
+      ]
+    },
+    "points_vn_by_group": {
+      "A": [
+        "Căng cổ họng → vạch đen dài ra  |  chặn hơi → khoảng trắng ngắn lại",
+        "Đọc xen kẽ '바 — 빠' → quan sát sự khác biệt 2 âm trên dạng sóng",
+        "Đứng trước gương để kiểm tra cả khẩu hình."
+      ],
+      "B": [
+        "'빠' nằm ở phía trên la bàn (hướng sắc), '바' ở giữa (ngang)",
+        "Phát âm để 2 điểm tách lên · xuống rõ rệt.",
+        "Hãy liên tưởng đến cảm giác thanh sắc tiếng Việt."
+      ],
+      "C": [
+        "'빠' = không có hơi + dùng độ căng cổ họng",
+        "Luyện xen kẽ '바 — 빠': cảm nhận độ chắc khác nhau.",
+        "Đứng trước gương để kiểm tra khẩu hình."
+      ]
+    }
+  },
+  "practice": {
+    "number": "04",
+    "title": "짧은 연습",
+    "title_vn": "Luyện tập ngắn",
+    "instruction": "다음 소리들을 듣고 두 번씩 따라 말합니다.",
+    "instruction_vn": "Nghe và nhắc lại mỗi âm 2 lần",
+    "syllables": [
+      {"type": "평음 ㅂ", "type_color": "ba",  "syl": "바", "word": "바지",   "word_vn": "quần"},
+      {"type": "경음 ㅃ", "type_color": "bba", "syl": "빠", "word": "빠르다", "word_vn": "nhanh"},
+      {"type": "격음 ㅍ", "type_color": "pa",  "syl": "파", "word": "파란색", "word_vn": "màu xanh"}
+    ]
+  },
+  "rerecord": {
+    "number": "05",
+    "title": "재녹음 과제",
+    "title_vn": "Bài tập ghi âm lại",
+    "instructions_by_group": {
+      "A": [
+        "예전에 녹음했던 '빠르다'를 다시 한 번 읽고 녹음해 보세요.",
+        "목을 살짝 조이는 느낌을 의식하면서 '바지 / 빠르다 / 파란색'을 녹음해 주세요.",
+        "파형에서 '빠'의 검은 막대가 더 길어졌는지 눈으로 확인해 보세요."
+      ],
+      "B": [
+        "예전에 녹음했던 '빠르다'를 다시 한 번 읽고 녹음해 보세요.",
+        "베트남어 sắc 성조 방향을 떠올리며 '빠르다'를 녹음해 주세요.",
+        "발음 나침반에서 '빠'가 위쪽으로 이동했는지 확인해 보세요."
+      ],
+      "C": [
+        "예전에 녹음했던 '빠르다'를 다시 한 번 읽고 녹음해 보세요.",
+        "목을 살짝 조이는 느낌을 의식하면서 '바지 / 빠르다 / 파란색'을 녹음해 주세요."
+      ]
+    },
+    "instructions_vn_by_group": {
+      "A": [
+        "Đọc lại và ghi âm '빠르다' một lần nữa.",
+        "Ý thức cảm giác siết cổ họng khi ghi âm.",
+        "Kiểm tra dạng sóng xem thanh đen '빠' có dài hơn không."
+      ],
+      "B": [
+        "Đọc lại và ghi âm '빠르다' một lần nữa.",
+        "Nhớ hướng thanh sắc khi ghi âm '빠르다'.",
+        "Kiểm tra trên la bàn xem '빠' đã dịch lên trên chưa."
+      ],
+      "C": [
+        "Đọc lại và ghi âm '빠르다' một lần nữa.",
+        "Ý thức cảm giác siết cổ họng khi ghi âm."
+      ]
+    },
+    "encouragement": "잘하고 있어요! 파이팅! 😊",
+    "encouragement_vn": "Bạn đang làm rất tốt! Cố lên!"
+  }
+}
