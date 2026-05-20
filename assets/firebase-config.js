@@ -3,7 +3,7 @@
 //                         (행동 로그는 콘솔에만, 음성은 로컬 파일 사용)
 //  OFFLINE_MODE = false → 실서비스 모드 (Firebase 저장)
 // ══════════════════════════════════════════════════════
-window.OFFLINE_MODE = true;
+window.OFFLINE_MODE = false;
 
 // Firebase 설정 (OFFLINE_MODE = false 일 때만 사용)
 window.FIREBASE_CONFIG = {
