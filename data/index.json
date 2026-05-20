@@ -1,0 +1,441 @@
+{
+  "generated_at": "2026-05-20T05:49:28.156805",
+  "count": 29,
+  "items": [
+    {
+      "learner_id": "A01",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:04:33.470184",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A01_W1.json"
+    },
+    {
+      "learner_id": "A02",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:06:08.598384",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A02_W1.json"
+    },
+    {
+      "learner_id": "A03",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:07:46.233002",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A03_W1.json"
+    },
+    {
+      "learner_id": "A04",
+      "week": 1,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:09:09.686493",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A04_W1.json"
+    },
+    {
+      "learner_id": "A05",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:12:39.261991",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A05_W1.json"
+    },
+    {
+      "learner_id": "A06",
+      "week": 1,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:14:08.431938",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A06_W1.json"
+    },
+    {
+      "learner_id": "A07",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:15:53.945431",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A07_W1.json"
+    },
+    {
+      "learner_id": "A08",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:17:35.179448",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A08_W1.json"
+    },
+    {
+      "learner_id": "A09",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:19:17.642621",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A09_W1.json"
+    },
+    {
+      "learner_id": "A11",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:20:48.351682",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A11_W1.json"
+    },
+    {
+      "learner_id": "A12",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:23:54.455689",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A12_W1.json"
+    },
+    {
+      "learner_id": "A13",
+      "week": 1,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:25:43.226565",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A13_W1.json"
+    },
+    {
+      "learner_id": "A14",
+      "week": 1,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:31:03.952868",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A14_W1.json"
+    },
+    {
+      "learner_id": "A15",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:32:25.064424",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A15_W1.json"
+    },
+    {
+      "learner_id": "A16",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:34:06.503083",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A16_W1.json"
+    },
+    {
+      "learner_id": "A19",
+      "week": 1,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T01:35:38.149844",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A19_W1.json"
+    },
+    {
+      "learner_id": "B01",
+      "week": 1,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:24:22.722179",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B01_W1.json"
+    },
+    {
+      "learner_id": "B02",
+      "week": 1,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:27:33.476686",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B02_W1.json"
+    },
+    {
+      "learner_id": "B03",
+      "week": 1,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:30:29.801753",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B03_W1.json"
+    },
+    {
+      "learner_id": "B04",
+      "week": 1,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:32:01.452762",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B04_W1.json"
+    },
+    {
+      "learner_id": "B06",
+      "week": 1,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:33:42.038269",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B06_W1.json"
+    },
+    {
+      "learner_id": "B07",
+      "week": 1,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:35:25.927207",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B07_W1.json"
+    },
+    {
+      "learner_id": "B08",
+      "week": 1,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:37:17.128583",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B08_W1.json"
+    },
+    {
+      "learner_id": "B13",
+      "week": 1,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:38:53.711653",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B13_W1.json"
+    },
+    {
+      "learner_id": "B14",
+      "week": 1,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:40:14.900232",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B14_W1.json"
+    },
+    {
+      "learner_id": "B15",
+      "week": 1,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:41:56.350204",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B15_W1.json"
+    },
+    {
+      "learner_id": "B16",
+      "week": 1,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:43:26.023054",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B16_W1.json"
+    },
+    {
+      "learner_id": "B17",
+      "week": 1,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:45:12.513069",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B17_W1.json"
+    },
+    {
+      "learner_id": "B20",
+      "week": 1,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-20T05:49:28.103722",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B20_W1.json"
+    }
+  ]
+}
