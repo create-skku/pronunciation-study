@@ -331,12 +331,27 @@ async function loadAll() {
   const _cb = '?_=' + Date.now();
   const _fetchOpt = { cache: 'no-store' };
 
-  // 1) 학습자 측정 데이터 먼저 로드 — t_type 이 여기 자동 판정 결과로 들어 있음
-  const dataUrl = `data/${p.lid}_W${p.week}.json`;
+  // 1) 학습자 측정 데이터 로드 — t_type 이 여기 자동 판정 결과로 들어 있음
+  //
+  //    ※ 테스트 ID (A90/A91/B90/B91) 는 측정 데이터 파일이 없으므로
+  //      같은 그룹의 *01 데이터로 폴백 (A* → A01, B* → B01).
+  //      식별자 (CURRENT.lid), Firestore/Storage 경로, 로그는 본인 ID 그대로 유지.
+  const isTestId = TEST_IDS_ALL.indexOf(p.lid) !== -1;
+  const dataLid  = isTestId ? (p.lid.charAt(0).toUpperCase() + '01') : p.lid;
+  const dataUrl  = `data/${dataLid}_W${p.week}.json`;
+  if (isTestId) {
+    console.log('%c[TEST_ID]', 'color:#9f86ff;font-weight:bold',
+      `${p.lid} — 측정 데이터를 ${dataLid} 로 폴백`);
+  }
   try {
     const r = await fetch(dataUrl + _cb, _fetchOpt);
     if (!r.ok) throw new Error(`fetch ${r.status}`);
     CURRENT.data = await r.json();
+    // 폴백한 사실을 데이터에 표시 (보고용)
+    if (isTestId) {
+      CURRENT.data._test_fallback_from = dataLid;
+      CURRENT.data._test_actual_lid    = p.lid;
+    }
   } catch (e) {
     return showError(`측정 데이터 없음: <code>${dataUrl}</code><br>` +
       `<span style="font-size:11px">학습자 녹음 파일이 pipeline/input/에 있는지, build.py 가 돌았는지 확인하세요.</span>`);
@@ -350,7 +365,8 @@ async function loadAll() {
   catch (e) { console.warn('assignments.json 로드 실패 (자동 분류만 사용):', e); }
 
   // 3) 내부 콘텐츠 분기용 식별자 (학습자에게는 노출 안 함)
-  CURRENT.t = assignments[p.lid] || CURRENT.data.t_type;
+  //    테스트 ID 는 폴백 ID 의 assignments / t_type 을 사용
+  CURRENT.t = assignments[dataLid] || CURRENT.data.t_type;
   if (!CURRENT.t) return showError(
     `<b>${p.lid}</b> 피드백 데이터에 분류 정보가 없습니다.<br>` +
     `<span style="font-size:11px">build.py 가 정상 종료됐는지 확인하세요. (${dataUrl})</span>`
