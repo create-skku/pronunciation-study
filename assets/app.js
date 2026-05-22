@@ -43,13 +43,26 @@ function getParams() {
 }
 
 // ── 화이트리스트 ─────────────────────────────────────────────
+// ※ A90/A91, B90/B91 은 내부 테스트용 — 각 그룹 페이지에서만 동작.
+//   데이터 집계 시 분석에서 제외 필요. (TEST_IDS_ALL 참조)
+const TEST_IDS_BY_GROUP = {
+  A: ['A90','A91'],
+  B: ['B90','B91'],
+  C: ['C90','C91'],
+};
+const TEST_IDS_ALL = [
+  ...TEST_IDS_BY_GROUP.A, ...TEST_IDS_BY_GROUP.B, ...TEST_IDS_BY_GROUP.C
+];
 const ALLOWED_IDS_BY_GROUP = {
   A: ['A01','A02','A03','A04','A05','A06','A07','A08','A09','A10',
-      'A11','A12','A13','A14','A15','A16','A17','A18','A19','A20'],
+      'A11','A12','A13','A14','A15','A16','A17','A18','A19','A20','A21',
+      ...TEST_IDS_BY_GROUP.A],
   B: ['B01','B02','B03','B04','B05','B06','B07','B08','B09','B10',
-      'B11','B12','B13','B14','B15','B16','B17','B18','B19','B20'],
+      'B11','B12','B13','B14','B15','B16','B17','B18','B19','B20',
+      ...TEST_IDS_BY_GROUP.B],
   C: ['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10',
-      'C11','C12','C13','C14','C15','C16','C17','C18','C19','C20'],
+      'C11','C12','C13','C14','C15','C16','C17','C18','C19','C20',
+      ...TEST_IDS_BY_GROUP.C],
 };
 const ADMIN_ID = 'ABC';
 function getPageGroup() {
@@ -185,7 +198,9 @@ function el(tag, attrs, ...kids) {
 //            word, wordKey, filename, storagePath, fileUrl, mimeType,
 //            durationSec, size, attemptCount, uploadedAt
 //
-//  Storage: recordings/{EXPERIMENT_ID}/{learnerId}/week{WEEK}/{filename}
+//  Storage (재녹음 전용 폴더):
+//    recordings/{EXPERIMENT_ID}/{learnerId}/week{WEEK}_feedback/{learnerId}_W{WEEK}_{word}_retry_{ts}.{ext}
+//    ※ 본녹음(study_week*.html)은 recordings/{EXPERIMENT_ID}/{learnerId}/week{WEEK}/ 에 저장됨
 // ═══════════════════════════════════════════════════════════════════════
 function initFirebase() {
   if (OFFLINE) {
@@ -384,6 +399,15 @@ function buildAll() {
   }
   root.appendChild(buildPractice(c, d));         slideList.push('practice');
   root.appendChild(buildRerecord(c, g));         slideList.push('rerecord');
+  root.appendChild(buildComplete(c, CURRENT.week));
+  slideList.push('complete');
+
+  // 단어별 녹음 상태 초기화 (W2/W3 진입 시에도 깨끗하게)
+  for (let i = 1; i <= 3; i++) {
+    recs[i].recording = false; recs[i].blob = null; recs[i].chunks = [];
+    recs[i].sec = 0; recs[i].attemptCount = 0; recs[i].uploaded = false;
+    if (recs[i].timer) { clearInterval(recs[i].timer); recs[i].timer = null; }
+  }
 
   // 첫 슬라이드 활성화
   $('loading').style.display = 'none';
@@ -947,52 +971,130 @@ function buildPractice(c, d) {
   );
 }
 
-// 단어별 녹음 상태 — 인덱스 1·2·3 (학습 앱 week1.html 규칙)
-const REC_WORDS = { 1:'baji', 2:'bbareuda', 3:'paransaek' };
+// ═════════════════════════════════════════════════════════════════════
+//  단어별 재녹음 상태 — study_week1.html 와 동일한 패턴
+//  s.recording (boolean) 로 idle/recording 토글 — state 머신 충돌 방지
+// ═════════════════════════════════════════════════════════════════════
+const REC_WORDS_BY_WEEK = {
+  1: { 1:'baji',     2:'bbareuda',    3:'paransaek' },
+  2: { 1:'dari',     2:'ddatteut',    3:'tada' },
+  3: { 1:'gabang',   2:'ggamansaek',  3:'kadeu' },
+};
+const REC_KO_BY_WEEK = {
+  1: { 1:'바지',    2:'빠르다',     3:'파란색' },
+  2: { 1:'다리',    2:'따뜻',       3:'타다' },
+  3: { 1:'가방',    2:'까만색',     3:'카드' },
+};
+// 현재 주차의 단어 매핑은 buildRerecord 에서 CURRENT.week 기준으로 선택
+let REC_WORDS = REC_WORDS_BY_WEEK[1];
+let REC_KO    = REC_KO_BY_WEEK[1];
+
 const recs = {
-  1: { state:'idle', mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0 },
-  2: { state:'idle', mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0 },
-  3: { state:'idle', mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0 },
+  1: { recording:false, mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0, attemptCount:0, uploaded:false },
+  2: { recording:false, mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0, attemptCount:0, uploaded:false },
+  3: { recording:false, mediaRec:null, chunks:[], blob:null, mime:'', timer:null, sec:0, attemptCount:0, uploaded:false },
 };
 
+// ═════════════════════════════════════════════════════════════════════
+//  buildRerecord — study_week1.html 와 동일한 친절 UI
+//    🔴 메인 녹음 버튼 + 타이머
+//    녹음 후: ↩다시 / ▶듣기 / 💾저장 / 📤업로드 4버튼 노출
+//    인라인 audio 미리듣기
+//    업로드 상태 (대기/성공/실패) 색깔 표시
+// ═════════════════════════════════════════════════════════════════════
 function buildRerecord(c, group) {
   const r = c.rerecord;
-  const inst = r.instructions_by_group[group] || [];
-  const inst_vn = r.instructions_vn_by_group[group] || [];
-  const items = inst.map((line, i) =>
-    el('li', null, line, el('div', {class:'vn'}, inst_vn[i] || ''))
-  );
+  const inst    = (r.instructions_by_group && r.instructions_by_group[group]) || [];
+  const inst_vn = (r.instructions_vn_by_group && r.instructions_vn_by_group[group]) || [];
 
-  // 단어 박스 3개 — 각각 독립 녹음·재생·업로드
-  const wordBoxes = c.practice.syllables.map((s, i) => {
+  // 현재 주차에 맞는 단어 매핑 적용 (W1: 바지/빠르다/파란색, W2: 다리/따뜻/타다, W3: 가방/까만색/카드)
+  REC_WORDS = REC_WORDS_BY_WEEK[CURRENT.week] || REC_WORDS_BY_WEEK[1];
+  REC_KO    = REC_KO_BY_WEEK[CURRENT.week]    || REC_KO_BY_WEEK[1];
+
+  // 단어 박스 3개 — study_week1.html 의 rec-word-item 패턴
+  const wordBoxes = c.practice.syllables.slice(0,3).map((s, i) => {
     const idx = i + 1;
-    const colorMap = {ba:'ba', bba:'bba', pa:'pa'};
-    const colorCls = colorMap[s.type_color] || 'ba';
-    return el('div', {class:'rec-box', id:`rec-box-${idx}`},
-      el('div', {class:'rec-box-head'},
-        el('div', {class:`rec-num-badge n${idx}`},
-          el('span', {class:'rec-num-syl'}, s.syl),
-          el('span', {class:'rec-num-idx'}, String(idx).padStart(2,'0'))
-        ),
-        el('div', {class:'rec-box-word'},
-          el('div', {class:'rec-box-kr'}, s.word),
-          el('div', {class:'rec-box-vn'}, s.word_vn)
+    const syl = s.syl || '';
+    const word = s.word || REC_KO[idx];
+    const wordVn = s.word_vn || '';
+
+    const recItem = el('div', {class:'rec-word-item', id:`recItem_${idx}`});
+
+    // 헤더 (단어 라벨)
+    recItem.appendChild(
+      el('div', {class:'rec-word-head'},
+        el('div', {class:'rec-word-label'},
+          el('div', {class:`rec-num-badge n${idx}`, html: `${syl}<br>0${idx}`}),
+          el('div', null,
+            el('div', {class:'rec-word-ko'}, word),
+            el('div', {class:'rec-word-viet'}, wordVn)
+          )
         )
-      ),
-      el('button', {class:'rec-btn small', id:`rec-btn-${idx}`,
-                    onclick: () => toggleRecord(idx)},
-        '🎤  녹음 시작'),
-      el('div', {class:'rec-timer small', id:`rec-timer-${idx}`}, ''),
-      el('div', {class:'audio-row', id:`audio-row-${idx}`, style:'display:none; margin-top:10px'},
-        el('b', null, '확인'),
-        el('audio', {id:`audio-new-${idx}`, controls:''})
-      ),
-      el('button', {class:'rec-btn small upload', id:`upload-btn-${idx}`,
-                    onclick: () => uploadRecording(idx),
-                    style:'display:none; margin-top:8px'},
-        '⬆  업로드')
+      )
     );
+
+    // 메인 녹음 컨트롤 (🔴 + 타이머)
+    const mainBtn = el('button', {class:'rec-main-btn', id:`recBtn_${idx}`,
+                                  type:'button'}, '🔴');
+    mainBtn.addEventListener('click', () => toggleRec(idx));
+    recItem.appendChild(
+      el('div', {class:'rec-controls'},
+        mainBtn,
+        el('div', {class:'rec-timer', id:`recTimer_${idx}`}, '0:00')
+      )
+    );
+
+    // 녹음 후 4버튼 (다시/듣기/저장/업로드) — 처음엔 hidden
+    const retryBtn = el('button', {class:'rec-mini-btn btn-retry', type:'button'}, '↩ 다시 · Thử lại');
+    retryBtn.addEventListener('click', () => retryRec(idx));
+
+    const playBtn = el('button', {class:'rec-mini-btn btn-play', id:`recPlayBtn_${idx}`, type:'button'}, '▶ 듣기 · Nghe lại');
+    playBtn.addEventListener('click', () => playRec(idx));
+
+    const downloadBtn = el('button', {class:'rec-mini-btn btn-download', type:'button'}, '💾 저장 · Lưu');
+    downloadBtn.addEventListener('click', () => downloadRec(idx));
+
+    const uploadBtn = el('button', {class:'rec-mini-btn btn-upload', id:`recUpBtn_${idx}`, type:'button'}, '📤 업로드 · Tải lên');
+    uploadBtn.addEventListener('click', () => uploadRec(idx));
+
+    recItem.appendChild(
+      el('div', {class:'rec-post-btns', id:`recPost_${idx}`},
+        retryBtn, playBtn, downloadBtn, uploadBtn
+      )
+    );
+
+    // 인라인 오디오 플레이어
+    recItem.appendChild(
+      el('div', {class:'rec-player-wrap', id:`recPlayer_${idx}`},
+        el('audio', {id:`recAudio_${idx}`, controls:''})
+      )
+    );
+
+    // 상태 메시지
+    recItem.appendChild(
+      el('div', {class:'rec-status-text', id:`recStatus_${idx}`},
+        '🎙️ 버튼을 눌러 녹음을 시작하세요 · Nhấn nút để bắt đầu ghi âm')
+    );
+    recItem.appendChild(
+      el('div', {class:'rec-up-status', id:`recUpStatus_${idx}`})
+    );
+
+    return recItem;
   });
+
+  // 지시 사항 (지침이 있으면 표시)
+  const instList = inst.length > 0
+    ? el('ol', {class:'rerec-list', style:'margin: 10px 0 16px; padding-left: 22px; font-size: 13px; line-height: 1.7;'},
+        ...inst.map((line, i) =>
+          el('li', null, line, el('div', {class:'vn'}, inst_vn[i] || ''))
+        ))
+    : null;
+
+  // 게이트 — 모든 단어 업로드 완료 시 .done 클래스가 추가됨
+  const gate = el('div', {class:'complete-gate', id:'rerec-gate'},
+    '🔒 모든 파일을 업로드해야 다음으로 넘어가며 학습이 종료됩니다.',
+    el('small', null, 'Cần tải lên tất cả các bản ghi để tiếp tục và hoàn thành bài học.')
+  );
 
   return el('section', {class:'slide', id:'slide-rerecord'},
     el('div', {class:'card'},
@@ -1003,14 +1105,44 @@ function buildRerecord(c, group) {
           el('div', {class:'card-sub'}, r.title_vn)
         )
       ),
-      el('ol', {class:'rerec-list'}, ...items),
-      el('div', {class:'rec-status', style:'margin:14px 0'},
-        '각 단어 박스마다 따로 녹음하고 업로드하세요'),
+      instList,
+      el('div', {class:'rec-status', style:'margin:10px 0 16px; padding:10px 12px; background:rgba(79,128,255,.08); border:1px solid rgba(79,128,255,.2); border-radius:10px; font-size:12px; color:var(--blue);'},
+        '🎙️ 단어 3개를 각각 녹음하고 업로드해 주세요',
+        el('div', {class:'vn', style:'margin-top:4px;'}, '🎙️ Ghi âm và tải lên từng từ trong 3 từ')),
       ...wordBoxes,
-      el('div', {class:'rec-encourage'},
-        r.encouragement,
-        el('div', {class:'vn'}, r.encouragement_vn)
-      )
+      el('div', {class:'rec-encourage', style:'margin-top:16px; padding:12px 14px; border-radius:12px; background:rgba(26,184,166,.08); border:1px solid rgba(26,184,166,.2); color:var(--teal); font-size:13px; line-height:1.6;'},
+        r.encouragement || '천천히, 또박또박 발음해 보세요.',
+        el('div', {class:'vn'}, r.encouragement_vn || 'Hãy phát âm chậm rãi và rõ ràng.')
+      ),
+      gate
+    )
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════
+//  buildComplete — 학습 종료 슬라이드 (모든 업로드 완료 후 → '다음' 클릭으로 진입)
+// ═════════════════════════════════════════════════════════════════════
+function buildComplete(c, week) {
+  return el('section', {class:'slide', id:'slide-complete'},
+    el('div', {class:'complete-slide-hero'},
+      el('div', {class:'complete-emoji'}, '🎉'),
+      el('div', {class:'complete-title'},
+        `${week}주차 학습 완료 · TUẦN ${week} HOÀN THÀNH`),
+      el('div', {class:'complete-sub'}, '수고하셨습니다!'),
+      el('div', {class:'complete-vn'},
+        'Bạn đã hoàn thành rồi!', el('br', null),
+        'Cảm ơn bạn rất nhiều')
+    ),
+    el('div', {class:'complete-card'},
+      el('div', {class:'complete-check'}, '✅'),
+      el('div', {class:'complete-card-title', html:
+        '오늘의 한국어 파열음 학습을<br>모두 마쳤습니다.'}),
+      el('div', {class:'complete-card-sub', html:
+        'Bạn đã hoàn thành toàn bộ bài học<br>về phụ âm tắc tiếng Hàn của hôm nay.'})
+    ),
+    el('div', {class:'complete-tip'},
+      '💡 다음 학습에서 또 만나요!',
+      el('small', null, 'Hẹn gặp lại ở buổi học tiếp theo!')
     )
   );
 }
@@ -1045,7 +1177,20 @@ function showSlide(idx) {
 
   // 네비게이션 버튼
   $('btn-prev').disabled = (idx === 0);
-  $('btn-next').disabled = (idx === slideList.length - 1);
+  const isLast = (idx === slideList.length - 1);
+  const isRerec = (slideList[idx] === 'rerecord');
+  if (isLast) {
+    // complete 슬라이드 — 더 이상 진행 불가
+    $('btn-next').disabled = true;
+  } else if (isRerec) {
+    // rerecord — 3개 단어 모두 업로드 완료해야 활성화
+    const allUp = [1,2,3].every(i => recs[i] && recs[i].uploaded);
+    $('btn-next').disabled = !allUp;
+    // 게이트 안내문 갱신
+    setTimeout(updateRerecordGate, 0);
+  } else {
+    $('btn-next').disabled = false;
+  }
 
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -1053,86 +1198,231 @@ function showSlide(idx) {
 window.goNext = () => showSlide(currentSlide + 1);
 window.goPrev = () => showSlide(currentSlide - 1);
 
-// ── 재녹음 (단어별 독립) ───────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════
+//  단어별 재녹음 — study_week1.html 와 동일한 분리 함수 패턴
+//  ※ 이전 toggleRecord 단일 함수에는 s.state 가 'recording' 으로
+//    바뀌지 않아 stop() 분기가 도달 불가능했던 치명적 버그가 있었음.
+//    분리 함수 + boolean flag (s.recording) 로 재구현.
+// ═════════════════════════════════════════════════════════════════════
+
 function pickMime() {
-  const cands = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+  const cands = ['audio/webm;codecs=opus', 'audio/webm',
+                 'audio/ogg;codecs=opus',  'audio/mp4'];
   for (const c of cands) if (MediaRecorder.isTypeSupported(c)) return c;
   return '';
 }
 
-async function toggleRecord(idx) {
-  const s = recs[idx];
-  const btn = $(`rec-btn-${idx}`);
-  const word = REC_WORDS[idx];
-
-  if (s.state === 'idle') {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      s.mime = pickMime();
-      s.mediaRec = new MediaRecorder(stream, s.mime ? { mimeType: s.mime } : undefined);
-      s.chunks = [];
-      s.mediaRec.ondataavailable = e => { if (e.data.size > 0) s.chunks.push(e.data); };
-      s.mediaRec.onstop = () => {
-        s.blob = new Blob(s.chunks, { type: s.mime || 'audio/webm' });
-        const url = URL.createObjectURL(s.blob);
-        $(`audio-new-${idx}`).src = url;
-        $(`audio-row-${idx}`).style.display = 'flex';
-        $(`upload-btn-${idx}`).style.display = 'flex';
-        log('rec_stop', { word, idx, duration_sec: s.sec });
-      };
-      s.mediaRec.start();
-      btn.textContent = '⏹  녹음 중지'; btn.classList.add('recording');
-      s.timer = setInterval(() => {
-        s.sec++;
-        $(`rec-timer-${idx}`).textContent = s.sec + 's';
-      }, 1000);
-      log('rec_start', { word, idx });
-    } catch (e) {
-      alert('마이크 권한 거부: ' + e.message);
-    }
-  } else if (s.state === 'recording') {
-    s.mediaRec.stop();
-    s.mediaRec.stream.getTracks().forEach(t => t.stop());
-    clearInterval(s.timer);
-    s.state = 'idle';
-    btn.textContent = '🎤  다시 녹음';
-    btn.classList.remove('recording');
+// 페이지 안내음 등 다른 audio 재생 중단
+function stopAllAudio() {
+  if (_activeAudio) { try { _activeAudio.pause(); } catch(e){} _activeAudio = null; }
+  for (let i = 1; i <= 3; i++) {
+    const a = document.getElementById('recAudio_' + i);
+    if (a && !a.paused) { try { a.pause(); } catch(e){} }
   }
 }
 
-async function uploadRecording(idx) {
+function toggleRec(idx) {
+  stopAllAudio();
+  const s = recs[idx];
+  if (s.recording) stopRec(idx);
+  else             startRec(idx);
+}
+
+function startRec(idx) {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    const s = recs[idx];
+    s.chunks = []; s.blob = null; s.sec = 0;
+    s.attemptCount = (s.attemptCount || 0) + 1;
+
+    const mime = pickMime();
+    s.mime = mime || 'audio/webm';
+    s.mediaRec = mime
+      ? new MediaRecorder(stream, { mimeType: mime })
+      : new MediaRecorder(stream);
+
+    s.mediaRec.ondataavailable = function(e) {
+      if (e.data && e.data.size > 0) s.chunks.push(e.data);
+    };
+    s.mediaRec.onstop = function() {
+      s.blob = new Blob(s.chunks, { type: s.mime });
+      // 스트림 트랙은 onstop 안에서 확실하게 정리 (메모리/마이크 LED 해제)
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      onRecDone(idx);
+    };
+    s.mediaRec.start();
+    s.recording = true;  // ★ 핵심: 시작 직후 즉시 flag 세팅
+
+    const word = REC_WORDS[idx];
+    const btn = $(`recBtn_${idx}`);
+    btn.className = 'rec-main-btn recording';
+    btn.textContent = '⏹';
+    $(`recStatus_${idx}`).textContent =
+      '🔴 녹음 중 · Đang ghi âm... 단어를 발음하세요';
+    $(`recPost_${idx}`).classList.remove('show');
+    $(`recPlayer_${idx}`).classList.remove('show');
+    const upStatus = $(`recUpStatus_${idx}`);
+    upStatus.className = 'rec-up-status';
+    upStatus.textContent = '';
+
+    s.timer = setInterval(function() {
+      s.sec++;
+      const m  = Math.floor(s.sec / 60);
+      const ss = ('0' + (s.sec % 60)).slice(-2);
+      $(`recTimer_${idx}`).textContent = m + ':' + ss;
+    }, 1000);
+
+    log('rec_start', { word, idx, attempt: s.attemptCount });
+  }).catch(function(e) {
+    alert('마이크 권한이 필요합니다: ' + e.message);
+  });
+}
+
+function stopRec(idx) {
+  const s = recs[idx];
+  if (s.mediaRec && s.mediaRec.state !== 'inactive') s.mediaRec.stop();
+  clearInterval(s.timer); s.timer = null;
+  s.recording = false;  // ★ 핵심: flag 해제
+
+  const btn = $(`recBtn_${idx}`);
+  btn.className = 'rec-main-btn done';
+  btn.textContent = '✅';
+  log('rec_stop', { word: REC_WORDS[idx], idx, duration_sec: s.sec, attempt: s.attemptCount });
+}
+
+function onRecDone(idx) {
+  const s = recs[idx];
+  $(`recStatus_${idx}`).textContent =
+    '✅ 녹음 완료 · Ghi âm xong! 아래에서 듣거나 업로드하세요.';
+  $(`recPost_${idx}`).classList.add('show');
+
+  // 인라인 audio 에 blob URL 연결
+  const audioEl = $(`recAudio_${idx}`);
+  if (audioEl && s.blob) {
+    if (audioEl._prevUrl) URL.revokeObjectURL(audioEl._prevUrl);
+    const url = URL.createObjectURL(s.blob);
+    audioEl._prevUrl = url;
+    audioEl.src = url;
+    audioEl.load();
+  }
+}
+
+function playRec(idx) {
+  stopAllAudio();
+  const audioEl    = $(`recAudio_${idx}`);
+  const playerWrap = $(`recPlayer_${idx}`);
+  const playBtn    = $(`recPlayBtn_${idx}`);
+  const s = recs[idx];
+  if (!s.blob) return;
+
+  const isShown = playerWrap.classList.contains('show');
+  if (isShown) {
+    audioEl.pause();
+    playerWrap.classList.remove('show');
+    playBtn.textContent = '▶ 듣기 · Nghe lại';
+    playBtn.classList.remove('playing');
+  } else {
+    playerWrap.classList.add('show');
+    playBtn.textContent = '⏹ 닫기 · Đóng';
+    playBtn.classList.add('playing');
+    audioEl.play().catch(function(){});
+    audioEl.onended = function() {
+      playBtn.textContent = '▶ 듣기 · Nghe lại';
+      playBtn.classList.remove('playing');
+    };
+  }
+  log('rec_playback', { word: REC_WORDS[idx], idx });
+}
+
+function retryRec(idx) {
+  stopAllAudio();
+  const s = recs[idx];
+  s.blob = null; s.chunks = []; s.uploaded = false;
+
+  $(`recBtn_${idx}`).className = 'rec-main-btn';
+  $(`recBtn_${idx}`).textContent = '🔴';
+  $(`recTimer_${idx}`).textContent = '0:00';
+  $(`recStatus_${idx}`).textContent =
+    '🎙️ 버튼을 눌러 녹음을 시작하세요 · Nhấn nút để bắt đầu ghi âm';
+  $(`recPost_${idx}`).classList.remove('show');
+  const upStatus = $(`recUpStatus_${idx}`);
+  upStatus.className = 'rec-up-status';
+  upStatus.textContent = '';
+
+  // 플레이어 초기화
+  const audioEl    = $(`recAudio_${idx}`);
+  const playerWrap = $(`recPlayer_${idx}`);
+  const playBtn    = $(`recPlayBtn_${idx}`);
+  if (audioEl)    { audioEl.pause(); audioEl.src = ''; }
+  if (playerWrap) playerWrap.classList.remove('show');
+  if (playBtn)    { playBtn.textContent = '▶ 듣기 · Nghe lại';
+                    playBtn.classList.remove('playing'); }
+
+  // 업로드 버튼도 다시 활성
+  const upBtn = $(`recUpBtn_${idx}`);
+  if (upBtn) { upBtn.disabled = false; upBtn.textContent = '📤 업로드 · Tải lên'; }
+
+  updateRerecordGate();
+  log('rec_retry', { word: REC_WORDS[idx], idx });
+}
+
+function downloadRec(idx) {
+  stopAllAudio();
+  const s = recs[idx];
+  if (!s.blob) return;
+  const ext = s.mime && s.mime.indexOf('mp4') > -1 ? 'm4a' : 'webm';
+  const fn  = `${CURRENT.lid}_W${CURRENT.week}_${REC_WORDS[idx]}_retry.${ext}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(s.blob); a.download = fn; a.click();
+  log('rec_download', { word: REC_WORDS[idx], idx, filename: fn });
+}
+
+async function uploadRec(idx) {
+  stopAllAudio();
   const s = recs[idx];
   const word = REC_WORDS[idx];
-  if (!s.blob) return alert('녹음이 없습니다');
-  const btn = $(`upload-btn-${idx}`);
+  const stEl  = $(`recUpStatus_${idx}`);
+  const upBtn = $(`recUpBtn_${idx}`);
+  if (!s.blob) { alert('먼저 녹음하세요 · Hãy ghi âm trước.'); return; }
 
+  // 관리자 / 오프라인 스킵
   if (IS_ADMIN) {
-    btn.textContent = '✓ 업로드 (관리자 검수 — 스킵)';
-    btn.style.background = 'rgba(220,53,69,.3)';
-    btn.disabled = true;
+    stEl.className = 'rec-up-status show success';
+    stEl.textContent = '✅ 업로드 (관리자 검수 — 스킵)';
+    upBtn.disabled = true; upBtn.textContent = '✓ 스킵 (admin)';
+    s.uploaded = true;
+    updateRerecordGate();
     console.log('[ADMIN/skip] rec_uploaded', { word, idx, duration_sec: s.sec });
     return;
   }
   if (OFFLINE || !fbReady) {
-    btn.textContent = '✓ 업로드 (오프라인 스킵)';
-    btn.style.background = 'rgba(245,130,10,.3)';
-    btn.disabled = true;
-    log('rec_uploaded_skipped', { word, idx, duration_sec: s.sec, reason: OFFLINE ? 'offline' : 'no_firebase' });
+    stEl.className = 'rec-up-status show success';
+    stEl.textContent = '✅ 업로드 (오프라인 스킵)';
+    upBtn.disabled = true; upBtn.textContent = '✓ 스킵 (offline)';
+    s.uploaded = true;
+    updateRerecordGate();
+    log('rec_uploaded_skipped', { word, idx, duration_sec: s.sec,
+        reason: OFFLINE ? 'offline' : 'no_firebase' });
     return;
   }
 
-  btn.disabled = true; btn.textContent = '⬆  업로드 중...';
+  stEl.className = 'rec-up-status show uploading';
+  stEl.textContent = '⏳ 업로드 중 · Đang tải lên...';
+  upBtn.disabled = true;
+
   const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-  const ext = s.mime.includes('webm') ? 'webm' : s.mime.includes('mp4') ? 'm4a' : 'webm';
-  const fn = `${CURRENT.lid}_W${CURRENT.week}_${word}_retry_${ts}.${ext}`;
-  const path = `recordings/${window.EXPERIMENT_ID}/${CURRENT.lid}/week${CURRENT.week}/${fn}`;
+  const ext = s.mime.indexOf('mp4') > -1 ? 'm4a' : 'webm';
+  // 재녹음(피드백) 파일은 본녹음(study)과 분리된 폴더에 저장
+  //   본녹음:  recordings/{exp}/{lid}/week{N}/{lid}_W{N}_{word}_{ts}.{ext}
+  //   재녹음:  recordings/{exp}/{lid}/week{N}_feedback/{lid}_W{N}_{word}_retry_{ts}.{ext}
+  const fn   = `${CURRENT.lid}_W${CURRENT.week}_${word}_retry_${ts}.${ext}`;
+  const path = `recordings/${window.EXPERIMENT_ID}/${CURRENT.lid}/week${CURRENT.week}_feedback/${fn}`;
+
   try {
-    // 1) Storage 업로드 + 다운로드 URL 획득
+    // 1) Storage 업로드
     const snap = await storage.ref(path).put(s.blob, { contentType: s.mime || 'audio/webm' });
     const fileUrl = await snap.ref.getDownloadURL();
 
-    // 2) Firestore: recordings/{wordKey} — 단어별 1개 문서, attemptCount 누적
-    //    (기존 study_week*.html 의 recordings/ 구조와 동일)
+    // 2) Firestore: feedback_views/{lid}/sessions/{sid}/recordings/{wordKey}
     const recRef = db.collection(window.FEEDBACK_LOG_COLLECTION)
       .doc(CURRENT.lid).collection('sessions').doc(SESSION_ID)
       .collection('recordings').doc(word);
@@ -1153,14 +1443,23 @@ async function uploadRecording(idx) {
       uploadedAt:   firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    btn.textContent = `✓ ${word} 업로드 완료`; btn.style.background = 'rgba(34,197,94,.3)';
+    stEl.className = 'rec-up-status show success';
+    stEl.textContent = '✅ 업로드 완료 · Tải lên thành công!';
+    upBtn.textContent = `✓ ${REC_KO[idx]} 업로드 완료`;
+    upBtn.disabled = true;
+    s.uploaded = true;
+
     log('rec_uploaded', { word, idx, storagePath: path, filename: fn,
                           duration_sec: s.sec, size: s.blob.size, attemptCount });
+    showToast(`🎙️ ${REC_KO[idx]} 업로드 완료 · Tải lên xong!`);
 
-    // 3) 3개 단어 모두 업로드 → 재녹음 완료 마커 set
+    // 게이트 갱신 (모두 업로드되면 nextBtn 활성)
+    updateRerecordGate();
+
+    // 3) 3개 모두 업로드 → 완료 마커 set
     try {
-      const done = [1,2,3].every(i => $(`upload-btn-${i}`) && $(`upload-btn-${i}`).textContent.startsWith('✓'));
-      if (done) {
+      const allDone = [1,2,3].every(i => recs[i].uploaded);
+      if (allDone) {
         const marker = {};
         marker['rerecorded_W' + CURRENT.week] = true;
         marker['rerecorded_W' + CURRENT.week + '_at'] = firebase.firestore.FieldValue.serverTimestamp();
@@ -1172,9 +1471,56 @@ async function uploadRecording(idx) {
       console.warn('재녹음 완료 마커 set 실패:', e);
     }
   } catch (e) {
-    btn.disabled = false; btn.textContent = '⬆  다시 업로드';
-    alert('업로드 실패: ' + e.message);
+    stEl.className = 'rec-up-status show error';
+    const msg = e.message || '';
+    stEl.textContent = (msg.indexOf('unauthorized')>-1 || msg.indexOf('permission-denied')>-1)
+      ? '❌ 권한 오류 — Firebase Storage Rules 확인 필요'
+      : '❌ 실패: ' + msg.slice(0,60);
+    upBtn.disabled = false; upBtn.textContent = '📤 다시 업로드 · Tải lại';
+    log('rec_upload_error', { word, idx, error: msg });
   }
+}
+
+// 모든 단어 업로드 완료 여부를 검사하여 nextBtn 게이팅 + 안내 문구 갱신
+function updateRerecordGate() {
+  const onRerec = slideList[currentSlide] === 'rerecord';
+  if (!onRerec) return;
+  const allUp = [1,2,3].every(i => recs[i] && recs[i].uploaded);
+
+  const gate = document.getElementById('rerec-gate');
+  if (gate) {
+    if (allUp) {
+      gate.className = 'complete-gate done';
+      gate.innerHTML =
+        '✅ 모든 녹음이 업로드되었습니다. 아래 <b>다음</b> 버튼을 눌러 학습을 종료해 주세요.' +
+        '<small>Tất cả bản ghi đã được tải lên. Nhấn <b>Tiếp theo</b> bên dưới để kết thúc bài học.</small>';
+    } else {
+      gate.className = 'complete-gate';
+      gate.innerHTML =
+        '🔒 모든 파일을 업로드해야 다음으로 넘어가며 학습이 종료됩니다.' +
+        '<small>Cần tải lên tất cả các bản ghi để tiếp tục và hoàn thành bài học.</small>';
+    }
+  }
+
+  const nextBtn = document.getElementById('btn-next');
+  if (nextBtn) {
+    // rerecord 가 마지막 슬라이드가 아니라 그 다음 complete 슬라이드가 있음
+    nextBtn.disabled = !allUp;
+  }
+}
+
+// 토스트
+function showToast(msg) {
+  let t = document.getElementById('feedback-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'feedback-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 2400);
 }
 
 // ── 이탈 ────────────────────────────────────────────────────────────────
