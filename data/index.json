@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-22T17:52:47.048927",
-  "count": 31,
+  "generated_at": "2026-05-23T16:58:18.929944",
+  "count": 33,
   "items": [
     {
       "learner_id": "A01",
@@ -228,6 +228,21 @@
       "data_file": "data/A16_W1.json"
     },
     {
+      "learner_id": "A17",
+      "week": 1,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-23T16:56:19.200241",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A17_W1.json"
+    },
+    {
       "learner_id": "A19",
       "week": 1,
       "group": "A",
@@ -376,6 +391,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B09_W1.json"
+    },
+    {
+      "learner_id": "B10",
+      "week": 1,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-23T16:58:18.829324",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B10_W1.json"
     },
     {
       "learner_id": "B13",
