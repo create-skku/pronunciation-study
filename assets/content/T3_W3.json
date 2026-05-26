@@ -1,0 +1,187 @@
+{
+  "t": "T3",
+  "label": "평음·격음 혼동",
+  "label_short": "바 ≈ 파 (빠는 구분)",
+  "label_vn": "Nhầm lẫn 바/파",
+  "fallback_when_unreliable": {
+    "label": "평음·격음 혼동 — 경음은 어느 정도 구분",
+    "diagnosis": "경음(빠)은 어느 정도 구분되지만, 평음(바)과 격음(파) 둘 다 비슷한 음가로 발음되는 단계입니다. 핵심은 격음의 기식과 모음 음높이 — 격음은 입에서 바람이 길게 나오면서 모음도 살짝 더 높게 시작되어야 평음과 분리됩니다.",
+    "likely_issues": [
+      "격음 ㅋ: 기식이 부족해 평음과 합쳐짐",
+      "평음 ㄱ: 너무 강하게 발음해 격음에 가까워지는 경우도 있음",
+      "경음 ㄲ: 비교적 잘 구분되는 편 — 강점으로 활용"
+    ],
+    "focus": "ㅋ 에 강한 기식을 만들기. 손바닥을 입 앞 10cm 에 대고 '파!' 라고 발음했을 때 바람이 손바닥에 분명히 느껴져야 함. 동시에 ㅏ 모음을 평소보다 살짝 높게 시작. ㄱ 은 짧고 부드럽게 — 두 자음의 길이·음높이 차이를 동시에 만드세요."
+  },
+  "cover": {
+    "title": "파열음 발음 피드백",
+    "title_vn": "Phản hồi phát âm phụ âm tắc",
+    "subtitle": "평음 · 경음 · 격음 발음 연습",
+    "subtitle_vn": "Luyện tập phát âm: âm bình thường · căng thẳng · bật hơi"
+  },
+  "error_type": {
+    "number": "01",
+    "title": "발음 오류 유형 — 평음·격음 혼동",
+    "features": "'까'는 잘 구분되는데, '가'와 '카'가 비슷하게 들립니다. 격음(파)의 바람이 부족하거나 평음(바)이 너무 강하게 나오고 있어요.",
+    "features_vn": "Phân biệt được '까' nhưng '가' và '카' nghe giống nhau.",
+    "examples": "카드 → 바란색처럼  /  타다 → 다다처럼",
+    "cause": "'가'와 '카'의 차이는 바람의 양과 뒤따르는 모음의 높이 두 가지인데, 두 단서를 아직 충분히 활용하지 않고 있어요.",
+    "cause_vn": "Sự khác biệt '가'/'카': lượng hơi và độ cao nguyên âm — chưa tận dụng đủ.",
+    "goal_by_group": {
+      "A": "파형에서 '카'의 하얀 공백이 길고 뚜렷하게, 모음 피치가 '가'보다 높게 보이도록 발음하기.",
+      "B": "발음 나침반에서 '카'를 오른쪽 위(bật hơi+sắc)로, '가'를 가운데로 분리해서 발음하기.",
+      "C": "'카'의 바람을 더 강하게, '가' 다음 모음을 더 낮게 시작하기."
+    },
+    "goal_vn_by_group": {
+      "A": "VOT '카' dài rõ + pitch nguyên âm cao hơn '가'.",
+      "B": "Phát âm '카' lên góc trên-phải (bật hơi+sắc), '가' giữ giữa.",
+      "C": "Thổi hơi mạnh hơn cho '카', bắt đầu nguyên âm '가' thấp hơn."
+    }
+  },
+  "correction": {
+    "number": "02",
+    "title": "유형별 교정 설명",
+    "intro": "두 가지 차이를 의식해 보세요.",
+    "intro_vn": "Hãy ý thức hai điểm khác biệt.",
+    "sections": [
+      {
+        "heading": "① 바람의 양",
+        "heading_vn": "Lượng hơi thở",
+        "items": [
+          {
+            "k": "파 → 💨 손에 바람이 강하게. 하얀 공백이 길고 뚜렷해요",
+            "vn": "파 → hơi mạnh, khoảng trắng dài và rõ"
+          },
+          {
+            "k": "바 → 바람이 살짝만. 하얀 공백이 짧아요",
+            "vn": "바 → hơi nhẹ, khoảng trắng ngắn"
+          }
+        ]
+      },
+      {
+        "heading": "② 모음의 높이(피치)",
+        "heading_vn": "Độ cao nguyên âm (pitch)",
+        "items": [
+          {
+            "k": "파~ → 모음 시작 피치가 높게 그려져요 ↑",
+            "vn": "파~ → đường pitch nguyên âm CAO ↑"
+          },
+          {
+            "k": "바~ → 모음 시작 피치가 낮게 그려져요 ↓",
+            "vn": "바~ → đường pitch nguyên âm THẤP ↓"
+          }
+        ]
+      }
+    ],
+    "warning": "한번 따라해 보세요: '파~' (높게) / '바~' (낮게)",
+    "warning_vn": "Hãy thử: '파~' cao / '바~' thấp"
+  },
+  "key_points": {
+    "number": "03",
+    "title": "핵심 포인트",
+    "title_vn": "Điểm cốt lõi",
+    "points_by_group": {
+      "A": [
+        "'카': VOT(하얀 공백) 길게 + 모음 피치 높게",
+        "'가': VOT 짧게 + 모음 피치 낮게",
+        "'파 — 바 — 파 — 바' 번갈아 발음하며 파형 차이 눈으로 확인"
+      ],
+      "B": [
+        "발음 나침반에서 '카'는 오른쪽 위(bật hơi 영역), '가'는 가운데",
+        "두 점의 가로(VOT)·세로(F0) 거리를 동시에 벌려 보세요",
+        "베트남어 sắc 성조의 상승감을 '카'에 살리세요"
+      ],
+      "C": [
+        "'카': 숨을 참다가 확 내뱉는 느낌 → 바람이 강하게",
+        "'가': 목소리를 낮게 시작하는 느낌",
+        "'파 — 바 — 파 — 바' 번갈아 말하며 바람과 높이 동시에 느끼기"
+      ]
+    },
+    "points_vn_by_group": {
+      "A": [
+        "'카': VOT (khoảng trắng) dài + cao độ nguyên âm cao",
+        "'가': VOT ngắn + cao độ nguyên âm thấp",
+        "Đọc xen kẽ '파 — 바 — 파 — 바' và quan sát khác biệt trên dạng sóng."
+      ],
+      "B": [
+        "Trên la bàn: '카' nằm phía trên bên phải (vùng bật hơi), '가' ở giữa",
+        "Hãy nới rộng cả khoảng cách ngang (VOT) và dọc (F0) của 2 điểm.",
+        "Hãy đem cảm giác đi lên của thanh sắc tiếng Việt vào '카'."
+      ],
+      "C": [
+        "'카': giữ hơi rồi bật mạnh → hơi ra nhiều",
+        "'가': bắt đầu bằng giọng thấp",
+        "Đọc xen kẽ '파 — 바 — 파 — 바' để cảm nhận hơi và cao độ cùng lúc."
+      ]
+    }
+  },
+  "practice": {
+    "number": "04",
+    "title": "짧은 연습",
+    "title_vn": "Luyện tập ngắn",
+    "instruction": "다음 소리들을 듣고 두 번씩 따라 말합니다.",
+    "instruction_vn": "Nghe và nhắc lại mỗi âm 2 lần",
+    "syllables": [
+      {
+        "type": "평음 ㄱ",
+        "type_color": "ba",
+        "syl": "가",
+        "word": "가방",
+        "word_vn": "túi xách"
+      },
+      {
+        "type": "경음 ㄲ",
+        "type_color": "bba",
+        "syl": "까",
+        "word": "까만색",
+        "word_vn": "màu đen"
+      },
+      {
+        "type": "격음 ㅋ",
+        "type_color": "pa",
+        "syl": "카",
+        "word": "카드",
+        "word_vn": "thẻ"
+      }
+    ]
+  },
+  "rerecord": {
+    "number": "05",
+    "title": "재녹음 과제",
+    "title_vn": "Bài tập ghi âm lại",
+    "instructions_by_group": {
+      "A": [
+        "예전에 녹음했던 '카드'을 다시 한 번 읽고 녹음해 보세요.",
+        "바람의 차이와 목소리 높이를 의식하면서 '가방 / 까만색 / 카드'을 녹음해 주세요.",
+        "파형에서 '카'의 하얀 공백이 더 길어졌는지, '가'의 피치가 낮게 그려지는지 확인해 보세요."
+      ],
+      "B": [
+        "예전에 녹음했던 '카드'을 다시 한 번 읽고 녹음해 보세요.",
+        "베트남어 bật hơi + sắc 방향을 떠올리며 '카드'을 녹음해 주세요.",
+        "발음 나침반에서 '카'가 오른쪽 위로 이동했는지 확인해 보세요."
+      ],
+      "C": [
+        "예전에 녹음했던 '카드'을 다시 한 번 읽고 녹음해 보세요.",
+        "바람의 차이와 목소리 높이를 의식하면서 '가방 / 까만색 / 카드'을 녹음해 주세요."
+      ]
+    },
+    "instructions_vn_by_group": {
+      "A": [
+        "Đọc lại và ghi âm '카드' một lần nữa.",
+        "Ý thức sự khác biệt hơi thở và độ cao giọng khi ghi âm.",
+        "Kiểm tra dạng sóng xem VOT '카' có dài hơn và pitch '가' có thấp hơn không."
+      ],
+      "B": [
+        "Đọc lại và ghi âm '카드' một lần nữa.",
+        "Nhớ hướng bật hơi + sắc khi ghi âm '카드'.",
+        "Kiểm tra trên la bàn xem '카' đã dịch lên góc trên-phải chưa."
+      ],
+      "C": [
+        "Đọc lại và ghi âm '카드' một lần nữa.",
+        "Ý thức sự khác biệt hơi thở và độ cao giọng khi ghi âm."
+      ]
+    },
+    "encouragement": "잘하고 있어요! 파이팅! 😊",
+    "encouragement_vn": "Bạn đang làm rất tốt! Cố lên!"
+  }
+}
