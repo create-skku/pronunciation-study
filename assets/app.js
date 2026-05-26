@@ -372,9 +372,22 @@ async function loadAll() {
     `<span style="font-size:11px">build.py 가 정상 종료됐는지 확인하세요. (${dataUrl})</span>`
   );
 
-  // 4) content/T?.json 로드
+  // 4) content/T?.json 로드 (주차별 분리 — W2/W3 는 _W{week} suffix 파일 우선)
   try {
-    CURRENT.content = await (await fetch(`assets/content/${CURRENT.t}.json` + _cb, _fetchOpt)).json();
+    const tWeekFile = `assets/content/${CURRENT.t}_W${CURRENT.week}.json`;
+    const tBaseFile = `assets/content/${CURRENT.t}.json`;
+    // W1 은 기존 파일, W2/W3 는 _W{week}.json 우선 (없으면 base 로 폴백)
+    if (CURRENT.week > 1) {
+      const r = await fetch(tWeekFile + _cb, _fetchOpt);
+      if (r.ok) {
+        CURRENT.content = await r.json();
+      } else {
+        console.warn(`[content] ${tWeekFile} 없음 → ${tBaseFile} 폴백`);
+        CURRENT.content = await (await fetch(tBaseFile + _cb, _fetchOpt)).json();
+      }
+    } else {
+      CURRENT.content = await (await fetch(tBaseFile + _cb, _fetchOpt)).json();
+    }
   }
   catch (e) { return showError(`content/${CURRENT.t}.json 로드 실패: ${e.message}`); }
 
