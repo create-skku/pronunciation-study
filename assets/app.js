@@ -1036,8 +1036,10 @@ function buildRerecord(c, group) {
   // 단어 박스 3개 — study_week1.html 의 rec-word-item 패턴
   const wordBoxes = c.practice.syllables.slice(0,3).map((s, i) => {
     const idx = i + 1;
+    // 주차별 단어 우선 — T*.json practice.syllables 는 W1 으로 고정되어 있어
+    // REC_KO[idx] (현재 주차 한글) 가 있으면 그걸 사용
     const syl = s.syl || '';
-    const word = s.word || REC_KO[idx];
+    const word = REC_KO[idx] || s.word;
     const wordVn = s.word_vn || '';
 
     const recItem = el('div', {class:'rec-word-item', id:`recItem_${idx}`});
