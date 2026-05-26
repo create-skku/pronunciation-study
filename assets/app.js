@@ -953,6 +953,10 @@ function buildPractice(c, d) {
       audioMap[w.word_kr] = { native: w.native_audio, mine: w.local_audio };
     }
   }
+  // 주차별 단어 자동 매핑 — T*.json practice.syllables 는 W1 단어로 고정되어 있어
+  // W2/W3 학습자에게는 학습자 본인의 word_kr 으로 교체하고 원어민 음원도 연결.
+  // 순서 [평음, 경음, 격음] — build.py WEEK_WORDS 순서와 동일.
+  const wordKeysOrdered = Object.keys(wordsData);
 
   return el('section', {class:'slide', id:'slide-practice'},
     el('div', {class:'card'},
@@ -967,15 +971,17 @@ function buildPractice(c, d) {
         el('p', null, p.instruction),
         el('p', {class:'vn'}, p.instruction_vn)
       ),
-      ...p.syllables.map(s => {
-        const aud = audioMap[s.word] || {};
+      ...p.syllables.map((s, i) => {
+        // 학습자의 word_kr 으로 표시 + 원어민 음원 연결 (주차별 자동)
+        const learnerWord = (wordsData[wordKeysOrdered[i]] || {}).word_kr || s.word;
+        const aud = audioMap[learnerWord] || {};
         return el('div', {class:'practice-row'},
           el('div', {class:'practice-syl'},
             el('div', {class:'practice-type ' + s.type_color}, s.type),
             el('div', {class:'practice-char'}, s.syl)
           ),
           el('div', null,
-            el('div', {class:'practice-word'}, s.word),
+            el('div', {class:'practice-word'}, learnerWord),
             el('div', {class:'practice-vn'}, s.word_vn),
             el('div', {class:'audio-bar'},
               audioBtn(aud.native, 'native', '원어민')     // 단어: 원어민 음원만
