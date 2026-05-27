@@ -2,22 +2,22 @@
   "learner_id": "B15",
   "week": 1,
   "group": "B",
-  "t_type": "T2",
+  "t_type": "T3",
   "t_type_source": "auto",
-  "t_type_auto": "T2",
+  "t_type_auto": "T3",
   "t_type_manual": null,
   "t_type_diagnostic": {
-    "baji_vot": 13.0,
-    "bbareuda_vot": 7.0,
-    "paransaek_vot": 107.0,
-    "d_baji_bbareuda": 6.0,
-    "d_baji_paransaek": 94.0,
-    "d_bbareuda_paransaek": 100.0,
+    "baji_vot": 70.0,
+    "bbareuda_vot": 5.0,
+    "paransaek_vot": 94.0,
+    "d_baji_bbareuda": 65.0,
+    "d_baji_paransaek": 24.0,
+    "d_bbareuda_paransaek": 89.0,
     "threshold_ms": 30,
-    "rule": "바와 빠는 가깝지만 파는 멀음 (평음·경음 혼동)"
+    "rule": "바와 파는 가깝지만 빠는 멀음 (평음·격음 혼동)"
   },
   "f0_baseline": {
-    "learner_f0_baseline_hz": 250.0,
+    "learner_f0_baseline_hz": 246.8,
     "native_f0_baseline_hz": 212.6,
     "method": "mean F0(ㅏ) of three words; comparison in semitones from baseline"
   },
@@ -245,20 +245,20 @@
       },
       "learner": {
         "word": "baji",
-        "duration_s": 1.04,
+        "duration_s": 0.84,
         "sr": 16000,
         "segments": {
           "ㅂ": [
             0.0,
-            0.035
+            0.085
           ],
           "ㅏ": [
-            0.035,
-            0.2
+            0.085,
+            0.33
           ],
           "지": [
-            0.2,
-            0.585
+            0.33,
+            0.73
           ]
         },
         "segment_labels": [
@@ -266,56 +266,36 @@
           "ㅏ",
           "지"
         ],
-        "burst_ms": 19.0,
-        "voice_onset_ms": 32.0,
-        "vot_ms": 13.000000000000002,
-        "vot_ms_raw": 13.000000000000002,
-        "f0_a_hz": 225.35211267605635,
+        "burst_ms": 23.0,
+        "voice_onset_ms": 93.0,
+        "vot_ms": 70.0,
+        "vot_ms_raw": 70.0,
+        "f0_a_hz": 213.33333333333334,
         "segment_durations_ms": {
-          "ㅂ": 35.0,
-          "ㅏ": 165.0,
-          "지": 384.99999999999994
+          "ㅂ": 85.0,
+          "ㅏ": 245.0,
+          "지": 399.99999999999994
         },
         "f0_curve": [
           [
-            0.03,
-            235.2941176470588
-          ],
-          [
-            0.04,
-            231.8840579710145
-          ],
-          [
-            0.05,
-            231.8840579710145
-          ],
-          [
-            0.06,
-            231.8840579710145
-          ],
-          [
-            0.07,
-            228.57142857142858
-          ],
-          [
             0.08,
-            228.57142857142858
+            225.35211267605635
           ],
           [
             0.09,
-            225.35211267605635
+            222.22222222222223
           ],
           [
             0.1,
-            225.35211267605635
+            219.17808219178082
           ],
           [
             0.11,
-            225.35211267605635
+            222.22222222222223
           ],
           [
             0.12,
-            225.35211267605635
+            222.22222222222223
           ],
           [
             0.13,
@@ -323,19 +303,19 @@
           ],
           [
             0.14,
-            225.35211267605635
+            228.57142857142858
           ],
           [
             0.15,
-            222.22222222222223
+            228.57142857142858
           ],
           [
             0.16,
-            219.17808219178082
+            222.22222222222223
           ],
           [
             0.17,
-            216.21621621621622
+            219.17808219178082
           ],
           [
             0.18,
@@ -343,75 +323,131 @@
           ],
           [
             0.19,
+            213.33333333333334
+          ],
+          [
+            0.2,
+            213.33333333333334
+          ],
+          [
+            0.21,
+            213.33333333333334
+          ],
+          [
+            0.23,
+            195.1219512195122
+          ],
+          [
+            0.24,
             207.7922077922078
           ],
           [
-            0.37,
-            238.80597014925374
+            0.25,
+            210.52631578947367
           ],
           [
-            0.38,
-            242.42424242424244
+            0.26,
+            213.33333333333334
           ],
           [
-            0.39,
-            242.42424242424244
+            0.27,
+            213.33333333333334
           ],
           [
-            0.4,
-            242.42424242424244
+            0.28,
+            213.33333333333334
           ],
           [
-            0.41,
-            242.42424242424244
+            0.29,
+            213.33333333333334
           ],
           [
-            0.42,
-            242.42424242424244
+            0.3,
+            213.33333333333334
           ],
           [
-            0.43,
-            242.42424242424244
+            0.31,
+            213.33333333333334
           ],
           [
-            0.44,
-            242.42424242424244
-          ],
-          [
-            0.45,
-            238.80597014925374
-          ],
-          [
-            0.46,
-            238.80597014925374
-          ],
-          [
-            0.47,
-            235.2941176470588
-          ],
-          [
-            0.48,
-            235.2941176470588
-          ],
-          [
-            0.49,
-            235.2941176470588
+            0.32,
+            210.52631578947367
           ],
           [
             0.5,
-            231.8840579710145
+            242.42424242424244
           ],
           [
             0.51,
-            228.57142857142858
+            246.15384615384616
           ],
           [
             0.52,
-            228.57142857142858
+            250.0
           ],
           [
             0.53,
+            250.0
+          ],
+          [
+            0.54,
+            250.0
+          ],
+          [
+            0.55,
+            250.0
+          ],
+          [
+            0.56,
+            246.15384615384616
+          ],
+          [
+            0.57,
+            246.15384615384616
+          ],
+          [
+            0.58,
+            242.42424242424244
+          ],
+          [
+            0.59,
+            242.42424242424244
+          ],
+          [
+            0.6,
+            238.80597014925374
+          ],
+          [
+            0.61,
+            235.2941176470588
+          ],
+          [
+            0.62,
+            231.8840579710145
+          ],
+          [
+            0.63,
             228.57142857142858
+          ],
+          [
+            0.64,
+            225.35211267605635
+          ],
+          [
+            0.65,
+            219.17808219178082
+          ],
+          [
+            0.66,
+            213.33333333333334
+          ],
+          [
+            0.67,
+            207.7922077922078
+          ],
+          [
+            0.68,
+            205.12820512820514
           ]
         ],
         "flags": [],
@@ -423,26 +459,26 @@
         "measurement_attempt": "primary"
       },
       "diff": {
-        "vot_ms_diff": -84.0,
-        "f0_a_hz_diff": 53.30910192336819,
-        "learner_c1_ms": 35.0,
-        "learner_a_ms": 165.0,
-        "learner_rest_ms": 384.99999999999994,
+        "vot_ms_diff": -27.0,
+        "f0_a_hz_diff": 41.29032258064518,
+        "learner_c1_ms": 85.0,
+        "learner_a_ms": 245.0,
+        "learner_rest_ms": 399.99999999999994,
         "ref_c1_ms": 125.0,
         "ref_a_ms": 120.0,
         "ref_rest_ms": 385.0,
-        "learner_total_ms": 585.0,
+        "learner_total_ms": 730.0,
         "ref_total_ms": 630.0,
-        "f0_a_learner_st": -1.8,
+        "f0_a_learner_st": -2.52,
         "f0_a_native_st": -3.67,
-        "f0_a_pattern_diff_st": 1.87
+        "f0_a_pattern_diff_st": 1.14
       },
       "images": {
         "B": "images/B15_W1_baji_B.png"
       },
-      "local_audio": "audio/B15_W1_baji.mp4",
+      "local_audio": "audio/B15_W1_baji.m4a",
       "native_audio": "audio/native/W1_baji.mp3",
-      "storage_path": "recordings/main_study/B15/week1/B15_W1_baji_2026-05-18-14-44-17.mp4"
+      "storage_path": "recordings/main_study/B15/week1/B15_W1_baji_retry_2026-05-22-13-46-31.m4a"
     },
     "bbareuda": {
       "word_kr": "빠르다",
@@ -699,20 +735,20 @@
       },
       "learner": {
         "word": "bbareuda",
-        "duration_s": 0.68,
+        "duration_s": 0.65,
         "sr": 16000,
         "segments": {
           "ㅃ": [
             0.0,
-            0.015
+            0.055
           ],
           "ㅏ": [
-            0.015,
-            0.225
+            0.055,
+            0.295
           ],
           "르다": [
-            0.225,
-            0.585
+            0.295,
+            0.595
           ]
         },
         "segment_labels": [
@@ -720,180 +756,208 @@
           "ㅏ",
           "르다"
         ],
-        "burst_ms": 18.0,
-        "voice_onset_ms": 25.0,
-        "vot_ms": 7.000000000000003,
-        "vot_ms_raw": 7.000000000000003,
-        "f0_a_hz": 262.2950819672131,
+        "burst_ms": 30.0,
+        "voice_onset_ms": 35.0,
+        "vot_ms": 5.000000000000004,
+        "vot_ms_raw": 5.000000000000004,
+        "f0_a_hz": 213.33333333333334,
         "segment_durations_ms": {
-          "ㅃ": 15.0,
-          "ㅏ": 210.00000000000003,
-          "르다": 360.0
+          "ㅃ": 55.0,
+          "ㅏ": 240.0,
+          "르다": 300.0
         },
         "f0_curve": [
           [
-            0.0,
-            285.7142857142857
-          ],
-          [
-            0.02,
-            242.42424242424244
-          ],
-          [
             0.03,
-            246.15384615384616
-          ],
-          [
-            0.04,
-            250.0
-          ],
-          [
-            0.05,
-            250.0
-          ],
-          [
-            0.06,
-            250.0
-          ],
-          [
-            0.07,
-            250.0
-          ],
-          [
-            0.08,
-            250.0
-          ],
-          [
-            0.09,
-            253.96825396825398
-          ],
-          [
-            0.1,
-            258.06451612903226
-          ],
-          [
-            0.11,
-            262.2950819672131
-          ],
-          [
-            0.12,
-            262.2950819672131
-          ],
-          [
-            0.13,
-            262.2950819672131
-          ],
-          [
-            0.14,
-            266.6666666666667
-          ],
-          [
-            0.15,
-            266.6666666666667
-          ],
-          [
-            0.16,
-            271.1864406779661
-          ],
-          [
-            0.17,
-            271.1864406779661
-          ],
-          [
-            0.18,
-            271.1864406779661
-          ],
-          [
-            0.19,
-            271.1864406779661
-          ],
-          [
-            0.2,
-            271.1864406779661
-          ],
-          [
-            0.21,
-            271.1864406779661
-          ],
-          [
-            0.22,
-            271.1864406779661
-          ],
-          [
-            0.23,
-            271.1864406779661
-          ],
-          [
-            0.24,
-            266.6666666666667
-          ],
-          [
-            0.29,
-            266.6666666666667
-          ],
-          [
-            0.3,
-            266.6666666666667
-          ],
-          [
-            0.31,
-            266.6666666666667
-          ],
-          [
-            0.32,
-            266.6666666666667
-          ],
-          [
-            0.33,
-            266.6666666666667
-          ],
-          [
-            0.34,
-            266.6666666666667
-          ],
-          [
-            0.35,
-            262.2950819672131
-          ],
-          [
-            0.36,
-            262.2950819672131
-          ],
-          [
-            0.37,
-            258.06451612903226
-          ],
-          [
-            0.47,
-            216.21621621621622
-          ],
-          [
-            0.48,
-            210.52631578947367
-          ],
-          [
-            0.49,
-            207.7922077922078
-          ],
-          [
-            0.5,
-            202.53164556962025
-          ],
-          [
-            0.51,
-            200.0
-          ],
-          [
-            0.52,
-            197.53086419753086
-          ],
-          [
-            0.53,
             195.1219512195122
           ],
           [
+            0.05,
+            271.1864406779661
+          ],
+          [
+            0.06,
+            200.0
+          ],
+          [
+            0.07,
+            200.0
+          ],
+          [
+            0.08,
+            202.53164556962025
+          ],
+          [
+            0.09,
+            205.12820512820514
+          ],
+          [
+            0.1,
+            205.12820512820514
+          ],
+          [
+            0.11,
+            205.12820512820514
+          ],
+          [
+            0.12,
+            207.7922077922078
+          ],
+          [
+            0.13,
+            207.7922077922078
+          ],
+          [
+            0.14,
+            210.52631578947367
+          ],
+          [
+            0.15,
+            210.52631578947367
+          ],
+          [
+            0.16,
+            210.52631578947367
+          ],
+          [
+            0.17,
+            213.33333333333334
+          ],
+          [
+            0.18,
+            213.33333333333334
+          ],
+          [
+            0.19,
+            216.21621621621622
+          ],
+          [
+            0.2,
+            219.17808219178082
+          ],
+          [
+            0.21,
+            219.17808219178082
+          ],
+          [
+            0.22,
+            219.17808219178082
+          ],
+          [
+            0.23,
+            222.22222222222223
+          ],
+          [
+            0.24,
+            222.22222222222223
+          ],
+          [
+            0.25,
+            222.22222222222223
+          ],
+          [
+            0.26,
+            219.17808219178082
+          ],
+          [
+            0.27,
+            219.17808219178082
+          ],
+          [
+            0.28,
+            216.21621621621622
+          ],
+          [
+            0.29,
+            213.33333333333334
+          ],
+          [
+            0.3,
+            216.21621621621622
+          ],
+          [
+            0.31,
+            216.21621621621622
+          ],
+          [
+            0.32,
+            216.21621621621622
+          ],
+          [
+            0.33,
+            216.21621621621622
+          ],
+          [
+            0.34,
+            216.21621621621622
+          ],
+          [
+            0.35,
+            216.21621621621622
+          ],
+          [
+            0.36,
+            216.21621621621622
+          ],
+          [
+            0.37,
+            216.21621621621622
+          ],
+          [
+            0.38,
+            216.21621621621622
+          ],
+          [
+            0.39,
+            216.21621621621622
+          ],
+          [
+            0.4,
+            213.33333333333334
+          ],
+          [
+            0.41,
+            207.7922077922078
+          ],
+          [
+            0.49,
+            225.35211267605635
+          ],
+          [
+            0.5,
+            179.77528089887642
+          ],
+          [
+            0.51,
+            179.77528089887642
+          ],
+          [
+            0.52,
+            181.8181818181818
+          ],
+          [
+            0.53,
+            179.77528089887642
+          ],
+          [
             0.54,
-            190.47619047619048
+            177.77777777777777
+          ],
+          [
+            0.55,
+            175.82417582417582
+          ],
+          [
+            0.56,
+            172.04301075268816
+          ],
+          [
+            0.57,
+            172.04301075268816
+          ],
+          [
+            0.58,
+            170.2127659574468
           ]
         ],
         "flags": [],
@@ -905,26 +969,26 @@
         "measurement_attempt": "primary"
       },
       "diff": {
-        "vot_ms_diff": 7.000000000000003,
-        "f0_a_hz_diff": 54.5028741750053,
-        "learner_c1_ms": 15.0,
-        "learner_a_ms": 210.00000000000003,
-        "learner_rest_ms": 360.0,
+        "vot_ms_diff": 5.000000000000004,
+        "f0_a_hz_diff": 5.5411255411255524,
+        "learner_c1_ms": 55.0,
+        "learner_a_ms": 240.0,
+        "learner_rest_ms": 300.0,
         "ref_c1_ms": 25.0,
         "ref_a_ms": 125.0,
         "ref_rest_ms": 424.99999999999994,
-        "learner_total_ms": 585.0,
+        "learner_total_ms": 595.0,
         "ref_total_ms": 575.0,
-        "f0_a_learner_st": 0.83,
+        "f0_a_learner_st": -2.52,
         "f0_a_native_st": -0.4,
-        "f0_a_pattern_diff_st": 1.23
+        "f0_a_pattern_diff_st": -2.12
       },
       "images": {
         "B": "images/B15_W1_bbareuda_B.png"
       },
-      "local_audio": "audio/B15_W1_bbareuda.mp4",
+      "local_audio": "audio/B15_W1_bbareuda.m4a",
       "native_audio": "audio/native/W1_bbareuda.mp3",
-      "storage_path": "recordings/main_study/B15/week1/B15_W1_bbareuda_2026-05-18-14-44-21.mp4"
+      "storage_path": "recordings/main_study/B15/week1/B15_W1_bbareuda_retry_2026-05-22-13-46-33.m4a"
     },
     "paransaek": {
       "word_kr": "파란색",
@@ -1189,20 +1253,20 @@
       },
       "learner": {
         "word": "paransaek",
-        "duration_s": 0.84,
+        "duration_s": 0.78,
         "sr": 16000,
         "segments": {
           "ㅍ": [
             0.0,
-            0.035
+            0.07
           ],
           "ㅏ": [
-            0.035,
-            0.115
+            0.07,
+            0.28
           ],
           "란색": [
-            0.115,
-            0.785
+            0.28,
+            0.73
           ]
         },
         "segment_labels": [
@@ -1210,92 +1274,80 @@
           "ㅏ",
           "란색"
         ],
-        "burst_ms": 27.0,
-        "voice_onset_ms": 134.0,
-        "vot_ms": 107.00000000000001,
-        "vot_ms_raw": 107.00000000000001,
-        "f0_a_hz": 262.2950819672131,
+        "burst_ms": 24.0,
+        "voice_onset_ms": 118.0,
+        "vot_ms": 94.0,
+        "vot_ms_raw": 94.0,
+        "f0_a_hz": 313.72549019607845,
         "segment_durations_ms": {
-          "ㅍ": 35.0,
-          "ㅏ": 80.0,
-          "란색": 670.0
+          "ㅍ": 70.0,
+          "ㅏ": 210.00000000000003,
+          "란색": 449.99999999999994
         },
         "f0_curve": [
           [
-            0.04,
-            235.2941176470588
-          ],
-          [
-            0.07,
+            0.03,
             372.09302325581393
           ],
           [
-            0.08,
-            372.09302325581393
-          ],
-          [
-            0.09,
-            355.55555555555554
-          ],
-          [
-            0.1,
-            262.2950819672131
-          ],
-          [
-            0.11,
-            266.6666666666667
-          ],
-          [
-            0.12,
-            271.1864406779661
-          ],
-          [
-            0.13,
-            285.7142857142857
-          ],
-          [
-            0.14,
-            290.90909090909093
-          ],
-          [
-            0.15,
-            296.2962962962963
-          ],
-          [
-            0.16,
+            0.05,
             301.8867924528302
           ],
           [
-            0.17,
+            0.11,
+            372.09302325581393
+          ],
+          [
+            0.12,
+            290.90909090909093
+          ],
+          [
+            0.13,
+            301.8867924528302
+          ],
+          [
+            0.14,
             307.6923076923077
+          ],
+          [
+            0.15,
+            320.0
+          ],
+          [
+            0.16,
+            326.53061224489795
+          ],
+          [
+            0.17,
+            320.0
           ],
           [
             0.18,
-            307.6923076923077
+            320.0
           ],
           [
             0.19,
-            307.6923076923077
+            320.0
           ],
           [
             0.2,
-            307.6923076923077
+            313.72549019607845
           ],
           [
             0.21,
-            307.6923076923077
+            313.72549019607845
           ],
           [
             0.22,
-            307.6923076923077
+            313.72549019607845
           ],
           [
             0.23,
-            307.6923076923077
+            313.72549019607845
           ],
           [
             0.24,
-            307.6923076923077
+            313.72549019607845
           ],
           [
             0.25,
@@ -1303,7 +1355,7 @@
           ],
           [
             0.26,
-            301.8867924528302
+            307.6923076923077
           ],
           [
             0.27,
@@ -1315,6 +1367,10 @@
           ],
           [
             0.29,
+            301.8867924528302
+          ],
+          [
+            0.3,
             301.8867924528302
           ],
           [
@@ -1335,192 +1391,150 @@
           ],
           [
             0.35,
-            301.8867924528302
+            296.2962962962963
           ],
           [
             0.36,
-            301.8867924528302
+            296.2962962962963
           ],
           [
             0.37,
-            301.8867924528302
+            296.2962962962963
           ],
           [
             0.38,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.39,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.4,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.41,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.42,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.43,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.44,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.45,
-            296.2962962962963
+            290.90909090909093
           ],
           [
             0.46,
-            290.90909090909093
+            296.2962962962963
           ],
           [
             0.47,
-            290.90909090909093
+            296.2962962962963
           ],
           [
-            0.48,
-            290.90909090909093
-          ],
-          [
-            0.49,
-            290.90909090909093
-          ],
-          [
-            0.5,
-            290.90909090909093
-          ],
-          [
-            0.51,
-            290.90909090909093
-          ],
-          [
-            0.52,
-            290.90909090909093
-          ],
-          [
-            0.53,
-            290.90909090909093
-          ],
-          [
-            0.54,
-            290.90909090909093
-          ],
-          [
-            0.55,
-            285.7142857142857
-          ],
-          [
-            0.56,
-            280.70175438596493
-          ],
-          [
-            0.69,
+            0.64,
             246.15384615384616
           ],
           [
-            0.7,
-            231.8840579710145
+            0.65,
+            228.57142857142858
           ],
           [
-            0.71,
-            222.22222222222223
+            0.66,
+            219.17808219178082
           ],
           [
-            0.72,
-            213.33333333333334
-          ],
-          [
-            0.73,
+            0.67,
             210.52631578947367
           ],
           [
-            0.74,
-            205.12820512820514
+            0.68,
+            197.53086419753086
           ],
           [
-            0.75,
-            200.0
+            0.69,
+            207.7922077922078
           ]
         ],
-        "flags": [
-          "measurement_recovered"
-        ],
+        "flags": [],
         "reliable": true,
         "reliable_axes": [
           "vot",
           "f0"
         ],
-        "measurement_attempt": "recovered"
+        "measurement_attempt": "primary"
       },
       "diff": {
-        "vot_ms_diff": 47.000000000000014,
-        "f0_a_hz_diff": 4.230565838180837,
-        "learner_c1_ms": 35.0,
-        "learner_a_ms": 80.0,
-        "learner_rest_ms": 670.0,
+        "vot_ms_diff": 34.0,
+        "f0_a_hz_diff": 55.6609740670462,
+        "learner_c1_ms": 70.0,
+        "learner_a_ms": 210.00000000000003,
+        "learner_rest_ms": 449.99999999999994,
         "ref_c1_ms": 85.0,
         "ref_a_ms": 119.99999999999999,
         "ref_rest_ms": 610.0,
-        "learner_total_ms": 785.0,
+        "learner_total_ms": 730.0,
         "ref_total_ms": 815.0,
-        "f0_a_learner_st": 0.83,
+        "f0_a_learner_st": 4.15,
         "f0_a_native_st": 3.35,
-        "f0_a_pattern_diff_st": -2.52
+        "f0_a_pattern_diff_st": 0.8
       },
       "images": {
         "B": "images/B15_W1_paransaek_B.png"
       },
-      "local_audio": "audio/B15_W1_paransaek.mp4",
+      "local_audio": "audio/B15_W1_paransaek.m4a",
       "native_audio": "audio/native/W1_paransaek.mp3",
-      "storage_path": "recordings/main_study/B15/week1/B15_W1_paransaek_2026-05-18-14-44-25.mp4"
+      "storage_path": "recordings/main_study/B15/week1/B15_W1_paransaek_retry_2026-05-22-13-46-34.m4a"
     }
   },
   "ai_feedback": {
     "error_analysis": {
-      "summary": "격음 ㅍ은 강한 기식으로 잘 구분되지만, 평음 ㅂ과 경음 ㅃ이 모두 무기식 영역으로 몰려 두 음의 분리가 약합니다.",
-      "summary_vn": "Âm bật hơi mạnh ㅍ (파란색) được phân biệt tốt, nhưng âm bình thường ㅂ (바지) và âm căng ㅃ (빠르다) đều rơi vào vùng không bật hơi, khiến hai âm này khó tách biệt.",
-      "detail": "바지의 VOT가 13ms로 평음 기준(~20ms)보다 짧고, 빠르다의 VOT는 7ms로 둘이 거의 같은 영역에 머물러 있어 평음과 경음의 시간적 구분이 흐려집니다. 반면 파란색은 VOT 107ms로 원어민 60ms보다 오히려 더 강한 기식을 내보이며, 격음 자체는 안정적으로 구현됩니다. F0 패턴(semitone) 위계를 보면 원어민은 평음(-3.7) < 경음(-0.4) < 격음(+3.4)로 뚜렷한 계단을 만드는데, 학습자는 평음(-1.8), 경음(+0.8), 격음(+0.8)로 위로 갈수록 차이가 좁혀져 경음과 격음의 음높이 분리가 거의 사라졌습니다. 즉, ㅂ–ㅃ는 VOT·F0 양쪽 모두에서 가깝고, ㅃ–ㅍ는 F0에서 평탄해진 구조입니다.",
-      "detail_vn": "VOT của 바지 là 13ms, ngắn hơn chuẩn âm bình thường (~20ms), còn 빠르다 chỉ 7ms — hai âm gần như nằm cùng một vùng, khiến sự phân biệt thời gian giữa âm bình thường và âm căng bị mờ đi. Ngược lại, 파란색 có VOT 107ms, thậm chí mạnh hơn mức người bản ngữ (60ms), cho thấy âm bật hơi được thực hiện ổn định. Về cao độ (semitone), người bản ngữ tạo bậc thang rõ ràng: bình thường (-3.7) < căng (-0.4) < bật hơi (+3.4), trong khi người học có bình thường (-1.8), căng (+0.8), bật hơi (+0.8) — tức là âm căng và âm bật hơi gần như bằng nhau về cao độ. Tóm lại, ㅂ–ㅃ gần nhau cả về VOT lẫn F0, còn ㅃ–ㅍ bị san phẳng ở phần cao độ."
+      "summary": "경음 ㅃ은 잘 구분하지만, 평음 ㅂ과 격음 ㅍ의 경계가 반대로 뒤집힌 인상입니다.",
+      "summary_vn": "Phụ âm căng ㅃ (빠) bạn phân biệt tốt, nhưng ranh giới giữa phụ âm thường ㅂ (바) và phụ âm bật hơi ㅍ (파) đang bị đảo ngược.",
+      "detail": "바지의 VOT는 70ms로 원어민 97ms보다 짧지만 평음 기준(~20ms)에 비하면 여전히 꽤 긴 편이고, 파란색의 VOT는 94ms로 원어민 60ms보다 오히려 더 길게 측정되었습니다. 즉 ㅂ과 ㅍ 사이의 VOT 차이가 70→94ms로 24ms밖에 안 되어, 두 자음이 비슷한 영역에 몰려 있습니다. 빠르다는 VOT 5ms로 원어민 0ms와 거의 일치해 경음 구분은 훌륭합니다. F0 위계는 바지 -2.5 st, 빠르다 -2.5 st, 파란색 +4.2 st로 격음의 음높이 상승은 잘 나타나지만, 평음과 경음의 baseline 톤이 동일하게 낮게 시작된다는 점이 특징입니다.",
+      "detail_vn": "VOT của 바지 là 70ms, ngắn hơn người bản ngữ (97ms) nhưng vẫn dài hơn nhiều so với chuẩn phụ âm thường (~20ms); còn 파란색 đạt 94ms, thậm chí dài hơn cả người bản ngữ (60ms). Khoảng cách VOT giữa ㅂ và ㅍ chỉ là 24ms (70→94ms), khiến hai phụ âm bị dồn vào cùng một vùng. 빠르다 có VOT 5ms gần như trùng với người bản ngữ (0ms) — phân biệt phụ âm căng rất tốt. Về F0, 바지 -2.5 st, 빠르다 -2.5 st, 파란색 +4.2 st: độ cao của ㅍ tăng rõ, nhưng cao độ khởi đầu của ㅂ và ㅃ lại giống nhau ở mức thấp."
     },
-    "cause": "베트남어에는 한국어처럼 평음·경음·격음 3중 구분이 없어, 학습자에게 ㅂ과 ㅃ이 모두 베트남어 /b/ 영역으로 흡수되는 경향이 강합니다. 특히 경음의 핵심인 '후두 긴장 + 약간 높은 모음 시작'이라는 동작이 베트남어 음운 체계에 존재하지 않아, ㅃ이 ㅂ과 같은 무기식 음으로 평탄화되는 것입니다. 격음 ㅍ은 베트남어의 기식 자질과 어느 정도 대응이 가능하기에 비교적 잘 구현되고 있습니다.",
-    "cause_vn": "Tiếng Việt không có hệ thống ba bậc bình thường–căng–bật hơi như tiếng Hàn, nên với người học, cả ㅂ và ㅃ đều bị hấp thụ vào vùng /b/ của tiếng Việt. Đặc biệt, động tác cốt lõi của âm căng — 'siết chặt thanh quản + bắt đầu nguyên âm hơi cao hơn một chút' — không tồn tại trong hệ âm vị tiếng Việt, nên ㅃ bị san phẳng thành âm không bật hơi giống ㅂ. Trong khi đó, ㅍ có thể đối ứng phần nào với đặc trưng bật hơi của tiếng Việt, nên được thực hiện khá tốt.",
+    "cause": "베트남어에는 한국어처럼 평음/경음/격음 3중 대립이 없고 무기/유기 2중 대립만 있어, ㅂ을 베트남어 /b/처럼 무기음으로 처리하다 보니 VOT가 길어졌고, 동시에 ㅍ의 기식을 강조하려다 VOT가 과하게 늘어난 것으로 보입니다. 또한 평음의 F0가 경음과 같은 낮은 톤에 머무는 것은 한국어 평음 특유의 '중간 음높이 + 짧은 부드러운 시작'이라는 감각이 아직 분리되지 않았기 때문입니다.",
+    "cause_vn": "Tiếng Việt không có hệ đối lập ba bậc thường/căng/bật hơi như tiếng Hàn, chỉ có đối lập hai bậc không bật hơi/bật hơi. Vì vậy bạn xử lý ㅂ giống /b/ tiếng Việt nên VOT bị kéo dài, đồng thời cố nhấn mạnh ㅍ khiến VOT lại quá dài. Việc F0 của phụ âm thường rơi xuống cùng mức thấp với phụ âm căng cho thấy bạn chưa tách được cảm giác 'cao độ trung bình + khởi đầu ngắn, mềm' đặc trưng của phụ âm thường tiếng Hàn.",
     "correction": {
-      "main_focus": "평음 ㅂ과 경음 ㅃ을 분리하기 — 특히 ㅃ에서 입술을 한 박자 더 꽉 다물었다가 짧고 단단하게 터뜨리는 후두 긴장 감각을 만들어내는 것이 핵심입니다.",
-      "main_focus_vn": "Tách biệt âm bình thường ㅂ và âm căng ㅃ — đặc biệt ở ㅃ, phải mím môi chặt thêm một nhịp rồi bung ra ngắn và dứt khoát, tạo cảm giác siết thanh quản; đây là điểm cốt lõi cần luyện.",
+      "main_focus": "평음 ㅂ을 더 짧고 부드럽게 시작하면서, 격음 ㅍ과의 VOT·음높이 격차를 동시에 벌리는 것이 가장 중요합니다.",
+      "main_focus_vn": "Ưu tiên lớn nhất: làm cho phụ âm thường ㅂ khởi đầu ngắn hơn và mềm hơn, đồng thời mở rộng khoảng cách cả về VOT lẫn cao độ với phụ âm bật hơi ㅍ.",
       "steps": [
-        "거울 앞에서 최소대립쌍 '바–빠–파'를 천천히 반복하며 입술 닫힘 정도와 모음 시작 톤의 차이를 시각·청각으로 동시에 확인합니다.",
-        "손바닥을 입 앞 5cm에 두고 세 음을 차례로 발음해, ㅂ은 약한 바람, ㅃ은 바람 거의 없음, ㅍ은 강한 바람이 느껴지는지 손으로 직접 체감합니다.",
-        "원어민 음원과 본인 녹음을 번갈아 들으며 경음에서 모음이 살짝 더 높게 시작되는지(반 음~한 음 차이)에 귀를 집중해 비교합니다."
+        "손바닥을 입 앞 10cm에 대고 최소대립쌍 '바-빠-파'를 천천히 반복하며, 바람이 손바닥에 닿는 양을 세 단계로 분명히 다르게 만들어 보세요.",
+        "거울 앞에서 같은 ㅏ 모음을 세 번 발음하며, 평음은 중간 톤·경음은 긴장된 낮은 톤·격음은 살짝 높은 톤으로 음높이 위계를 의식적으로 분리하세요.",
+        "본인 녹음과 원어민 음원을 번갈아 들으며 평음 자음 길이가 원어민보다 길지 않은지 매번 점검하고, 짧게 끊는 연습을 반복하세요."
       ],
       "steps_vn": [
-        "Đứng trước gương, lặp lại chậm cặp tối thiểu '바–빠–파', đồng thời quan sát độ khép môi và lắng nghe cao độ bắt đầu của nguyên âm để cảm nhận sự khác biệt bằng cả mắt và tai.",
-        "Đặt lòng bàn tay cách miệng khoảng 5cm, phát âm lần lượt ba âm: kiểm tra xem ㅂ có luồng hơi yếu, ㅃ gần như không có hơi, và ㅍ có luồng hơi mạnh hay không.",
-        "Nghe xen kẽ giọng người bản ngữ và bản ghi của bản thân, tập trung tai vào việc âm căng có bắt đầu nguyên âm cao hơn một chút (chênh nửa đến một bậc cao độ) hay không."
+        "Đặt lòng bàn tay cách miệng 10cm và luyện cặp tối thiểu '바-빠-파' thật chậm, tạo ba mức luồng hơi chạm tay khác nhau rõ rệt.",
+        "Đứng trước gương, phát âm cùng nguyên âm ㅏ ba lần: phụ âm thường ở tông trung bình, phụ âm căng ở tông thấp căng cứng, phụ âm bật hơi ở tông hơi cao — tách rõ thứ bậc cao độ.",
+        "Nghe xen kẽ bản ghi của bạn và của người bản ngữ, mỗi lần kiểm tra xem độ dài phụ âm thường có dài hơn người bản ngữ không, và luyện cắt ngắn lại."
       ]
     },
-    "overall": "격음 ㅍ에서 보여주는 강한 기식 조절(VOT 107ms)은 분명한 강점이며, 베트남어권 학습자가 한국어 기식을 안정적으로 다루기 시작했다는 좋은 신호입니다. 다만 평음 ㅂ과 경음 ㅃ이 VOT(13ms vs 7ms)·F0 모두에서 거의 같은 자리에 있어, 듣는 사람 입장에서 두 음의 구분이 잘 들리지 않을 수 있습니다. 다음 단계는 ㅃ에 후두 긴장과 살짝 높은 모음 시작을 더해 ㅂ과의 거리를 벌리는 것입니다. 격음이 잘 되니, 그 감각을 기준선 삼아 경음의 '짧지만 단단한 터짐'을 만들어가면 빠르게 좋아질 것입니다.",
-    "overall_vn": "Khả năng điều khiển luồng hơi mạnh ở âm bật hơi ㅍ (VOT 107ms) là một điểm mạnh rõ rệt, cho thấy bạn — một người học gốc Việt — đã bắt đầu xử lý ổn định đặc trưng bật hơi của tiếng Hàn. Tuy nhiên, âm bình thường ㅂ và âm căng ㅃ gần như cùng vị trí cả về VOT (13ms so với 7ms) lẫn cao độ, nên với người nghe, hai âm này có thể khó phân biệt. Bước tiếp theo là thêm sự siết thanh quản và khởi đầu nguyên âm hơi cao hơn ở ㅃ để kéo nó tách xa khỏi ㅂ. Vì âm bật hơi đã tốt, hãy lấy cảm giác đó làm mốc và xây dựng kiểu 'bung ra ngắn nhưng dứt khoát' cho âm căng — bạn sẽ tiến bộ rất nhanh.",
+    "overall": "경음 ㅃ은 VOT와 F0 모두 원어민 수준에 매우 가까워 분명한 강점이며, 이를 anchor로 활용할 수 있습니다. 다만 평음 ㅂ이 너무 길고, 격음 ㅍ이 과하게 강해져 두 자음이 비슷한 영역에 머무는 것이 가장 큰 과제입니다. 격음의 음높이 상승(+4.2 st)은 이미 잘 나타나므로, 평음을 짧고 부드럽게 끌어내리면 위계가 빠르게 정돈될 것입니다. 전체적으로 베트남 학습자 전형인 '평탄화'에서 벗어나 위계가 일부 형성된 단계로, 다음 한 걸음만 잘 잡으면 안정될 수 있습니다.",
+    "overall_vn": "Phụ âm căng ㅃ của bạn có cả VOT lẫn F0 rất gần với người bản ngữ — đây là điểm mạnh rõ ràng và có thể dùng làm điểm tựa. Vấn đề lớn nhất là phụ âm thường ㅂ bị kéo quá dài còn phụ âm bật hơi ㅍ lại quá mạnh, khiến hai phụ âm rơi vào cùng vùng. Việc nâng cao độ của ㅍ (+4.2 st) đã làm tốt, nên nếu kéo ㅂ ngắn và mềm xuống thì thứ bậc sẽ nhanh chóng được sắp xếp lại. Nhìn chung bạn đã vượt qua giai đoạn 'phẳng hóa' điển hình của người Việt và đang ở bước hình thành thứ bậc — chỉ cần đi đúng một bước tiếp theo là sẽ ổn định.",
     "compass_overview": "",
     "compass_overview_vn": "",
     "by_word": {
-      "baji": "바지는 발음 나침반에서 nặng(왼쪽·짧고 긴장된 영역) 쪽으로 너무 깊이 들어가 있습니다 — VOT가 13ms로 원어민 평음 위치(97ms 부근의 부드러운 중앙)에서 멀리 떨어져 경음 영역에 가깝게 자리잡았고, F0도 본인 baseline 기준 -1.8 st로 원어민의 -3.7 st만큼 충분히 ngang 아래로 내려가지 못했습니다. 좌표를 오른쪽(조금 더 길고 부드러운 VOT)과 아래쪽(모음을 더 낮고 편안한 톤으로 시작)으로 동시에 이동시켜야 합니다. 연습 시 입술을 가볍게 닫았다가 힘을 빼며 풀어주고, 모음 ㅏ를 한숨처럼 낮게 시작해 보세요. '바'를 '빠'와 의식적으로 다르게 — 부드럽고 살짝 가라앉는 톤으로 — 발음하는 감각을 만드는 것이 핵심입니다.",
-      "baji_vn": "바지 trên la bàn phát âm đang nằm quá sâu về phía nặng (bên trái — vùng ngắn và căng): VOT chỉ 13ms, cách xa vị trí âm bình thường của người bản ngữ (vùng trung tâm mềm khoảng 97ms) và lệch gần về vùng âm căng; cao độ cũng chỉ -1.8 st so với baseline của bạn, chưa hạ xuống đủ dưới ngang như mức -3.7 st của người bản ngữ. Bạn cần dịch tọa độ đồng thời sang phải (VOT dài và mềm hơn một chút) và xuống dưới (bắt đầu nguyên âm bằng cao độ thấp, thoải mái hơn). Khi luyện, hãy khép môi nhẹ rồi thả lỏng khi bung ra, và bắt đầu nguyên âm ㅏ bằng giọng thấp như một hơi thở. Cốt lõi là tạo cảm giác phát âm 바 khác hẳn 빠 — mềm mại và hơi trầm xuống.",
-      "bbareuda": "빠르다는 발음 나침반에서 바지와 거의 같은 자리에 머물러 있어, 두 단어가 한 점에 겹쳐 있는 인상입니다 — VOT 7ms는 경음의 정상 영역(왼쪽 nặng)에 있지만, F0가 +0.8 st로 원어민의 -0.4 st보다 위쪽으로 올라가긴 했어도 격음과 같은 높이라 위계가 무너졌습니다. 좌표를 그대로 왼쪽 nặng 깊은 영역에 두되, 위쪽 sắc 방향의 긴장감을 더 또렷하게 만들어야 합니다. 입술을 평음보다 한 박자 더 꽉 다물었다가 짧고 단단하게 '톡' 터뜨리고, 모음 ㅏ를 살짝 조이듯 단단한 톤으로 시작해 보세요. 바지보다 모음이 미세하게 높고 단호하게 들리는지를 귀로 확인하는 것이 가장 큰 단서입니다.",
-      "bbareuda_vn": "빠르다 trên la bàn gần như nằm chồng lên 바지, khiến hai từ trông như cùng một điểm: VOT 7ms thì đúng vùng âm căng (nặng — bên trái), nhưng cao độ +0.8 st, tuy có cao hơn mức -0.4 st của người bản ngữ, lại ngang bằng âm bật hơi nên trật tự bậc thang bị phá vỡ. Bạn nên giữ tọa độ ở vùng nặng sâu bên trái, đồng thời tăng rõ độ căng theo hướng sắc (lên trên). Hãy mím môi chặt hơn âm bình thường một nhịp, rồi bung ra ngắn và dứt khoát như tiếng 'tốc', và bắt đầu nguyên âm ㅏ với giọng siết, chắc. Manh mối lớn nhất là dùng tai kiểm tra xem nguyên âm có cao hơn 바지 một chút và nghe có vẻ kiên quyết hơn không.",
-      "paransaek": "파란색은 발음 나침반에서 오른쪽 bật hơi 영역으로 시원하게 뻗어 있어 가장 안정적인 좌표를 보여줍니다 — VOT 107ms는 원어민(60ms)보다 오히려 더 멀리 오른쪽으로 나가 강한 기식이 잘 구현되었습니다. 다만 위쪽 sắc 방향이 약간 부족합니다: F0가 +0.8 st로, 원어민이 +3.4 st 위로 솟구치는 것에 비해 평탄하게 머물러 있어, 경음과 같은 높이로 묶여 위계가 흐려졌습니다. 기식은 이대로 유지하되, 모음 ㅏ를 시작할 때 평소 톤보다 두 음 정도 위에서 '밝게' 출발하는 감각을 더해 좌표를 위쪽으로 끌어올려 보세요. 격음의 강점은 분명하니, 톤만 살짝 띄우면 세 음 사이 위계가 훨씬 또렷해질 것입니다.",
-      "paransaek_vn": "파란색 trên la bàn vươn rõ sang vùng bật hơi (bên phải) và là tọa độ ổn định nhất của bạn: VOT 107ms thậm chí còn xa hơn cả người bản ngữ (60ms), cho thấy luồng hơi mạnh được thực hiện tốt. Tuy nhiên, hướng sắc (lên trên) còn hơi yếu: cao độ chỉ +0.8 st, trong khi người bản ngữ vọt lên +3.4 st, khiến nó nằm ngang với âm căng và làm mờ trật tự bậc thang. Hãy giữ nguyên độ bật hơi, nhưng khi bắt đầu nguyên âm ㅏ, hãy xuất phát 'sáng' hơn, cao hơn giọng nói thường khoảng hai bậc, để kéo tọa độ lên trên. Thế mạnh ở âm bật hơi đã rõ, chỉ cần nâng cao độ một chút là trật tự giữa ba âm sẽ trở nên rất rõ ràng."
+      "baji": "바지는 나침반 위에서 ngang(중앙) 보다 아래쪽, 본인 baseline 대비 -2.5 st에 머물러 있고, 오른쪽(bật hơi 영역)으로도 70ms만큼 밀려 있어 평음 자리(왼쪽-가운데)에서 살짝 벗어나 있습니다. 평음의 이상적 위치는 원어민처럼 약간 더 아래(-3.7 st)이면서 VOT는 20ms 부근의 가운데인데, 학습자는 VOT가 너무 오른쪽으로 가 있어 격음과 가까워졌습니다. 입술을 가볍게 떼면서 숨을 거의 흘리지 말고, 자음을 짧게 끊은 뒤 곧바로 ㅏ로 넘어가는 연습을 해보세요. '바' 직전에 호흡을 약하게 줄이는 것이 핵심입니다.",
+      "baji_vn": "Trên la bàn phát âm, 바지 nằm dưới đường ngang (-2.5 st so với baseline của bạn) và lệch sang phải (vùng bật hơi) tới 70ms, hơi ra khỏi vị trí lý tưởng của phụ âm thường (trái-giữa). Vị trí chuẩn của phụ âm thường là thấp hơn chút (-3.7 st như người bản ngữ) và VOT khoảng 20ms ở giữa, nhưng VOT của bạn lệch quá xa sang phải nên gần với phụ âm bật hơi. Hãy tách môi nhẹ nhàng, gần như không thoát hơi, cắt phụ âm thật ngắn rồi chuyển ngay sang ㅏ. Mấu chốt là giảm hơi thở ngay trước khi phát '바'.",
+      "bbareuda": "빠르다는 나침반의 왼쪽 끝(nặng 영역, VOT 5ms)에 정확히 자리 잡았고, 음높이도 -2.5 st로 본인 baseline 안에 안정적으로 머물러 원어민 클러스터와 거의 겹칩니다. 경음 특유의 '짧고 긴장된 시작'을 잘 구현했다는 뜻이며, 이 좌표 감각을 평음·격음 발음할 때도 기준점으로 떠올리세요. 다만 ㅃ 직후 ㅏ를 발음할 때 후두 긴장을 약간만 더 유지하면 더 또렷해질 것입니다.",
+      "bbareuda_vn": "빠르다 nằm chính xác ở cực trái của la bàn (vùng nặng, VOT 5ms), cao độ -2.5 st nằm trong baseline của bạn và gần như trùng với cụm người bản ngữ. Điều này nghĩa là bạn đã thể hiện tốt cảm giác 'khởi đầu ngắn và căng' đặc trưng của phụ âm căng — hãy nhớ tọa độ này làm điểm tựa khi luyện phụ âm thường và bật hơi. Nếu giữ thanh quản căng thêm một chút khi chuyển từ ㅃ sang ㅏ, âm sẽ còn rõ nét hơn.",
+      "paransaek": "파란색은 나침반의 오른쪽(bật hơi 영역, VOT 94ms)으로 원어민(60ms)보다 더 멀리 밀려 있고, 위쪽(+4.2 st)으로도 잘 올라가 있어 음높이 위계는 잘 만들어졌습니다. 문제는 오른쪽으로 너무 멀리 가서 바지(70ms)와의 거리가 24ms밖에 안 된다는 점 — 두 점이 같은 동쪽 영역에 몰려 있습니다. 손바닥의 바람은 유지하되 자음 자체의 길이는 조금 줄여, 원어민의 60ms 부근으로 끌어당기세요. 이렇게 하면 평음(왼쪽으로 이동)과 격음(중앙-오른쪽) 사이 거리가 자연스럽게 벌어집니다.",
+      "paransaek_vn": "파란색 lệch sang phải la bàn (vùng bật hơi, VOT 94ms), xa hơn cả người bản ngữ (60ms), và cao độ cũng lên tốt (+4.2 st) — thứ bậc cao độ đã được tạo ra. Vấn đề là nó đi quá xa sang phải, chỉ cách 바지 (70ms) đúng 24ms, khiến hai điểm dồn vào cùng vùng phía đông. Hãy giữ luồng hơi ở lòng bàn tay nhưng rút ngắn độ dài phụ âm, kéo về khoảng 60ms như người bản ngữ. Khi đó khoảng cách giữa phụ âm thường (dịch sang trái) và phụ âm bật hơi (giữa-phải) sẽ tự nhiên giãn ra."
     },
-    "encouragement": "격음 ㅍ에서 보여준 강한 기식은 정말 훌륭한 출발점이에요 — 이 감각을 기준 삼아 경음만 한 발짝 더 다듬으면 세 음의 위계가 또렷이 살아날 거예요!",
-    "encouragement_vn": "Khả năng bật hơi mạnh ở ㅍ là một khởi đầu thực sự tuyệt vời — chỉ cần lấy cảm giác đó làm mốc và tinh chỉnh thêm một bước ở âm căng, trật tự giữa ba âm sẽ hiện ra rõ ràng!",
+    "encouragement": "경음 ㅃ이 이미 원어민 수준이라는 건 정말 큰 강점이에요 — 그 감각을 기준 삼아 한 걸음만 더 가면 됩니다!",
+    "encouragement_vn": "Việc phụ âm căng ㅃ của bạn đã đạt mức người bản ngữ là một điểm mạnh rất lớn — chỉ cần lấy đó làm chuẩn và bước thêm một bước nữa thôi!",
     "_source": "claude"
   },
-  "_built_at": "2026-05-20T05:41:56.350204"
+  "_built_at": "2026-05-26T15:41:41.207600"
 }
