@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-26T16:04:17.414649",
-  "count": 69,
+  "generated_at": "2026-05-29T00:14:27.825929",
+  "count": 71,
   "items": [
     {
       "learner_id": "A01",
@@ -588,6 +588,21 @@
       "data_file": "data/B03_W1.json"
     },
     {
+      "learner_id": "B03",
+      "week": 2,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-29T00:04:49.651875",
+      "words": [
+        "dari",
+        "ddatteut",
+        "tada"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B03_W2.json"
+    },
+    {
       "learner_id": "B04",
       "week": 1,
       "group": "B",
@@ -1006,6 +1021,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B19_W1.json"
+    },
+    {
+      "learner_id": "B19",
+      "week": 2,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-29T00:07:19.036140",
+      "words": [
+        "dari",
+        "ddatteut",
+        "tada"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B19_W2.json"
     },
     {
       "learner_id": "B20",
