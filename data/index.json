@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-29T00:14:27.825929",
-  "count": 71,
+  "generated_at": "2026-05-31T13:16:01.898611",
+  "count": 107,
   "items": [
     {
       "learner_id": "A01",
@@ -33,6 +33,21 @@
       "data_file": "data/A01_W2.json"
     },
     {
+      "learner_id": "A01",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:22:37.820341",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A01_W3.json"
+    },
+    {
       "learner_id": "A02",
       "week": 1,
       "group": "A",
@@ -61,6 +76,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A02_W2.json"
+    },
+    {
+      "learner_id": "A02",
+      "week": 3,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:24:14.726035",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A02_W3.json"
     },
     {
       "learner_id": "A03",
@@ -93,6 +123,21 @@
       "data_file": "data/A03_W2.json"
     },
     {
+      "learner_id": "A03",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:25:45.610405",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A03_W3.json"
+    },
+    {
       "learner_id": "A04",
       "week": 1,
       "group": "A",
@@ -121,6 +166,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A04_W2.json"
+    },
+    {
+      "learner_id": "A04",
+      "week": 3,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:27:19.064014",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A04_W3.json"
     },
     {
       "learner_id": "A05",
@@ -153,6 +213,21 @@
       "data_file": "data/A05_W2.json"
     },
     {
+      "learner_id": "A05",
+      "week": 3,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:30:55.474432",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A05_W3.json"
+    },
+    {
       "learner_id": "A06",
       "week": 1,
       "group": "A",
@@ -181,6 +256,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A06_W2.json"
+    },
+    {
+      "learner_id": "A06",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:32:29.200183",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A06_W3.json"
     },
     {
       "learner_id": "A07",
@@ -213,6 +303,21 @@
       "data_file": "data/A07_W2.json"
     },
     {
+      "learner_id": "A07",
+      "week": 3,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:34:05.518418",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A07_W3.json"
+    },
+    {
       "learner_id": "A08",
       "week": 1,
       "group": "A",
@@ -241,6 +346,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A08_W2.json"
+    },
+    {
+      "learner_id": "A08",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:39:04.430386",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A08_W3.json"
     },
     {
       "learner_id": "A09",
@@ -273,6 +393,36 @@
       "data_file": "data/A09_W2.json"
     },
     {
+      "learner_id": "A09",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:42:25.589022",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A09_W3.json"
+    },
+    {
+      "learner_id": "A10",
+      "week": 1,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:53:49.784738",
+      "words": [
+        "baji",
+        "bbareuda",
+        "paransaek"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A10_W1.json"
+    },
+    {
       "learner_id": "A11",
       "week": 1,
       "group": "A",
@@ -303,6 +453,21 @@
       "data_file": "data/A11_W2.json"
     },
     {
+      "learner_id": "A11",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:44:23.244329",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A11_W3.json"
+    },
+    {
       "learner_id": "A12",
       "week": 1,
       "group": "A",
@@ -331,6 +496,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A12_W2.json"
+    },
+    {
+      "learner_id": "A12",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:46:00.816271",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A12_W3.json"
     },
     {
       "learner_id": "A13",
@@ -393,6 +573,21 @@
       "data_file": "data/A14_W2.json"
     },
     {
+      "learner_id": "A14",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:47:36.096852",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A14_W3.json"
+    },
+    {
       "learner_id": "A15",
       "week": 1,
       "group": "A",
@@ -421,6 +616,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A15_W2.json"
+    },
+    {
+      "learner_id": "A15",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:49:02.330165",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A15_W3.json"
     },
     {
       "learner_id": "A16",
@@ -453,6 +663,21 @@
       "data_file": "data/A16_W2.json"
     },
     {
+      "learner_id": "A16",
+      "week": 3,
+      "group": "A",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:52:25.263588",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A16_W3.json"
+    },
+    {
       "learner_id": "A17",
       "week": 1,
       "group": "A",
@@ -481,6 +706,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A17_W2.json"
+    },
+    {
+      "learner_id": "A17",
+      "week": 3,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:55:49.184674",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A17_W3.json"
     },
     {
       "learner_id": "A19",
@@ -513,6 +753,21 @@
       "data_file": "data/A19_W2.json"
     },
     {
+      "learner_id": "A19",
+      "week": 3,
+      "group": "A",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:57:51.024782",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A19_W3.json"
+    },
+    {
       "learner_id": "B01",
       "week": 1,
       "group": "B",
@@ -541,6 +796,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B01_W2.json"
+    },
+    {
+      "learner_id": "B01",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T10:59:19.438726",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B01_W3.json"
     },
     {
       "learner_id": "B02",
@@ -573,6 +843,21 @@
       "data_file": "data/B02_W2.json"
     },
     {
+      "learner_id": "B02",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:00:50.825337",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B02_W3.json"
+    },
+    {
       "learner_id": "B03",
       "week": 1,
       "group": "B",
@@ -601,6 +886,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B03_W2.json"
+    },
+    {
+      "learner_id": "B03",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:03:30.952395",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B03_W3.json"
     },
     {
       "learner_id": "B04",
@@ -633,6 +933,21 @@
       "data_file": "data/B04_W2.json"
     },
     {
+      "learner_id": "B04",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:05:04.344251",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B04_W3.json"
+    },
+    {
       "learner_id": "B05",
       "week": 1,
       "group": "B",
@@ -661,6 +976,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B05_W2.json"
+    },
+    {
+      "learner_id": "B05",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:06:36.427657",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B05_W3.json"
     },
     {
       "learner_id": "B06",
@@ -693,6 +1023,21 @@
       "data_file": "data/B06_W2.json"
     },
     {
+      "learner_id": "B06",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:08:14.178943",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B06_W3.json"
+    },
+    {
       "learner_id": "B07",
       "week": 1,
       "group": "B",
@@ -721,6 +1066,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B08_W1.json"
+    },
+    {
+      "learner_id": "B08",
+      "week": 2,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T12:04:34.958456",
+      "words": [
+        "dari",
+        "ddatteut",
+        "tada"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B08_W2.json"
     },
     {
       "learner_id": "B09",
@@ -753,6 +1113,21 @@
       "data_file": "data/B09_W2.json"
     },
     {
+      "learner_id": "B09",
+      "week": 3,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T12:59:26.980678",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B09_W3.json"
+    },
+    {
       "learner_id": "B10",
       "week": 1,
       "group": "B",
@@ -781,6 +1156,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B10_W2.json"
+    },
+    {
+      "learner_id": "B10",
+      "week": 3,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:14:34.446212",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B10_W3.json"
     },
     {
       "learner_id": "B11",
@@ -813,6 +1203,21 @@
       "data_file": "data/B11_W2.json"
     },
     {
+      "learner_id": "B11",
+      "week": 3,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:16:22.713552",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B11_W3.json"
+    },
+    {
       "learner_id": "B12",
       "week": 2,
       "group": "B",
@@ -826,6 +1231,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B12_W2.json"
+    },
+    {
+      "learner_id": "B12",
+      "week": 3,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:18:59.311123",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B12_W3.json"
     },
     {
       "learner_id": "B13",
@@ -858,6 +1278,21 @@
       "data_file": "data/B13_W2.json"
     },
     {
+      "learner_id": "B13",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:20:41.463417",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B13_W3.json"
+    },
+    {
       "learner_id": "B14",
       "week": 1,
       "group": "B",
@@ -886,6 +1321,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B14_W2.json"
+    },
+    {
+      "learner_id": "B14",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:23:35.966314",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B14_W3.json"
     },
     {
       "learner_id": "B15",
@@ -918,6 +1368,21 @@
       "data_file": "data/B15_W2.json"
     },
     {
+      "learner_id": "B15",
+      "week": 3,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:25:06.482172",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B15_W3.json"
+    },
+    {
       "learner_id": "B16",
       "week": 1,
       "group": "B",
@@ -946,6 +1411,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B16_W2.json"
+    },
+    {
+      "learner_id": "B16",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:28:07.159711",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B16_W3.json"
     },
     {
       "learner_id": "B17",
@@ -978,6 +1458,21 @@
       "data_file": "data/B17_W2.json"
     },
     {
+      "learner_id": "B17",
+      "week": 3,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:29:49.280171",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B17_W3.json"
+    },
+    {
       "learner_id": "B18",
       "week": 1,
       "group": "B",
@@ -1006,6 +1501,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B18_W2.json"
+    },
+    {
+      "learner_id": "B18",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:31:20.708266",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B18_W3.json"
     },
     {
       "learner_id": "B19",
@@ -1038,6 +1548,21 @@
       "data_file": "data/B19_W2.json"
     },
     {
+      "learner_id": "B19",
+      "week": 3,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:33:05.847858",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B19_W3.json"
+    },
+    {
       "learner_id": "B20",
       "week": 1,
       "group": "B",
@@ -1066,6 +1591,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B20_W2.json"
+    },
+    {
+      "learner_id": "B20",
+      "week": 3,
+      "group": "B",
+      "t_type": "T2",
+      "t_type_source": "auto",
+      "built_at": "2026-05-31T11:34:35.631206",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B20_W3.json"
     }
   ]
 }
