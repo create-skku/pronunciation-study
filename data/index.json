@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-31T13:16:01.898611",
-  "count": 107,
+  "generated_at": "2026-06-01T16:50:58.734453",
+  "count": 110,
   "items": [
     {
       "learner_id": "A01",
@@ -543,6 +543,21 @@
       "data_file": "data/A13_W2.json"
     },
     {
+      "learner_id": "A13",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-06-01T14:21:30.202639",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A13_W3.json"
+    },
+    {
       "learner_id": "A14",
       "week": 1,
       "group": "A",
@@ -1053,6 +1068,21 @@
       "data_file": "data/B07_W1.json"
     },
     {
+      "learner_id": "B07",
+      "week": 2,
+      "group": "B",
+      "t_type": "T1",
+      "t_type_source": "auto",
+      "built_at": "2026-06-01T13:27:04.248635",
+      "words": [
+        "dari",
+        "ddatteut",
+        "tada"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B07_W2.json"
+    },
+    {
       "learner_id": "B08",
       "week": 1,
       "group": "B",
@@ -1081,6 +1111,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/B08_W2.json"
+    },
+    {
+      "learner_id": "B08",
+      "week": 3,
+      "group": "B",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-06-01T14:22:55.205952",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/B08_W3.json"
     },
     {
       "learner_id": "B09",
