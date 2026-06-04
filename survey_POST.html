@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Khảo sát</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#0F1923; --surface:#162130; --surface2:#1E2E40;
+  --border:rgba(255,255,255,.08);
+  --orange:#F5820A; --teal:#1AB8A6; --red:#E03E32;
+  --blue:#4F80FF; --purple:#A78BFA;
+  --white:#F0F4FA; --muted:rgba(240,244,250,.45);
+  --mono:'IBM Plex Mono',monospace; --sans:'Noto Sans KR',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
+
+#loginScreen{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse at 60% 20%,rgba(79,128,255,.15) 0%,transparent 60%),
+              radial-gradient(ellipse at 20% 80%,rgba(245,130,10,.1) 0%,transparent 55%),var(--bg);
+}
+.login-logo{font-size:40px;margin-bottom:12px;}
+.login-title{font-size:26px;font-weight:900;color:var(--white);margin-bottom:4px;text-align:center;}
+.login-sub{font-size:14px;color:var(--muted);margin-bottom:32px;font-style:italic;text-align:center;}
+.login-label{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.08em;text-align:center;}
+.login-input-wrap{width:100%;max-width:320px;position:relative;margin-bottom:0;}
+.login-input{
+  width:100%;height:64px;border:2px solid var(--border);border-radius:18px;
+  background:var(--surface);color:var(--white);
+  font-size:32px;font-weight:900;font-family:var(--mono);
+  text-align:center;letter-spacing:.15em;outline:none;transition:all .2s;-webkit-appearance:none;
+}
+.login-input:focus{border-color:var(--blue);background:rgba(79,128,255,.08);}
+.login-input::placeholder{font-size:16px;font-weight:400;letter-spacing:0;color:rgba(240,244,250,.25);}
+.login-input-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;}
+.login-input-error{font-size:12px;font-weight:700;color:#FF8A80;text-align:center;margin-top:6px;min-height:18px;}
+.login-start{
+  margin-top:20px;width:100%;max-width:320px;height:56px;border:0;border-radius:16px;
+  background:linear-gradient(135deg,var(--blue),#7B5BFF);
+  color:#fff;font-size:16px;font-weight:900;cursor:pointer;
+  opacity:.4;pointer-events:none;transition:all .2s;
+}
+.login-start.ready{opacity:1;pointer-events:auto;}
+
+#surveyScreen{display:none;padding-bottom:110px;}
+.top-bar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:40;gap:8px;
+}
+.top-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+.top-learner{
+  font-size:13px;font-weight:700;color:var(--white);
+  background:rgba(79,128,255,.2);border:1px solid rgba(79,128,255,.3);
+  border-radius:20px;padding:3px 12px;font-family:var(--mono);flex-shrink:0;
+}
+.top-title{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.top-prog{font-size:12px;color:var(--muted);font-family:var(--mono);flex-shrink:0;}
+.prog-wrap{height:3px;background:var(--border);position:sticky;top:49px;z-index:39;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .4s ease;width:0%;}
+.survey-content{padding:14px 12px;}
+
+.survey-intro{
+  background:linear-gradient(145deg,#1a2e45 0%,#0f1e30 100%);
+  border:1px solid rgba(245,130,10,.25);border-radius:18px;
+  padding:24px 22px;margin-bottom:16px;position:relative;overflow:hidden;
+}
+.survey-intro::before{
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,130,10,.18) 0%,transparent 70%);pointer-events:none;
+}
+.intro-pill{
+  display:inline-block;font-size:10px;font-weight:800;letter-spacing:.15em;
+  color:var(--orange);font-family:var(--mono);margin-bottom:16px;
+  padding:5px 12px;background:rgba(245,130,10,.14);border-radius:20px;border:1px solid rgba(245,130,10,.32);
+}
+.intro-headline{font-size:22px;font-weight:900;color:var(--white);line-height:1.4;margin-bottom:6px;letter-spacing:-.01em;}
+.intro-divider{height:1px;background:var(--border);margin:16px 0;}
+.intro-sub{font-size:12px;color:rgba(240,244,250,.7);line-height:1.6;}
+
+.scale-guide{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:10px 12px;margin-bottom:16px;gap:8px;
+}
+.scale-low,.scale-high{font-size:10px;font-weight:700;line-height:1.3;flex:1;min-width:0;}
+.scale-low{color:#FF8A80;}
+.scale-high{color:#5EEAD4;text-align:right;}
+.scale-mid{display:flex;gap:3px;flex-shrink:0;}
+.scale-mid span{
+  width:18px;height:18px;border-radius:4px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-family:var(--mono);color:rgba(240,244,250,.65);font-weight:700;
+}
+
+.sq-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:16px 14px;margin-bottom:10px;transition:border-color .2s;
+}
+.sq-card.answered{border-color:rgba(79,128,255,.4);}
+.sq-qnum{
+  font-size:10px;font-weight:900;font-family:var(--mono);
+  color:rgba(240,244,250,.55);letter-spacing:.08em;margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;
+}
+.sq-qnum-check{color:var(--teal);display:none;font-size:10px;font-weight:700;font-family:var(--sans);letter-spacing:0;}
+.sq-card.answered .sq-qnum-check{display:inline;}
+.sq-reverse-tag{
+  font-size:9px;background:rgba(224,62,50,.15);color:#FF8A80;
+  border:1px solid rgba(224,62,50,.25);border-radius:4px;
+  padding:2px 6px;font-weight:700;letter-spacing:.04em;margin-left:6px;font-family:var(--sans);
+}
+.sq-text{font-size:14px;font-weight:700;line-height:1.55;color:var(--white);margin-bottom:14px;}
+
+.sq-likert{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.sq-lbtn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:48px;border:1.5px solid var(--border);border-radius:9px;
+  background:var(--surface2);cursor:pointer;transition:all .12s;gap:3px;padding:0;font-family:var(--sans);
+}
+.sq-lbtn-n{font-size:14px;font-weight:900;font-family:var(--mono);color:rgba(240,244,250,.75);line-height:1;}
+.sq-lbtn-dot{width:4px;height:4px;border-radius:50%;background:transparent;}
+.sq-lbtn:first-child .sq-lbtn-n{color:#FF8A80;}
+.sq-lbtn:last-child  .sq-lbtn-n{color:#5EEAD4;}
+.sq-lbtn:active{background:rgba(79,128,255,.12);transform:scale(.96);}
+.sq-lbtn.sel{border-color:var(--blue);background:rgba(79,128,255,.22);transform:translateY(-2px);box-shadow:0 4px 12px rgba(79,128,255,.28);}
+.sq-lbtn.sel .sq-lbtn-n{color:var(--white);}
+.sq-lbtn.sel .sq-lbtn-dot{background:var(--blue);}
+
+.sq-extremes{
+  display:flex;justify-content:space-between;margin-top:6px;padding:0 2px;
+  font-size:10px;color:rgba(240,244,250,.5);font-weight:600;
+}
+.sq-extremes span:first-child{color:#FF8A80;}
+.sq-extremes span:last-child{color:#5EEAD4;}
+
+.free-divider{
+  margin:28px 4px 12px 4px;padding:14px 4px 10px 4px;
+  border-top:1px dashed rgba(168,139,250,.35);display:flex;flex-direction:column;gap:3px;
+}
+.free-divider-label{font-size:13px;font-weight:900;color:var(--purple);}
+.free-card{border-color:rgba(168,139,250,.18);}
+.free-optional-tag{
+  font-size:9px;color:rgba(168,139,250,.85);font-weight:700;
+  background:rgba(168,139,250,.12);border:1px solid rgba(168,139,250,.28);
+  border-radius:4px;padding:2px 6px;letter-spacing:.04em;font-family:var(--sans);
+}
+.sq-textarea{
+  width:100%;min-height:100px;padding:12px 14px;
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:12px;color:var(--white);font-size:14px;font-family:var(--sans);
+  resize:vertical;outline:none;transition:border-color .2s;line-height:1.55;box-sizing:border-box;
+}
+.sq-textarea:focus{border-color:rgba(168,139,250,.5);}
+.sq-textarea::placeholder{color:rgba(240,244,250,.22);font-size:12px;font-style:italic;}
+
+.sq-submit-area{
+  position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;
+  padding:12px 16px;background:rgba(15,25,35,.95);
+  border-top:1px solid var(--border);backdrop-filter:blur(12px);z-index:40;
+}
+.sq-remain-note{text-align:center;font-size:11px;color:rgba(240,244,250,.6);font-style:italic;margin-bottom:8px;min-height:14px;transition:color .2s;}
+.sq-remain-note.done{color:var(--teal);font-weight:700;font-style:normal;}
+.sq-submit-btn{
+  width:100%;height:48px;border:0;border-radius:14px;
+  background:var(--surface2);color:rgba(240,244,250,.5);
+  font-size:14px;font-weight:900;cursor:not-allowed;
+  transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--border);font-family:var(--sans);
+}
+.sq-submit-btn.ready{
+  background:linear-gradient(135deg,var(--blue) 0%,#6D28D9 100%);
+  color:#fff;cursor:pointer;border-color:transparent;box-shadow:0 4px 18px rgba(79,128,255,.35);
+}
+.sq-submit-btn.ready:active{transform:scale(.98);opacity:.88;}
+
+#doneScreen{
+  display:none;min-height:100vh;align-items:center;justify-content:center;
+  padding:24px;flex-direction:column;
+  background:radial-gradient(ellipse at 50% 30%,rgba(26,184,166,.15) 0%,transparent 60%),var(--bg);
+}
+#doneScreen.show{display:flex;}
+.done-icon{font-size:64px;margin-bottom:20px;}
+.done-title{font-size:26px;font-weight:900;color:var(--white);margin-bottom:8px;text-align:center;}
+.done-card{background:rgba(26,184,166,.1);border:1px solid rgba(26,184,166,.3);border-radius:16px;padding:20px 24px;max-width:360px;text-align:center;}
+.done-card-msg{font-size:14px;font-weight:700;color:var(--teal);}
+
+#toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:rgba(224,62,50,.9);color:#fff;padding:10px 20px;
+  border-radius:20px;font-size:13px;font-weight:700;
+  z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90vw;
+}
+#toast.show{opacity:1;}
+#toast.ok{background:rgba(26,184,166,.9);}
+.sq-card.highlight{border-color:var(--red);box-shadow:0 0 0 4px rgba(224,62,50,.18);}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-logo">📋</div>
+  <div class="login-title">Khảo sát</div>
+  <div class="login-sub">Phiếu khảo sát sau học tập</div>
+  <div class="login-label">Nhập mã của bạn (ví dụ: A01, B12)</div>
+  <div class="login-input-wrap">
+    <input class="login-input" id="learnerInput" type="text" maxlength="3" placeholder="A01"
+      inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters"
+      oninput="onLearnerInput(this)" onkeydown="if(event.key==='Enter') doLogin()"/>
+    <div class="login-input-hint">Mã gồm A hoặc B + 2 chữ số</div>
+    <div class="login-input-error" id="loginError"></div>
+  </div>
+  <button class="login-start" id="loginStart" onclick="doLogin()">Bắt đầu →</button>
+</div>
+
+<div id="surveyScreen">
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="top-learner" id="topLearner">--</div>
+      <div class="top-title">Khảo sát</div>
+    </div>
+    <div class="top-prog" id="topProg">0 / 16</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+
+  <div class="survey-content">
+    <div class="survey-intro">
+      <div class="intro-pill">📋 KHẢO SÁT</div>
+      <div class="intro-headline">📌 Vui lòng đọc kỹ từng câu hỏi<br>và trả lời một cách cẩn thận.</div>
+      <div class="intro-divider"></div>
+      <div class="intro-sub">Không có câu trả lời đúng hay sai. Ý kiến trung thực của bạn là quan trọng nhất.</div>
+    </div>
+    <div class="scale-guide">
+      <div class="scale-low">Hoàn toàn không đồng ý</div>
+      <div class="scale-mid"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="scale-high">Hoàn toàn đồng ý</div>
+    </div>
+
+        <div class="sq-card" data-qid="q1">
+          <div class="sq-qnum"><span>Q01</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Nhờ phần phản hồi, tôi có thể nhận ra rõ điểm khác nhau giữa phát âm của mình và phát âm mục tiêu.</div>
+          <div class="sq-likert" id="lk_q1"><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q1', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q2">
+          <div class="sq-qnum"><span>Q02</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Nhờ phần phản hồi, tôi có thể xác định cụ thể âm nào mình phát âm chưa đúng.</div>
+          <div class="sq-likert" id="lk_q2"><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q2', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q3">
+          <div class="sq-qnum"><span>Q03</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Phần phản hồi giúp tôi hiểu cụ thể cách sửa phát âm của mình.</div>
+          <div class="sq-likert" id="lk_q3"><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q3', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q4">
+          <div class="sq-qnum"><span>Q04</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Sau khi xem phản hồi, tôi biết cần thay đổi điều gì khi phát âm lần tiếp theo.</div>
+          <div class="sq-likert" id="lk_q4"><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q4', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q5">
+          <div class="sq-qnum"><span>Q05</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Nội dung phản hồi đủ rõ ràng để tôi hiểu mà không cần giáo viên giải thích thêm.</div>
+          <div class="sq-likert" id="lk_q5"><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q5', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q6">
+          <div class="sq-qnum"><span>Q06</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Phần phản hồi giúp tôi xác định phần cần sửa trước.</div>
+          <div class="sq-likert" id="lk_q6"><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q6', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q7">
+          <div class="sq-qnum"><span>Q07</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Tôi dễ hiểu ý nghĩa của các phần được đánh dấu trong hình minh họa.</div>
+          <div class="sq-likert" id="lk_q7"><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q7', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q8">
+          <div class="sq-qnum"><span>Q08</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Hình minh họa giúp tôi nhận ra ngay phần cần xem trước.</div>
+          <div class="sq-likert" id="lk_q8"><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q8', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q9">
+          <div class="sq-qnum"><span>Q09</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Hình minh họa giúp tôi dễ so sánh phát âm của mình với phát âm mẫu.</div>
+          <div class="sq-likert" id="lk_q9"><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q9', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q10">
+          <div class="sq-qnum"><span>Q10</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Tôi không gặp nhiều khó khăn khi hiểu hình minh họa được cung cấp.</div>
+          <div class="sq-likert" id="lk_q10"><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q10', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q11">
+          <div class="sq-qnum"><span>Q11 <span class="sq-reverse-tag">Câu đảo ngược</span></span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Hình minh họa có nhiều thông tin nên tôi khó nắm được nội dung chính.</div>
+          <div class="sq-likert" id="lk_q11"><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q11', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q12">
+          <div class="sq-qnum"><span>Q12</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Tôi cho rằng cách phản hồi này phù hợp để sửa phát âm các âm tiếng Hàn đã học (바-빠-파, 다-따-타, 가-까-카).</div>
+          <div class="sq-likert" id="lk_q12"><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q12', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q13">
+          <div class="sq-qnum"><span>Q13 <span class="sq-reverse-tag">Câu đảo ngược</span></span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Tôi gặp khó khăn khi tìm nội dung chính trong hình minh họa.</div>
+          <div class="sq-likert" id="lk_q13"><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q13', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q14">
+          <div class="sq-qnum"><span>Q14 <span class="sq-reverse-tag">Câu đảo ngược</span></span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Tôi cảm thấy hình minh họa phức tạp vì phải xem nhiều yếu tố cùng lúc.</div>
+          <div class="sq-likert" id="lk_q14"><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q14', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q15">
+          <div class="sq-qnum"><span>Q15</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Khi thu âm lại sau khi xem phản hồi, tôi chú ý điều chỉnh những điểm cần sửa.</div>
+          <div class="sq-likert" id="lk_q15"><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q15', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="sq-card" data-qid="q16">
+          <div class="sq-qnum"><span>Q16</span><span class="sq-qnum-check">✓ Đã trả lời</span></div>
+          <div class="sq-text">Dựa vào phản hồi, tôi có thể tự kiểm tra phát âm của mình.</div>
+          <div class="sq-likert" id="lk_q16"><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 1)"><span class="sq-lbtn-n">1</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 2)"><span class="sq-lbtn-n">2</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 3)"><span class="sq-lbtn-n">3</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 4)"><span class="sq-lbtn-n">4</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 5)"><span class="sq-lbtn-n">5</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 6)"><span class="sq-lbtn-n">6</span><span class="sq-lbtn-dot"></span></button><button class="sq-lbtn" type="button" onclick="selectLikert('q16', 7)"><span class="sq-lbtn-n">7</span><span class="sq-lbtn-dot"></span></button></div>
+          <div class="sq-extremes"><span>Hoàn toàn không đồng ý</span><span>Hoàn toàn đồng ý</span></div>
+        </div>
+        <div class="free-divider">
+          <span class="free-divider-label">✏️ Câu hỏi mở (tùy chọn)</span>
+        </div>
+        <div class="sq-card free-card" data-qid="free1">
+          <div class="sq-qnum"><span>FREE1</span><span class="free-optional-tag">Tùy chọn</span></div>
+          <div class="sq-text">Trong phần phản hồi, nội dung nào giúp bạn nhiều nhất để hiểu hoặc sửa phát âm?</div>
+          <textarea class="sq-textarea" id="ta_free1" placeholder="Viết tự do" oninput="onFreeText('free1')"></textarea>
+        </div>
+        <div class="sq-card free-card" data-qid="free2">
+          <div class="sq-qnum"><span>FREE2</span><span class="free-optional-tag">Tùy chọn</span></div>
+          <div class="sq-text">Nội dung nào trong phần phản hồi khó hiểu hoặc cần được cải thiện?</div>
+          <textarea class="sq-textarea" id="ta_free2" placeholder="Viết tự do" oninput="onFreeText('free2')"></textarea>
+        </div>
+        <div class="sq-card free-card" data-qid="free3">
+          <div class="sq-qnum"><span>FREE3</span><span class="free-optional-tag">Tùy chọn</span></div>
+          <div class="sq-text">Sau khi xem phản hồi, khi thu âm lại, bạn đã cố gắng thay đổi điểm nào trong cách phát âm?</div>
+          <textarea class="sq-textarea" id="ta_free3" placeholder="Viết tự do" oninput="onFreeText('free3')"></textarea>
+        </div>
+  </div>
+
+  <div class="sq-submit-area">
+    <div class="sq-remain-note" id="remainNote">Còn 16 câu chưa trả lời</div>
+    <button class="sq-submit-btn" id="submitBtn" onclick="submitSurvey()">Gửi (0 / 16)</button>
+  </div>
+</div>
+
+<div id="doneScreen">
+  <div class="done-icon">🎉</div>
+  <div class="done-title">Khảo sát đã hoàn tất</div>
+  <div class="done-card">
+    <div class="done-card-msg">Cảm ơn bạn đã tham gia khảo sát!</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDgjCXlw3U10ZNbxS3IfSlyFZt0ZoLOg-o",
+  authDomain: "test01-b9256.firebaseapp.com",
+  projectId: "test01-b9256",
+  storageBucket: "test01-b9256.firebasestorage.app",
+  messagingSenderId: "506014539335",
+  appId: "1:506014539335:web:caf85876d582609a75db62"
+};
+
+var EXPERIMENT_ID  = "main_study";
+var STUDY_ID       = "";
+var SURVEY_TYPE    = "";
+var TOTAL_REQUIRED = 16;
+var REQUIRED_QIDS  = ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11","q12","q13","q14","q15","q16"];
+var FREE_QIDS      = ["free1","free2","free3"];
+
+var db = null, fbReady = false;
+var ALLOWED_IDS = [
+  "A01","A02","A03","A04","A05","A06","A07","A08","A09","A10",
+  "A11","A12","A13","A14","A15","A16","A17","A18","A19","A20","A21",
+  "B01","B02","B03","B04","B05","B06","B07","B08","B09","B10",
+  "B11","B12","B13","B14","B15","B16","B17","B18","B19","B20",
+  "A90","A91","B90","B91","ABC"
+];
+var LEARNER_ID = "", GROUP_CODE = "", SESSION_ID = "";
+var sessionStart = Date.now();
+var answers = {}, freeText = {}, LOG_BUFFER = [];
+
+(function recoverOldBuffer() {
+  try {
+    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith("survey_buffer_"); });
+    keys.forEach(function(k) {
+      var items = JSON.parse(localStorage.getItem(k) || "[]");
+      items.forEach(function(it) { LOG_BUFFER.push(it); });
+      localStorage.removeItem(k);
+    });
+  } catch(ignore) {}
+})();
+
+function onLearnerInput(input) {
+  var v = input.value.trim().toUpperCase();
+  input.value = v;
+  var errEl = document.getElementById("loginError");
+  var startBtn = document.getElementById("loginStart");
+  if (!v) { errEl.textContent = ""; startBtn.classList.remove("ready"); LEARNER_ID = ""; return; }
+  if (ALLOWED_IDS.indexOf(v) === -1) {
+    errEl.textContent = v.length >= 3 ? "⚠ Mã không hợp lệ" : "";
+    startBtn.classList.remove("ready"); LEARNER_ID = ""; return;
+  }
+  errEl.textContent = ""; LEARNER_ID = v; startBtn.classList.add("ready");
+}
+
+async function checkAlreadyCompleted(lid, expId) {
+  var REST_BASE = "https://firestore.googleapis.com/v1/projects/test01-b9256/databases/(default)/documents/experiments/" + expId;
+  var KEY = "AIzaSyDgjCXlw3U10ZNbxS3IfSlyFZt0ZoLOg-o";
+  try {
+    var res = await fetch(REST_BASE + "/learners/" + lid + "/sessions?key=" + KEY + "&pageSize=50");
+    if (!res.ok) return false;
+    var data = await res.json();
+    if (!data.documents || !data.documents.length) return false;
+    for (var j = 0; j < data.documents.length; j++) {
+      var sid = data.documents[j].name.split("/").pop();
+      var sv = await fetch(REST_BASE + "/learners/" + lid + "/sessions/" + sid + "/surveys/" + SURVEY_TYPE + "?key=" + KEY);
+      if (sv.ok) { var svData = await sv.json(); if (svData.fields) return true; }
+    }
+  } catch(e) { return false; }
+  return false;
+}
+
+async function doLogin() {
+  var raw = document.getElementById("learnerInput").value.trim().toUpperCase();
+  if (ALLOWED_IDS.indexOf(raw) === -1) {
+    document.getElementById("loginError").textContent = "⚠ Mã không hợp lệ"; return;
+  }
+  var expId = (raw === "ABC") ? "admin_test" : "main_study";
+  GROUP_CODE  = raw.charAt(0);
+  SURVEY_TYPE = "post_" + GROUP_CODE + "_v3";
+  STUDY_ID    = "survey_post_" + GROUP_CODE.toLowerCase() + "_v3";
+
+  var startBtn = document.getElementById("loginStart");
+  var errEl = document.getElementById("loginError");
+  startBtn.disabled = true; startBtn.textContent = "🔍 Đang kiểm tra..."; errEl.textContent = "";
+
+  var alreadyDone = await checkAlreadyCompleted(raw, expId);
+  if (alreadyDone) {
+    errEl.textContent = "⚠ Bạn đã nộp khảo sát này rồi";
+    startBtn.disabled = false; startBtn.textContent = "Bắt đầu →"; startBtn.classList.remove("ready"); return;
+  }
+
+  LEARNER_ID = raw; EXPERIMENT_ID = expId;
+  SESSION_ID = STUDY_ID + "_" + LEARNER_ID + "_" + new Date().toISOString().slice(0,19).replace(/[T:]/g, "-");
+  startBtn.disabled = false;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("surveyScreen").style.display = "block";
+  document.getElementById("topLearner").textContent = "ID " + LEARNER_ID;
+  initFirebase(); updateProgress();
+
+  window.addEventListener("beforeunload", function() {
+    sendLog("survey_session_end", { answered: Object.keys(answers).length, totalSec: Math.round((Date.now()-sessionStart)/1000) });
+    try { if (LOG_BUFFER.length>0) { localStorage.setItem("survey_buffer_"+SESSION_ID, JSON.stringify(LOG_BUFFER)); } } catch(ignore) {}
+  });
+  sendLog("survey_session_start", { surveyType: SURVEY_TYPE, learnerId: LEARNER_ID });
+}
+
+function initFirebase() {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore(); fbReady = true;
+    db.collection("experiments").doc(EXPERIMENT_ID).collection("learners").doc(LEARNER_ID)
+      .collection("sessions").doc(SESSION_ID)
+      .set({ learnerId:LEARNER_ID, sessionId:SESSION_ID, studyId:STUDY_ID, surveyType:SURVEY_TYPE,
+             group:GROUP_CODE, startedAt:firebase.firestore.FieldValue.serverTimestamp(),
+             userAgent:navigator.userAgent.slice(0,120), screenW:window.screen.width, screenH:window.screen.height
+           }, {merge:true}).catch(function(){});
+    flushLogBuffer(); setInterval(flushLogBuffer, 8000);
+  } catch(e) { console.warn("Firebase error:", e.message); }
+}
+
+function flushLogBuffer() {
+  if (!fbReady||!db||LOG_BUFFER.length===0) return;
+  var toSend = LOG_BUFFER.splice(0,20);
+  var batch = db.batch();
+  var col = db.collection("experiments").doc(EXPERIMENT_ID).collection("learners").doc(LEARNER_ID)
+               .collection("sessions").doc(SESSION_ID).collection("events");
+  toSend.forEach(function(item) {
+    batch.set(col.doc(), Object.assign(item, {ts:firebase.firestore.FieldValue.serverTimestamp(), buffered:true}));
+  });
+  batch.commit().catch(function() { LOG_BUFFER.unshift.apply(LOG_BUFFER, toSend); });
+}
+
+function sendLog(eventType, payload) {
+  var logData = {eventType:eventType, elapsed:Math.round((Date.now()-sessionStart)/1000), payload:payload||{}};
+  if (!fbReady||!db) { LOG_BUFFER.push(logData); return; }
+  db.collection("experiments").doc(EXPERIMENT_ID).collection("learners").doc(LEARNER_ID)
+    .collection("sessions").doc(SESSION_ID).collection("events")
+    .add(Object.assign(logData, {ts:firebase.firestore.FieldValue.serverTimestamp()}))
+    .catch(function() { LOG_BUFFER.push(logData); });
+}
+
+function selectLikert(qid, value) {
+  answers[qid] = value;
+  var card = document.querySelector('[data-qid="'+qid+'"]');
+  if (card) { card.classList.add("answered"); card.classList.remove("highlight"); }
+  var btns = document.querySelectorAll('#lk_'+qid+' .sq-lbtn');
+  btns.forEach(function(b){ b.classList.remove("sel"); });
+  if (btns[value-1]) btns[value-1].classList.add("sel");
+  updateProgress(); sendLog("survey_answer", {qid:qid, value:value});
+}
+
+function updateProgress() {
+  var answered = REQUIRED_QIDS.filter(function(q){ return answers[q]!==undefined; }).length;
+  var pct = Math.round(answered/TOTAL_REQUIRED*100);
+  document.getElementById("progFill").style.width = pct+"%";
+  document.getElementById("topProg").textContent = answered+" / "+TOTAL_REQUIRED;
+  var note = document.getElementById("remainNote");
+  var btn  = document.getElementById("submitBtn");
+  if (answered===TOTAL_REQUIRED) {
+    note.classList.add("done"); note.textContent="✓ Đã trả lời tất cả các câu bắt buộc";
+    btn.classList.add("ready"); btn.textContent="Gửi ("+answered+" / "+TOTAL_REQUIRED+")";
+  } else {
+    note.classList.remove("done");
+    var remain = TOTAL_REQUIRED-answered;
+    note.textContent="Còn "+remain+" câu chưa trả lời";
+    btn.classList.remove("ready"); btn.textContent="Gửi ("+answered+" / "+TOTAL_REQUIRED+")";
+  }
+}
+
+var freeTextDebounce={};
+function onFreeText(qid) {
+  if (freeTextDebounce[qid]) clearTimeout(freeTextDebounce[qid]);
+  freeTextDebounce[qid] = setTimeout(function(){
+    var ta=document.getElementById("ta_"+qid);
+    if(ta) sendLog("survey_freetext",{qid:qid,length:ta.value.length});
+  },1500);
+}
+
+function collectFreeText() {
+  var result={};
+  FREE_QIDS.forEach(function(qid){var ta=document.getElementById("ta_"+qid);if(ta)result[qid]=ta.value.trim();});
+  return result;
+}
+
+function submitSurvey() {
+  var missing = REQUIRED_QIDS.filter(function(q){return answers[q]===undefined;});
+  if (missing.length>0) {
+    showToast("⚠️ Còn "+missing.length+" câu chưa trả lời ("+missing[0].toUpperCase()+" ...)");
+    var firstCard = document.querySelector('[data-qid="'+missing[0]+'"]');
+    if (firstCard) { firstCard.classList.add("highlight"); firstCard.scrollIntoView({behavior:"smooth",block:"center"}); }
+    return;
+  }
+  if (!fbReady||!db) { showToast("⚠️ Kết nối Firebase thất bại. Vui lòng thử lại sau."); return; }
+  freeText = collectFreeText();
+  var data = {
+    learnerId:LEARNER_ID, surveyType:SURVEY_TYPE, studyId:STUDY_ID, sessionId:SESSION_ID,
+    group:GROUP_CODE, answers:answers, freeText:freeText,
+    elapsedSec:Math.round((Date.now()-sessionStart)/1000),
+    submittedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  var btn=document.getElementById("submitBtn");
+  btn.disabled=true; btn.textContent="⏳ Đang lưu...";
+  db.collection("experiments").doc(EXPERIMENT_ID).collection("learners").doc(LEARNER_ID)
+    .collection("sessions").doc(SESSION_ID).collection("surveys").doc(SURVEY_TYPE)
+    .set(data)
+    .then(function(){
+      sendLog("survey_submit",{surveyType:SURVEY_TYPE,answersCount:Object.keys(answers).length});
+      document.getElementById("surveyScreen").style.display="none";
+      document.getElementById("doneScreen").classList.add("show");
+      window.scrollTo(0,0);
+    })
+    .catch(function(e){
+      btn.disabled=false; showToast("❌ Lưu thất bại: "+((e.message||"")+"").slice(0,60));
+    });
+}
+
+function showToast(msg,ok) {
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.className=ok?"show ok":"show";
+  setTimeout(function(){t.className="";},3500);
+}
+</script>
+</body>
+</html>
