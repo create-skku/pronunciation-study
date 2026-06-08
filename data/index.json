@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-03T10:51:23.348681",
-  "count": 113,
+  "generated_at": "2026-06-08T10:13:03.451329",
+  "count": 114,
   "items": [
     {
       "learner_id": "A01",
@@ -436,6 +436,21 @@
       ],
       "ai_source": "claude",
       "data_file": "data/A10_W2.json"
+    },
+    {
+      "learner_id": "A10",
+      "week": 3,
+      "group": "A",
+      "t_type": "T3",
+      "t_type_source": "auto",
+      "built_at": "2026-06-08T10:10:21.607875",
+      "words": [
+        "gabang",
+        "ggamansaek",
+        "kadeu"
+      ],
+      "ai_source": "claude",
+      "data_file": "data/A10_W3.json"
     },
     {
       "learner_id": "A11",
