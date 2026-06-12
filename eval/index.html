@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한국어 파열음 발음 평가 v3</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;font-size:14px;background:#f0f0f0}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 100%)}
+.login-card{background:#fff;border-radius:16px;padding:36px 40px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:18px}
+.login-title{font-size:20px;font-weight:800;color:#1a1a1a;text-align:center}
+.login-sub{font-size:13px;color:#666;text-align:center;margin-top:-10px}
+.login-sep{border:none;border-top:1px solid #eee}
+.rater-label{font-size:12px;font-weight:600;color:#555}
+.rater-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.rb{height:42px;border-radius:8px;border:1px solid #ddd;font-size:15px;font-weight:700;cursor:pointer;background:#f5f5f5;color:#555;transition:all .12s}
+.rb:hover{background:#dbeafe;border-color:#3b82f6;color:#1d4ed8}
+.rb.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff;box-shadow:0 2px 8px rgba(29,78,216,.4)}
+.start-btn{height:46px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .12s}
+.start-btn:hover:not(:disabled){background:#1e40af}
+.start-btn:disabled{background:#93c5fd;cursor:not-allowed}
+.fb-status{font-size:11px;text-align:center;padding:6px 10px;border-radius:6px;font-weight:600}
+.fb-ok{background:#dcfce7;color:#166534}
+.fb-err{background:#fee2e2;color:#991b1b}
+.fb-loading{background:#f5f5f5;color:#888}
+
+/* ── MAIN SCREEN ──────────────────────────────────────────── */
+#main-screen{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#topbar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#fff;border-bottom:1px solid #ddd;flex-shrink:0;flex-wrap:wrap;min-height:48px}
+.logo{font-size:15px;font-weight:600;color:#1a1a1a;white-space:nowrap}
+.logo small{font-size:11px;color:#888;font-weight:400;margin-left:4px}
+.div{width:1px;height:20px;background:#ddd;flex-shrink:0}
+.rater-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:#dbeafe;border:1px solid #bfdbfe;border-radius:20px;font-size:12px;font-weight:700;color:#1d4ed8}
+.g-btn{padding:4px 13px;border-radius:6px;border:1px solid #ccc;font-size:13px;cursor:pointer;background:#f5f5f5;color:#555}
+.g-btn.on{background:#dbeafe;border-color:#3b82f6;color:#1d4ed8;font-weight:600}
+.nav-row{display:flex;align-items:center;gap:5px}
+.nb{width:28px;height:28px;border-radius:5px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#444}
+.nb:disabled{opacity:.35;cursor:default}
+#pid-select{height:28px;padding:0 6px;border:1px solid #ccc;border-radius:5px;font-size:13px;font-family:inherit;background:#fff;min-width:90px}
+.prog{font-size:12px;color:#666;background:#f5f5f5;border:1px solid #ddd;border-radius:20px;padding:3px 10px;white-space:nowrap}
+.prog b{color:#1d4ed8}
+.rbk-toggle{padding:4px 11px;border-radius:6px;border:1px solid #fde68a;background:#fffbeb;color:#854d0e;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.rbk-toggle:hover{background:#fef3c7}
+.end-btn{padding:4px 12px;border-radius:6px;border:1px solid #fca5a5;background:#fee2e2;color:#991b1b;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+.end-btn:hover{background:#fecaca}
+.fb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fb-dot.ok{background:#22c55e}
+.fb-dot.err{background:#ef4444}
+.fb-dot.loading{background:#f59e0b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+#main-wrap{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+
+/* ── WEEK BLOCK ───────────────────────────────────────────── */
+.wblock{background:#fff;border:1px solid #ddd;border-radius:10px;overflow:hidden}
+.wheader{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#f7f7f7;border-bottom:1px solid #ddd;cursor:pointer;user-select:none}
+.wheader:hover{background:#efefef}
+.wlabel{font-size:11px;font-weight:700;color:#888;letter-spacing:.6px}
+.wtitle{font-size:13px;font-weight:600;color:#222}
+.wstatus{margin-left:auto;font-size:11px;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.ws-done{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.ws-part{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.ws-none{background:#f5f5f5;color:#888;border:1px solid #ddd}
+.chev{font-size:13px;color:#999;transition:transform .15s;flex-shrink:0}
+.chev.open{transform:rotate(180deg)}
+.wbody{display:none}.wbody.open{display:block}
+
+/* ── COLUMN HEADERS ───────────────────────────────────────── */
+.chrow{display:grid;grid-template-columns:110px 1fr 1fr;background:#fcfcfc;border-bottom:1px solid #eee}
+.ch{padding:5px 10px;font-size:11px;font-weight:600;color:#777;display:flex;align-items:center;gap:5px}
+.ch.wc{border-right:1px solid #eee}.ch.pc{border-right:1px solid #eee}
+.tchip{font-size:10px;padding:1px 7px;border-radius:20px}
+.t-nat{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.t-pre{background:#f5f5f5;color:#555;border:1px solid #ddd}
+.t-post{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe}
+
+/* ── WORD ROW ─────────────────────────────────────────────── */
+.wrow{display:grid;grid-template-columns:110px 1fr 1fr;border-bottom:1px solid #eee}
+.wmeta{padding:10px;border-right:1px solid #eee;display:flex;flex-direction:column;gap:3px}
+.wname{font-size:13px;font-weight:600;color:#111}
+.wph{font-size:11px;color:#888}
+.wtype{font-size:10px;padding:1px 7px;border-radius:20px;display:inline-block;align-self:flex-start;margin-top:1px}
+.tp{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.tt{background:#fef9c3;color:#854d0e;border:1px solid #fde68a}
+.ta{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.nat-btn{margin-top:6px;display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;border:1px solid #bbf7d0;background:#dcfce7;color:#166534;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit}
+.nat-btn:hover{background:#bbf7d0}
+.nat-btn.playing{background:#166534;color:#fff}
+
+/* ── EVAL COLUMN ──────────────────────────────────────────── */
+.ecol{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.ecol.pc{border-right:1px solid #eee;background:#fff}
+.ecol.po{background:#faf8ff}
+.ps-row{display:flex;align-items:center;gap:6px}
+.pb{width:32px;height:32px;border-radius:50%;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
+.pb.pre{border-color:#3b82f6;color:#1d4ed8;background:#dbeafe}
+.pb.pre:hover{background:#bfdbfe}
+.pb.post{border-color:#7c3aed;color:#5b21b6;background:#ede9fe}
+.pb.post:hover{background:#ddd6fe}
+.pb.playing{background:#1e3a8a !important;color:#fff !important;border-color:#1e3a8a !important}
+.sbtns{display:flex;gap:3px;flex-wrap:wrap}
+.sc{width:28px;height:28px;border-radius:6px;border:1px solid #ddd;font-size:12px;font-weight:600;cursor:pointer;background:#f5f5f5;color:#555;display:flex;align-items:center;justify-content:center}
+.sc:hover{border-color:#999;background:#eee}
+.sc.s4{background:#dcfce7;border-color:#4ade80;color:#166534}
+.sc.s3{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8}
+.sc.s2{background:#fef9c3;border-color:#facc15;color:#854d0e}
+.sc.s1{background:#fee2e2;border-color:#f87171;color:#991b1b}
+.sc.s0{background:#fecaca;border-color:#ef4444;color:#7f1d1d}
+.sc.sna{background:#f0f0f0;border-color:#999;color:#444}
+
+/* ── DIRECTION ────────────────────────────────────────────── */
+.dir-section{display:flex;flex-direction:column;gap:4px}
+.dir-label{font-size:10px;color:#888;font-style:italic}
+.dir-label.req{color:#d97706;font-weight:600;font-style:normal}
+.dir-btns{display:flex;gap:3px;flex-wrap:wrap}
+.db{font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid #ddd;cursor:pointer;background:#f5f5f5;color:#555;font-family:inherit}
+.db:hover{border-color:#999}
+.db.on{background:#fef9c3;border-color:#d97706;color:#854d0e;font-weight:600}
+.mbox{width:100%;font-size:11px;padding:4px 7px;border-radius:5px;border:1px solid #ddd;background:#fff;color:#222;resize:none;height:28px;font-family:inherit}
+.mbox:focus{outline:none;border-color:#3b82f6}
+
+/* ── SAVE BUTTON ──────────────────────────────────────────── */
+.save-row{display:flex;align-items:center;gap:8px;margin-top:2px}
+.save-btn{padding:3px 12px;border-radius:5px;border:1px solid #ccc;background:#f0f0f0;color:#aaa;font-size:11px;font-weight:700;cursor:not-allowed;font-family:inherit;transition:all .12s;white-space:nowrap}
+.save-btn.ready{border-color:#86efac;background:#f0fdf4;color:#166534;cursor:pointer}
+.save-btn.ready:hover{background:#dcfce7}
+.save-btn.saving{opacity:.5;cursor:not-allowed}
+.saved-at{font-size:10px;color:#22c55e;font-weight:600;white-space:nowrap}
+
+/* ── RUBRIC PANEL ─────────────────────────────────────────── */
+.rubric-panel{padding:8px 12px 10px;background:#fffbeb;border-top:1px solid #fde68a;display:grid;grid-template-columns:1fr 2fr;gap:0 12px}
+.rubric-panel.hidden{display:none}
+.rbk-section-title{font-size:10px;font-weight:700;color:#92400e;letter-spacing:.4px;text-transform:uppercase;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid #fde68a}
+.rbk-factors{display:flex;flex-direction:column;gap:4px}
+.rbk-factor{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#444;line-height:1.4}
+.fnum{font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rbk-scores{display:flex;flex-direction:column;gap:3px}
+.rbk-score-row{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#333;line-height:1.4}
+.sbadge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;flex-shrink:0;min-width:22px;text-align:center;margin-top:1px}
+.sbg4{background:#dcfce7;color:#166534}.sbg3{background:#dbeafe;color:#1d4ed8}
+.sbg2{background:#fef9c3;color:#854d0e}.sbg1{background:#fee2e2;color:#991b1b}
+.sbg0{background:#fecaca;color:#7f1d1d}
+
+/* ── BOTTOM BAR ───────────────────────────────────────────── */
+#bottombar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff;border-top:1px solid #ddd;flex-shrink:0;flex-wrap:wrap}
+.sums{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.scard{background:#f5f5f5;border-radius:6px;padding:4px 10px;text-align:center;border:1px solid #eee;min-width:56px}
+.sl{font-size:10px;color:#888}.sv{font-size:14px;font-weight:700;color:#222}
+.save-count-card{background:#dcfce7;border-color:#bbf7d0}
+.save-count-card .sl{color:#166534}.save-count-card .sv{color:#166534}
+.next-btn{padding:7px 14px;border-radius:6px;background:#f5f5f5;border:1px solid #ccc;font-size:13px;font-weight:600;color:#222;cursor:pointer;font-family:inherit;white-space:nowrap}
+.next-btn:hover{background:#eee}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-title">🎧 발음 평가 도구</div>
+    <div class="login-sub">한국어 파열음 발음 평가 v3</div>
+    <hr class="login-sep">
+    <div class="rater-label">평가자 번호 선택</div>
+    <div class="rater-grid" id="rater-btns"></div>
+    <button class="start-btn" id="start-btn" disabled>평가 시작 →</button>
+    <div class="fb-status fb-loading" id="fb-status-login">Firebase 연결 확인 중…</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN SCREEN
+══════════════════════════════════════════════════════════ -->
+<div id="main-screen" style="display:none;flex-direction:column;height:100vh;overflow:hidden">
+  <div id="topbar"></div>
+  <div id="main-wrap"><div id="main"></div></div>
+  <div id="bottombar"></div>
+</div>
+
+<script>
+/* ── Firebase 설정 ─────────────────────────────────────────── */
+const FB_CONFIG={
+  apiKey:"AIzaSyDgjCXlw3U10ZNbxS3IfSlyFZt0ZoLOg-o",
+  authDomain:"test01-b9256.firebaseapp.com",
+  projectId:"test01-b9256",
+  storageBucket:"test01-b9256.firebasestorage.app",
+  messagingSenderId:"506014539335",
+  appId:"1:506014539335:web:caf85876d582609a75db62"
+};
+firebase.initializeApp(FB_CONFIG);
+const db=firebase.firestore();
+let fbOk=false;
+
+/* ── 앱 데이터 ─────────────────────────────────────────────── */
+const GROUPS={
+  A:['A01','A02','A03','A04','A05','A06','A07','A08','A09','A10','A11','A12','A13','A14','A15','A16','A17','A19'],
+  B:['B01','B02','B03','B04','B05','B06','B07','B08','B09','B10','B11','B12','B13','B14','B15','B16','B17','B18','B19','B20']
+};
+const WEEKS=[{id:'W1',title:'양순음 ㅂ — ㅃ — ㅍ'},{id:'W2',title:'치경음 ㄷ — ㄸ — ㅌ'},{id:'W3',title:'연구개음 ㄱ — ㄲ — ㅋ'}];
+const SVALS=['4','3','2','1','0','NA'];
+const WORDS=[
+  {week:'W1',key:'baji',label:'바지',phoneme:'/바/',tc:'tp',tl:'평음 ㅂ',
+   dir2:['경음 방향','격음 방향','불분명'],dir3:['경음 방향','격음 방향'],
+   factors:['/바/로 분명히 들리는가?','/빠/처럼 세게 끊기지 않는가?','/파/처럼 숨소리가 많이 섞이지 않는가?'],
+   s4:'/바/로 명확하게 들린다. /빠/, /파/와 쉽게 구별된다.',s3:'/바/로 들리지만 일부 특징이 불완전하다. → 경음 방향 / 격음 방향',
+   s2:'/바/와 /빠/ 또는 /바/와 /파/ 사이처럼 들려 판단하기 어렵다.',s1:'/빠/ 또는 /파/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㅂ-ㅃ-ㅍ과 관계없는 자음으로 들린다.'},
+  {week:'W1',key:'bbareuda',label:'빠르다',phoneme:'/빠/',tc:'tt',tl:'경음 ㅃ',
+   dir2:['평음 방향','격음 방향','불분명'],dir3:['평음 방향','격음 방향'],
+   factors:['/빠/로 분명히 들리는가?','첫소리가 짧고 단단하게 들리는가?','/파/처럼 숨소리가 많이 섞이지 않는가?'],
+   s4:'/빠/로 명확하게 들린다. 첫소리가 짧고 단단하며 /바/, /파/와 쉽게 구별된다.',s3:'/빠/로 들리지만 일부 특징이 불완전하다. → 평음 방향 / 격음 방향',
+   s2:'/빠/와 /바/ 또는 /빠/와 /파/ 사이처럼 들려 판단하기 어렵다.',s1:'/바/ 또는 /파/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㅂ-ㅃ-ㅍ과 관계없는 자음으로 들린다.'},
+  {week:'W1',key:'paransaek',label:'파란색',phoneme:'/파/',tc:'ta',tl:'격음 ㅍ',
+   dir2:['평음 방향','경음 방향','불분명'],dir3:['미달 방향','과잉 방향'],
+   factors:['/파/로 분명히 들리는가?','첫소리 뒤 숨이 충분히 나오는가?','/바/, /빠/처럼 숨소리가 약하게 들리지 않는가?'],
+   s4:'/파/로 명확하게 들린다. 숨소리가 충분하며 /바/, /빠/와 쉽게 구별된다.',s3:'/파/로 들리지만 기식 정도가 불완전하다. → 미달 방향 / 과잉 방향',
+   s2:'/파/와 /바/ 또는 /파/와 /빠/ 사이처럼 들려 판단하기 어렵다.',s1:'/바/ 또는 /빠/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㅂ-ㅃ-ㅍ과 관계없는 자음으로 들린다.'},
+  {week:'W2',key:'dari',label:'다리',phoneme:'/다/',tc:'tp',tl:'평음 ㄷ',
+   dir2:['경음 방향','격음 방향','불분명'],dir3:['경음 방향','격음 방향'],
+   factors:['/다/로 분명히 들리는가?','/따/처럼 세게 끊기지 않는가?','/타/처럼 숨소리가 많이 섞이지 않는가?'],
+   s4:'/다/로 명확하게 들린다. /따/, /타/와 쉽게 구별된다.',s3:'/다/로 들리지만 일부 특징이 불완전하다. → 경음 방향 / 격음 방향',
+   s2:'/다/와 /따/ 또는 /다/와 /타/ 사이처럼 들려 판단하기 어렵다.',s1:'/따/ 또는 /타/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄷ-ㄸ-ㅌ과 관계없는 자음으로 들린다.'},
+  {week:'W2',key:'ddatteut',label:'따뜻하다',phoneme:'/따/',tc:'tt',tl:'경음 ㄸ',
+   dir2:['평음 방향','격음 방향','불분명'],dir3:['평음 방향','격음 방향'],
+   factors:['/따/로 분명히 들리는가?','첫소리가 짧고 단단하게 들리는가?','/타/처럼 숨소리가 섞이지 않는가?'],
+   s4:'/따/로 명확하게 들린다. 첫소리가 짧고 단단하며 /다/, /타/와 쉽게 구별된다.',s3:'/따/로 들리지만 일부 특징이 불완전하다. → 평음 방향 / 격음 방향',
+   s2:'/따/와 /다/ 또는 /따/와 /타/ 사이처럼 들려 판단하기 어렵다.',s1:'/다/ 또는 /타/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄷ-ㄸ-ㅌ과 관계없는 자음으로 들린다.'},
+  {week:'W2',key:'tada',label:'타다',phoneme:'/타/',tc:'ta',tl:'격음 ㅌ',
+   dir2:['평음 방향','경음 방향','불분명'],dir3:['미달 방향','과잉 방향'],
+   factors:['/타/로 분명히 들리는가?','첫소리 뒤 숨이 충분히 나오는가?','/다/, /따/처럼 숨소리가 약하게 들리지 않는가?'],
+   s4:'/타/로 명확하게 들린다. 숨소리가 충분하며 /다/, /따/와 쉽게 구별된다.',s3:'/타/로 들리지만 기식 정도가 불완전하다. → 미달 방향 / 과잉 방향',
+   s2:'/타/와 /다/ 또는 /타/와 /따/ 사이처럼 들려 판단하기 어렵다.',s1:'/다/ 또는 /따/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄷ-ㄸ-ㅌ과 관계없는 자음으로 들린다.'},
+  {week:'W3',key:'gabang',label:'가방',phoneme:'/가/',tc:'tp',tl:'평음 ㄱ',
+   dir2:['경음 방향','격음 방향','불분명'],dir3:['경음 방향','격음 방향'],
+   factors:['/가/로 분명히 들리는가?','/까/처럼 세게 끊기지 않는가?','/카/처럼 숨소리가 많이 섞이지 않는가?'],
+   s4:'/가/로 명확하게 들린다. /까/, /카/와 쉽게 구별된다.',s3:'/가/로 들리지만 일부 특징이 불완전하다. → 경음 방향 / 격음 방향',
+   s2:'/가/와 /까/ 또는 /가/와 /카/ 사이처럼 들려 판단하기 어렵다.',s1:'/까/ 또는 /카/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄱ-ㄲ-ㅋ과 관계없는 자음으로 들린다.'},
+  {week:'W3',key:'ggamansaek',label:'까만색',phoneme:'/까/',tc:'tt',tl:'경음 ㄲ',
+   dir2:['평음 방향','격음 방향','불분명'],dir3:['평음 방향','격음 방향'],
+   factors:['/까/로 분명히 들리는가?','첫소리가 짧고 단단하게 들리는가?','/카/처럼 숨소리가 섞이지 않는가?'],
+   s4:'/까/로 명확하게 들린다. 첫소리가 짧고 단단하며 /가/, /카/와 쉽게 구별된다.',s3:'/까/로 들리지만 일부 특징이 불완전하다. → 평음 방향 / 격음 방향',
+   s2:'/까/와 /가/ 또는 /까/와 /카/ 사이처럼 들려 판단하기 어렵다.',s1:'/가/ 또는 /카/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄱ-ㄲ-ㅋ과 관계없는 자음으로 들린다.'},
+  {week:'W3',key:'kadeu',label:'카드',phoneme:'/카/',tc:'ta',tl:'격음 ㅋ',
+   dir2:['평음 방향','경음 방향','불분명'],dir3:['미달 방향','과잉 방향'],
+   factors:['/카/로 분명히 들리는가?','첫소리 뒤 숨이 충분히 나오는가?','/가/, /까/처럼 숨소리가 약하게 들리지 않는가?'],
+   s4:'/카/로 명확하게 들린다. 숨소리가 충분하며 /가/, /까/와 쉽게 구별된다.',s3:'/카/로 들리지만 기식 정도가 불완전하다. → 미달 방향 / 과잉 방향',
+   s2:'/카/와 /가/ 또는 /카/와 /까/ 사이처럼 들려 판단하기 어렵다.',s1:'/가/ 또는 /까/로 명확하게 들린다. (방향 메모 권장)',
+   s0:'첫소리가 빠지거나 ㄱ-ㄲ-ㅋ과 관계없는 자음으로 들린다.'}
+];
+
+/* ── 앱 상태 ───────────────────────────────────────────────── */
+let currentRater=null,currentSessionId=null;
+let scores={},savedSet=new Set(),saveCount=0;
+let currentGroup='A',currentPidIdx=0,weekOpen={W1:true,W2:false,W3:false},showRubric=true;
+let curAudio=null,curAudioBtn=null;
+
+/* ── Firebase 연결 확인 ────────────────────────────────────── */
+(async function checkFb(){
+  const el=document.getElementById('fb-status-login');
+  try{
+    await db.collection('pron_rater').limit(1).get();
+    fbOk=true;
+    el.className='fb-status fb-ok';
+    el.textContent='✓ Firebase 연결됨';
+    document.getElementById('start-btn').disabled=!currentRater;
+  }catch(e){
+    fbOk=false;
+    el.className='fb-status fb-err';
+    el.textContent='✗ Firebase 연결 실패 — 저장 불가';
+  }
+})();
+
+/* ── 로그인 UI ─────────────────────────────────────────────── */
+(function buildLoginBtns(){
+  const c=document.getElementById('rater-btns');
+  for(let i=1;i<=10;i++){
+    const id=String(i).padStart(2,'0');
+    const b=document.createElement('button');
+    b.className='rb';b.textContent=id;
+    b.onclick=()=>{
+      currentRater=id;
+      c.querySelectorAll('.rb').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      if(fbOk)document.getElementById('start-btn').disabled=false;
+    };
+    c.appendChild(b);
+  }
+})();
+
+document.getElementById('start-btn').addEventListener('click',function(){
+  if(!currentRater||!fbOk)return;
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  currentSessionId=`${currentRater}_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  scores={};savedSet=new Set();saveCount=0;
+  currentGroup='A';currentPidIdx=0;weekOpen={W1:true,W2:false,W3:false};showRubric=true;
+  document.getElementById('login-screen').style.display='none';
+  const ms=document.getElementById('main-screen');
+  ms.style.display='flex';
+  render();
+});
+
+/* ── 오디오 유틸 ───────────────────────────────────────────── */
+function stopAudio(){
+  if(curAudio){curAudio.pause();curAudio.currentTime=0;curAudio=null;}
+  if(curAudioBtn){curAudioBtn.classList.remove('playing');curAudioBtn=null;}
+}
+function playAudio(btn,path){
+  if(curAudioBtn===btn){stopAudio();return;}
+  stopAudio();
+  const a=new Audio(encodeURI(path));
+  curAudio=a;curAudioBtn=btn;btn.classList.add('playing');
+  a.play().catch(()=>{stopAudio();alert('재생 실패: '+path);});
+  a.onended=()=>stopAudio();
+}
+
+/* ── 경로 유틸 ─────────────────────────────────────────────── */
+function lPath(pid,wk,wkey,tm){return`clean_wav/${pid[0]}/${pid}/${wk}/${pid}_${wk}_${wkey}_${tm}_clean.wav`;}
+function nPath(wk,wkey){return`native/${wk}_${wkey}.mp3`;}
+
+/* ── 점수 상태 관리 ────────────────────────────────────────── */
+function getS(pid,wk,tm){return(scores[pid]&&scores[pid][wk]&&scores[pid][wk][tm])||{score:null,dir:null,memo:''};}
+function setS(pid,wk,tm,upd){
+  if(!scores[pid])scores[pid]={};
+  if(!scores[pid][wk])scores[pid][wk]={};
+  if(!scores[pid][wk][tm])scores[pid][wk][tm]={score:null,dir:null,memo:''};
+  Object.assign(scores[pid][wk][tm],upd);
+}
+
+/* ── Firebase 저장 ─────────────────────────────────────────── */
+async function saveRating(pid,wordKey,timing){
+  const sd=getS(pid,wordKey,timing);
+  if(sd.score===null){alert('점수를 먼저 선택하세요.');return;}
+  const word=WORDS.find(w=>w.key===wordKey);
+  const doc={
+    rater:currentRater,
+    sessionId:currentSessionId,
+    pid,group:pid[0],
+    week:word.week,wordKey,wordLabel:word.label,
+    timing,
+    score:sd.score,
+    dir:sd.dir||null,
+    memo:sd.memo||null,
+    savedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  // 버튼 saving 상태
+  const key=`${pid}_${wordKey}_${timing}`;
+  const btn=document.querySelector(`[data-save-key="${key}"]`);
+  if(btn){btn.textContent='저장 중…';btn.classList.remove('ready');btn.classList.add('saving');btn.disabled=true;}
+  try{
+    await db.collection('pron_rater').add(doc);
+    savedSet.add(key);
+    saveCount++;
+    const t=new Date();
+    const ts=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}`;
+    savedSet[key+'_ts']=ts; // timestamp 별도 저장
+    render();
+  }catch(e){
+    alert('저장 실패: '+e.message);
+    if(btn){btn.textContent='저장';btn.classList.add('ready');btn.classList.remove('saving');btn.disabled=false;}
+  }
+}
+
+/* ── 렌더 함수 ─────────────────────────────────────────────── */
+function ps(){return GROUPS[currentGroup];}
+function curPid(){return ps()[currentPidIdx];}
+function weekSc(pid,wid){
+  const ws=WORDS.filter(w=>w.week===wid);
+  let tot=0,pos=0,cnt=0;
+  for(const w of ws)for(const t of['전','후']){const s=getS(pid,w.key,t);if(s.score!==null){cnt++;if(s.score!=='NA'){tot+=+s.score;pos+=4;}}}
+  return{tot,pos,cnt,max:ws.length*2};
+}
+function render(){renderTop();renderMain();renderBot();document.getElementById('main-wrap').scrollTop=0;}
+
+function renderTop(){
+  const plist=ps();
+  const fbDot=fbOk?'ok':'err';
+  document.getElementById('topbar').innerHTML=`
+    <span class="logo">🎧 발음 평가 도구 <small>v3</small></span>
+    <div class="fb-dot ${fbDot}" title="Firebase ${fbOk?'연결됨':'연결 안됨'}"></div>
+    <span class="rater-chip">평가자 ${currentRater}</span>
+    <div class="div"></div>
+    <button class="g-btn ${currentGroup==='A'?'on':''}" data-group="A">A 그룹 (${GROUPS.A.length}명)</button>
+    <button class="g-btn ${currentGroup==='B'?'on':''}" data-group="B">B 그룹 (${GROUPS.B.length}명)</button>
+    <div class="div"></div>
+    <div class="nav-row">
+      <button class="nb" id="nav-prev" ${currentPidIdx===0?'disabled':''}>&#8249;</button>
+      <select id="pid-select">${plist.map((p,i)=>`<option value="${i}"${i===currentPidIdx?' selected':''}>${p}</option>`).join('')}</select>
+      <button class="nb" id="nav-next" ${currentPidIdx===plist.length-1?'disabled':''}>&#8250;</button>
+    </div>
+    <button class="rbk-toggle" id="rbk-toggle-btn">${showRubric?'루브릭 숨기기':'루브릭 보이기'}</button>
+    <button class="end-btn" id="end-btn">세션 종료</button>`;
+}
+
+function renderMain(){
+  const pid=curPid();
+  document.getElementById('main').innerHTML=WEEKS.map(wk=>{
+    const ws=weekSc(pid,wk.id),isOpen=weekOpen[wk.id];
+    let sc,st;
+    if(ws.cnt===ws.max&&ws.max>0){sc='ws-done';st=`${ws.cnt}/${ws.max} ✓`;}
+    else if(ws.cnt>0){sc='ws-part';st=`${ws.cnt}/${ws.max}`;}
+    else{sc='ws-none';st=`0/${ws.max}`;}
+    const wordBlocks=WORDS.filter(w=>w.week===wk.id).map(w=>buildWordBlock(pid,w)).join('');
+    return`<div class="wblock">
+      <div class="wheader" data-week-toggle="${wk.id}">
+        <span class="wlabel">${wk.id}</span><span class="wtitle">${wk.title}</span>
+        <span class="wstatus ${sc}">${st}</span>
+        <span class="chev ${isOpen?'open':''}">&#9660;</span>
+      </div>
+      <div class="wbody ${isOpen?'open':''}">
+        <div class="chrow">
+          <div class="ch wc">단어 &amp; <span class="tchip t-nat">원어민</span></div>
+          <div class="ch pc"><span class="tchip t-pre">▶ 전 (사전)</span></div>
+          <div class="ch"><span class="tchip t-post">▶ 후 (사후)</span></div>
+        </div>
+        ${wordBlocks}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildWordBlock(pid,word){
+  return`<div class="wrow">
+    <div class="wmeta">
+      <span class="wname">${word.label}</span>
+      <span class="wph">${word.phoneme}</span>
+      <span class="wtype ${word.tc}">${word.tl}</span>
+      <button class="nat-btn" data-audio="${nPath(word.week,word.key)}">▶ 원어민</button>
+    </div>
+    ${buildCol(pid,word,'전',lPath(pid,word.week,word.key,'전'))}
+    ${buildCol(pid,word,'후',lPath(pid,word.week,word.key,'후'))}
+  </div>
+  ${buildRubric(word)}`;
+}
+
+function buildCol(pid,word,timing,audioPath){
+  const sd=getS(pid,word.key,timing);
+  const sel=sd.score,isPost=timing==='후';
+  const btnCls=isPost?'post':'pre',colCls=isPost?'po':'pc';
+  const smap={'4':'s4','3':'s3','2':'s2','1':'s1','0':'s0','NA':'sna'};
+  const sBtns=SVALS.map(v=>{
+    const isSel=sel===v;
+    return`<button class="sc${isSel?' '+(smap[v]||'sna'):''}" data-pid="${pid}" data-word="${word.key}" data-timing="${timing}" data-sc="${v}">${v}</button>`;
+  }).join('');
+  let dirHtml='';
+  if(sel!==null&&sel!=='NA'&&sel!=='4'){
+    const n=+sel;
+    const dirs=n<=2?word.dir2:word.dir3;
+    const lbl=n<=2?'방향 메모 (필수):':'방향 메모 (선택):';
+    const lcls=n<=2?'req':'';
+    const dBtns=dirs.map(d=>`<button class="db ${sd.dir===d?'on':''}" data-pid="${pid}" data-word="${word.key}" data-timing="${timing}" data-dir="${d}">${d}</button>`).join('');
+    const memo=n<=2?`<textarea class="mbox" placeholder="간단 메모 (선택)" data-memo data-pid="${pid}" data-word="${word.key}" data-timing="${timing}">${sd.memo||''}</textarea>`:'';
+    dirHtml=`<div class="dir-section"><span class="dir-label ${lcls}">${lbl}</span><div class="dir-btns">${dBtns}</div>${memo}</div>`;
+  }
+  // 저장 버튼
+  const key=`${pid}_${word.key}_${timing}`;
+  const isSaved=savedSet.has(key);
+  const savedTs=savedSet[key+'_ts']||'';
+  const saveReady=sel!==null;
+  const saveBtnHtml=`<div class="save-row">
+    <button class="save-btn ${saveReady?'ready':''}" ${saveReady?'':'disabled'} data-save-key="${key}" data-save-pid="${pid}" data-save-word="${word.key}" data-save-timing="${timing}">저장</button>
+    ${isSaved?`<span class="saved-at">✓ ${savedTs} 저장됨</span>`:''}
+  </div>`;
+  return`<div class="ecol ${colCls}">
+    <div class="ps-row">
+      <button class="pb ${btnCls}" data-audio="${audioPath}">▶</button>
+      <div class="sbtns">${sBtns}</div>
+    </div>
+    ${dirHtml}
+    ${saveBtnHtml}
+  </div>`;
+}
+
+function buildRubric(word){
+  const hid=showRubric?'':'hidden';
+  const factors=word.factors.map((f,i)=>`<div class="rbk-factor"><span class="fnum">${i+1}</span><span>${f}</span></div>`).join('');
+  const scoreRows=[
+    `<div class="rbk-score-row"><span class="sbadge sbg4">4점</span><span>${word.s4}</span></div>`,
+    `<div class="rbk-score-row"><span class="sbadge sbg3">3점</span><span>${word.s3}</span></div>`,
+    `<div class="rbk-score-row"><span class="sbadge sbg2">2점</span><span>${word.s2}</span></div>`,
+    `<div class="rbk-score-row"><span class="sbadge sbg1">1점</span><span>${word.s1}</span></div>`,
+    `<div class="rbk-score-row"><span class="sbadge sbg0">0점</span><span>${word.s0}</span></div>`
+  ].join('');
+  return`<div class="rubric-panel ${hid}">
+    <div><div class="rbk-section-title">판단 요소</div><div class="rbk-factors">${factors}</div></div>
+    <div><div class="rbk-section-title">점수별 기준</div><div class="rbk-scores">${scoreRows}</div></div>
+  </div>`;
+}
+
+function renderBot(){
+  const pid=curPid();
+  const w1=weekSc(pid,'W1'),w2=weekSc(pid,'W2'),w3=weekSc(pid,'W3');
+  const plist=ps(),nxt=plist[currentPidIdx+1];
+  document.getElementById('bottombar').innerHTML=`
+    <div class="sums">
+      <div class="scard"><div class="sl">W1 선택</div><div class="sv">${w1.cnt>0?w1.cnt+'/'+w1.max:'—'}</div></div>
+      <div class="scard"><div class="sl">W2 선택</div><div class="sv">${w2.cnt>0?w2.cnt+'/'+w2.max:'—'}</div></div>
+      <div class="scard"><div class="sl">W3 선택</div><div class="sv">${w3.cnt>0?w3.cnt+'/'+w3.max:'—'}</div></div>
+      <div class="scard save-count-card"><div class="sl">Firebase 저장</div><div class="sv">${saveCount}</div></div>
+    </div>
+    ${nxt?`<button class="next-btn" id="next-btn">다음 ${nxt} ›</button>`:''}`;
+}
+
+/* ── 이벤트 핸들러 ─────────────────────────────────────────── */
+document.addEventListener('click',function(e){
+  // 오디오
+  const aEl=e.target.closest('[data-audio]');
+  if(aEl){playAudio(aEl,aEl.dataset.audio);return;}
+  // 저장 버튼
+  const saveEl=e.target.closest('[data-save-pid]');
+  if(saveEl&&!saveEl.disabled&&!saveEl.classList.contains('saving')){
+    saveRating(saveEl.dataset.savePid,saveEl.dataset.saveWord,saveEl.dataset.saveTiming);return;
+  }
+  // 점수 선택
+  const scEl=e.target.closest('[data-sc]');
+  if(scEl){
+    const{pid,word,timing,sc}=scEl.dataset;
+    const prev=getS(pid,word,timing);
+    const upd={score:sc};
+    if(sc==='4'||sc==='NA')upd.dir=null;
+    else if(prev.score!==null&&prev.score!==sc){
+      const pm=prev.score!=='NA'&&prev.score!=='4'&&+prev.score<=2;
+      const nm=sc!='NA'&&sc!='4'&&+sc<=2;
+      if(pm!==nm)upd.dir=null;
+    }
+    setS(pid,word,timing,upd);render();return;
+  }
+  // 방향
+  const dEl=e.target.closest('[data-dir]');
+  if(dEl){const{pid,word,timing,dir}=dEl.dataset;const prev=getS(pid,word,timing).dir;setS(pid,word,timing,{dir:prev===dir?null:dir});render();return;}
+  // 주차 토글
+  const wEl=e.target.closest('[data-week-toggle]');
+  if(wEl){weekOpen[wEl.dataset.weekToggle]=!weekOpen[wEl.dataset.weekToggle];render();return;}
+  // 그룹 전환
+  const gEl=e.target.closest('[data-group]');
+  if(gEl){currentGroup=gEl.dataset.group;currentPidIdx=0;stopAudio();render();return;}
+  // 이전/다음
+  if(e.target.id==='nav-prev'||e.target.closest('#nav-prev')){if(currentPidIdx>0){currentPidIdx--;stopAudio();render();}return;}
+  if(e.target.id==='nav-next'||e.target.closest('#nav-next')){if(currentPidIdx<ps().length-1){currentPidIdx++;stopAudio();render();}return;}
+  if(e.target.id==='next-btn'){if(currentPidIdx<ps().length-1){currentPidIdx++;stopAudio();render();}return;}
+  // 루브릭
+  if(e.target.id==='rbk-toggle-btn'){showRubric=!showRubric;render();return;}
+  // 세션 종료
+  if(e.target.id==='end-btn'){
+    if(confirm(`세션을 종료하고 로그인 화면으로 돌아갑니까?\n(이 세션에서 저장한 ${saveCount}건은 Firebase에 보관됩니다)`)){
+      stopAudio();
+      document.getElementById('main-screen').style.display='none';
+      document.getElementById('login-screen').style.display='flex';
+      currentRater=null;currentSessionId=null;
+      document.querySelectorAll('.rb').forEach(b=>b.classList.remove('on'));
+      document.getElementById('start-btn').disabled=true;
+    }
+    return;
+  }
+});
+document.addEventListener('change',function(e){
+  if(e.target.id==='pid-select'){currentPidIdx=+e.target.value;stopAudio();render();}
+});
+document.addEventListener('input',function(e){
+  const el=e.target.closest('[data-memo]');
+  if(el)setS(el.dataset.pid,el.dataset.word,el.dataset.timing,{memo:el.value});
+});
+</script>
+</body>
+</html>
